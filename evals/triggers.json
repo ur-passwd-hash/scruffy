@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "skill": "anti-slop",
+  "skill": "scruffy",
   "should_trigger": [
-    {"prompt": "$anti-slop audit https://example.com and give me the structural fixes", "mode": "audit"},
+    {"prompt": "$scruffy audit https://example.com and give me the structural fixes", "mode": "audit"},
     {"prompt": "Why does this web app feel AI-generated and generic? Test it before answering.", "mode": "audit"},
     {"prompt": "Redesign this dashboard so it stops looking like card soup, then verify the critical flows.", "mode": "redesign"},
     {"prompt": "Audit this screenshot for hierarchy and generic design patterns. Mark what cannot be verified.", "mode": "audit"},
@@ -20,6 +20,6 @@
     {"prompt": "Review the correctness of this backend authentication middleware.", "reason": "Non-interface code review."},
     {"prompt": "Summarize these YouTube transcripts.", "reason": "Research summarization alone does not invoke an interface audit."},
     {"prompt": "Fix a failing GitHub Actions test.", "reason": "Use a CI-debugging workflow."},
-    {"prompt": "Determine whether this student essay was written by AI and give me a probability.", "reason": "Anti-Slop audits observable interface quality and does not classify authorship."}
+    {"prompt": "Determine whether this student essay was written by AI and give me a probability.", "reason": "Scruffy audits observable interface quality and does not classify authorship."}
   ]
 }

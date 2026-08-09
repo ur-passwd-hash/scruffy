@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Anti-slop research intake (needs network access, yt-dlp, and optionally ffmpeg).
+Scruffy research intake (needs network access, yt-dlp, and optionally ffmpeg).
 
 Pulls YouTube design videos into the knowledge base:
   transcripts/<id>_<slug>.md   chapter-aligned transcript with frame refs

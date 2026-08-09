@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Migrate Anti-Slop decisions to a schema-v2 durable registry."""
+"""Migrate Scruffy decisions to a schema-v2 durable registry."""
 
 from __future__ import annotations
 

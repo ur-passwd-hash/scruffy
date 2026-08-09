@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the Anti-Slop revision, decision, and rendering invariants."""
+"""Exercise the Scruffy revision, decision, and rendering invariants."""
 
 from __future__ import annotations
 

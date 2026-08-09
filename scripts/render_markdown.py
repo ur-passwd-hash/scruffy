@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a complete Anti-Slop Markdown report from schema-v2 source data."""
+"""Render a complete Scruffy Markdown report from schema-v2 source data."""
 
 from __future__ import annotations
 
@@ -113,7 +113,7 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
             f"{bullets(order.get('acceptance_checks', []), 'No acceptance checks recorded.')}"
         )
 
-    title = clean(context.get("title", "Anti-Slop audit"))
+    title = clean(context.get("title", "Scruffy audit"))
     return f"""# {title}
 
 Target: {clean(registry.get('target', ''))}  

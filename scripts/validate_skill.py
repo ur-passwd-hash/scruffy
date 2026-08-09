@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Anti-Slop packaging and portability with the standard library."""
+"""Validate Scruffy packaging and portability with the standard library."""
 
 from __future__ import annotations
 
@@ -36,8 +36,8 @@ def validate_frontmatter(text: str) -> None:
     metadata = parse_frontmatter(text)
     if set(metadata) != {"name", "description"}:
         fail(f"SKILL.md frontmatter keys must be name and description; got {sorted(metadata)}")
-    if metadata["name"] != "anti-slop":
-        fail("SKILL.md name must be anti-slop")
+    if metadata["name"] != "scruffy":
+        fail("SKILL.md name must be scruffy")
     if not re.fullmatch(r"[a-z0-9-]{1,64}", metadata["name"]):
         fail("SKILL.md name is invalid")
     description = metadata["description"]
@@ -75,6 +75,7 @@ def validate_links(text: str) -> None:
 def validate_required_files() -> None:
     required = (
         "agents/openai.yaml",
+        "assets/scruffy-hero.png",
         "references/verification.md",
         "references/scoring.md",
         "references/output-schema.md",
@@ -195,15 +196,41 @@ def validate_blind_contract(text: str) -> None:
 def validate_openai_metadata() -> None:
     text = (ROOT / "agents/openai.yaml").read_text(encoding="utf-8")
     required_fragments = (
-        'display_name: "Anti-Slop"',
+        'display_name: "Scruffy"',
         "short_description:",
         "default_prompt:",
-        "$anti-slop",
+        "$scruffy",
         "allow_implicit_invocation: true",
     )
     missing = [fragment for fragment in required_fragments if fragment not in text]
     if missing:
         fail(f"agents/openai.yaml is missing: {missing}")
+
+
+def validate_public_brand() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    required = (
+        '<h1 align="center">Scruffy</h1>',
+        "assets/scruffy-hero.png",
+        "https://github.com/ur-passwd-hash/scruffy",
+        "$scruffy",
+        "/scruffy",
+        "~/.agents/skills/scruffy",
+        "~/.claude/skills/scruffy",
+        "internal `anti-slop-*` namespace",
+    )
+    missing = [fragment for fragment in required if fragment not in text]
+    if missing:
+        fail(f"README.md is missing Scruffy public-brand terms: {missing}")
+    forbidden = (
+        "assets/anti-slop-hero.png",
+        "ur-passwd-hash/anti-slop",
+        "$anti-slop",
+        "/anti-slop",
+    )
+    stale = [fragment for fragment in forbidden if fragment in text]
+    if stale:
+        fail(f"README.md contains stale Anti-Slop public identifiers: {stale}")
 
 
 def validate_trigger_evals() -> None:
@@ -212,8 +239,8 @@ def validate_trigger_evals() -> None:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         fail(f"trigger evaluation fixture is unreadable: {error}")
-    if data.get("skill") != "anti-slop":
-        fail("trigger evaluation fixture must name anti-slop")
+    if data.get("skill") != "scruffy":
+        fail("trigger evaluation fixture must name scruffy")
     positives = data.get("should_trigger")
     negatives = data.get("should_not_trigger")
     if not isinstance(positives, list) or len(positives) < 6:
@@ -327,13 +354,14 @@ def main() -> int:
     validate_sentence_contract(text)
     validate_blind_contract(text)
     validate_openai_metadata()
+    validate_public_brand()
     validate_trigger_evals()
     validate_archetype_evals()
     validate_sentence_evals()
     validate_portability()
     print(
         "PASS: metadata, trigger coverage, progressive-disclosure budget, local references, "
-        "durability, sentence, and blind contracts, Codex metadata, trigger/archetype/sentence evals, "
+        "durability, sentence, and blind contracts, Scruffy public brand, Codex metadata, trigger/archetype/sentence evals, "
         "required files, and portability"
     )
     return 0

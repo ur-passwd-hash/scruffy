@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that two agent installations expose the same Anti-Slop skill tree."""
+"""Verify that two agent installations expose the same Scruffy skill tree."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ from blind_protocol import tree_sha256
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("first", type=Path, help="First installed anti-slop directory")
-    parser.add_argument("second", type=Path, help="Second installed anti-slop directory")
+    parser.add_argument("first", type=Path, help="First installed Scruffy directory")
+    parser.add_argument("second", type=Path, help="Second installed Scruffy directory")
     args = parser.parse_args(argv)
 
     for label, path in (("first", args.first), ("second", args.second)):
         if not path.is_dir() or not (path / "SKILL.md").is_file():
-            print(f"FAIL: {label} path is not an Anti-Slop skill directory: {path}", file=sys.stderr)
+            print(f"FAIL: {label} path is not a Scruffy skill directory: {path}", file=sys.stderr)
             return 2
     first_hash = tree_sha256(args.first)
     second_hash = tree_sha256(args.second)

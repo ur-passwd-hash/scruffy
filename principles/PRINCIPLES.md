@@ -1,6 +1,6 @@
 # PRINCIPLES — a curated list of AI design principles
 
-**The source-of-truth corpus for the anti-slop skill.** This file is the growing, creditable, hand-tweakable layer; the skill's §C carries a compiled snapshot so it runs standalone. Edit here, then recompile §C via the skill's §I distillation pass — never patch §C directly, or the edit dies with the snapshot.
+**The source-of-truth corpus for the Scruffy skill.** This file is the growing, creditable, hand-tweakable layer; the skill's §C carries a compiled snapshot so it runs standalone. Edit here, then recompile §C via the skill's §I distillation pass — never patch §C directly, or the edit dies with the snapshot.
 
 **Citations:** `[video_id t]` = a YouTube video (`youtube.com/watch?v=<id>`) at that timestamp. §1–20 distill Kole Jain's channel (50 videos). §21–22 are field-derived axes validated for compilation on 2026-08-08. §23–27 distill the completed 18-video Priority 1 pilot; §28–32 record the 16-video targeted Priority 2 pilot. New creators enter via `scripts/intake.py`, get distilled into a new numbered section here, and inform the next reconciliation of the operational skill. Principles are distilled and attributed; no source text is reproduced.
 

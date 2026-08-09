@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to the public Anti-Slop skill are documented here.
+All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
+
+## 2.0.0 — 2026-08-09
+
+- Renamed the public skill, invocation, install directory, and repository from Anti-Slop to Scruffy.
+- Replaced MOP-1 with an original deadpan interface-janitor mascot and a completely new retro-cartoon hero scene.
+- Preserved the internal `anti-slop-*` durable-report and browser-storage namespace so existing audit registries, decisions, and dashboards remain compatible.
 
 ## 1.2.0 — 2026-08-09
 

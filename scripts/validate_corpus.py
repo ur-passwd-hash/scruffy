@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate anti-slop corpus coverage with Python's standard library only."""
+"""Validate Scruffy corpus coverage with Python's standard library only."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate durable Anti-Slop registries, decisions, and HTML dashboards."""
+"""Validate durable Scruffy registries, decisions, and HTML dashboards."""
 
 from __future__ import annotations
 

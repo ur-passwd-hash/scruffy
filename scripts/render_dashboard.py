@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a complete, self-contained Anti-Slop decision dashboard."""
+"""Render a complete, self-contained Scruffy decision dashboard."""
 
 from __future__ import annotations
 
@@ -146,7 +146,7 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
 
     registry_json = json.dumps(registry, ensure_ascii=False).replace("</", "<\\/")
     decisions_json = json.dumps(decision_doc, ensure_ascii=False).replace("</", "<\\/")
-    title = context.get("title", "Anti-Slop audit")
+    title = context.get("title", "Scruffy audit")
     target = registry.get("target", "")
     storage_key = f"anti-slop:{registry['audit_id']}:decisions:v2"
 
@@ -176,7 +176,7 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
   </style>
 </head>
 <body>
-  <header class="mast"><div class="wrap"><div><p class="eyebrow">Anti-Slop durable audit · {esc(registry['revision_id'])}</p><h1>{esc(title)}</h1><p class="target">{esc(target)}</p></div><div class="verdict">Overall result<strong>{esc(outcome.get('label','Insufficient evidence'))}</strong></div></div></header>
+  <header class="mast"><div class="wrap"><div><p class="eyebrow">Scruffy durable audit · {esc(registry['revision_id'])}</p><h1>{esc(title)}</h1><p class="target">{esc(target)}</p></div><div class="verdict">Overall result<strong>{esc(outcome.get('label','Insufficient evidence'))}</strong></div></div></header>
   <main class="wrap">
     <section id="outcome"><h2>Outcome</h2><p class="lede">{esc(outcome.get('summary',''))}</p><p class="section-note"><strong>Confidence:</strong> {esc(outcome.get('confidence','unknown'))} · <strong>Audit:</strong> {esc(registry['audit_id'])} · <strong>Baseline:</strong> {esc(registry.get('baseline_revision_id') or 'none')}</p></section>
     <section id="product-frame"><h2>Product frame</h2>{table_html(['Question','Answer','Basis'],product_rows)}</section>

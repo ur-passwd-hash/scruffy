@@ -1,25 +1,25 @@
 <p align="center">
-  <img src="assets/anti-slop-hero.png" alt="MOP-1 clearing generic interface sludge to reveal a deliberate interface" width="100%">
+  <img src="assets/scruffy-hero.png" alt="Scruffy the interface janitor cleaning generic UI sludge in a retro-future control room" width="100%">
 </p>
 
-<h1 align="center">Anti-Slop</h1>
+<h1 align="center">Scruffy</h1>
 
 <p align="center"><strong>Make the interface earn every pixel.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/ur-passwd-hash/anti-slop/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/anti-slop/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
+  <a href="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
   <img src="https://img.shields.io/badge/Agent%20Skills-compatible-13543e" alt="Agent Skills compatible">
   <img src="https://img.shields.io/badge/Codex%20%2B%20Claude-parity-c69b3f" alt="Codex and Claude parity">
   <img src="https://img.shields.io/badge/license-MIT-7a4f8f" alt="MIT license">
 </p>
 
-<p align="center"><sub><strong>MOP-1</strong>, the Anti-Slop inspector: ruthless about evidence, strangely enthusiastic about clean state models.</sub></p>
+<p align="center"><sub><strong>Scruffy</strong>, the interface janitor: unimpressed by card soup, relentless about evidence.</sub></p>
 
-**Anti-Slop is an evidence engine for interfaces that need to work better.** It gives Codex, Claude, and other Agent Skills-compatible agents a rigorous way to operate a product, challenge suspicions, separate real defects from taste, and turn verified failures into dependency-ordered work orders.
+**Scruffy is an evidence engine for interfaces that need to work better.** It gives Codex, Claude, and other Agent Skills-compatible agents a rigorous way to operate a product, challenge suspicions, separate real defects from taste, and turn verified failures into dependency-ordered work orders.
 
 It audits the whole experience: product clarity, information architecture, interaction state, implementation shape, visual hierarchy, copy, accessibility, and runtime performance.
 
-It is **not an AI detector**. Anti-Slop detects the mess, not the author. The same generic, fragile, synthetic-feeling failures appear in hand-written, template-derived, outsourced, and AI-generated work.
+It is **not an AI detector**. Scruffy cleans the mess, not the author. The same generic, fragile, synthetic-feeling failures appear in hand-written, template-derived, outsourced, and AI-generated work.
 
 ## What you get
 
@@ -35,7 +35,7 @@ It is **not an AI detector**. Anti-Slop detects the mess, not the author. The sa
 ## Sixty-second start
 
 ```sh
-git clone https://github.com/ur-passwd-hash/anti-slop.git
+git clone https://github.com/ur-passwd-hash/scruffy.git
 ```
 
 ```sh
@@ -43,19 +43,19 @@ mkdir -p ~/.agents/skills
 ```
 
 ```sh
-ln -s "$(pwd)/anti-slop" ~/.agents/skills/anti-slop
+ln -s "$(pwd)/scruffy" ~/.agents/skills/scruffy
 ```
 
 Then ask Codex:
 
 ```text
-$anti-slop audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test sentence quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
+$scruffy audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test sentence quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
 ```
 
 Or ask Claude Code:
 
 ```text
-/anti-slop audit https://example.com end to end. Challenge every suspicion and show me the cleared ones too.
+/scruffy audit https://example.com end to end. Challenge every suspicion and show me the cleared ones too.
 ```
 
 ## What it improves
@@ -129,7 +129,7 @@ Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced 
 
 ## Install
 
-This repository follows the [Agent Skills specification](https://agentskills.io/specification). Clone or copy it so the installed skill directory is named `anti-slop`.
+This repository follows the [Agent Skills specification](https://agentskills.io/specification). Clone or copy it so the installed skill directory is named `scruffy`.
 
 ### Codex
 
@@ -137,20 +137,20 @@ Install for all projects:
 
 ```sh
 mkdir -p ~/.agents/skills
-ln -s /absolute/path/to/anti-slop ~/.agents/skills/anti-slop
+ln -s /absolute/path/to/scruffy ~/.agents/skills/scruffy
 ```
 
 Or install only for one repository:
 
 ```sh
 mkdir -p .agents/skills
-ln -s /absolute/path/to/anti-slop .agents/skills/anti-slop
+ln -s /absolute/path/to/scruffy .agents/skills/scruffy
 ```
 
 Invoke explicitly:
 
 ```text
-$anti-slop audit https://example.com and prioritize the structural fixes
+$scruffy audit https://example.com and prioritize the structural fixes
 ```
 
 Codex may also invoke the skill implicitly when a request matches the `SKILL.md` description.
@@ -161,13 +161,13 @@ Link the same source directory so Codex and Claude cannot drift:
 
 ```sh
 mkdir -p ~/.claude/skills
-ln -s /absolute/path/to/anti-slop ~/.claude/skills/anti-slop
+ln -s /absolute/path/to/scruffy ~/.claude/skills/scruffy
 ```
 
 Invoke explicitly:
 
 ```text
-/anti-slop audit https://example.com and prioritize the structural fixes
+/scruffy audit https://example.com and prioritize the structural fixes
 ```
 
 [Claude Code supports](https://code.claude.com/docs/en/skills) personal skills at this location and direct `/skill-name` invocation. The runtime instructions remain vendor-neutral; the link only selects the same installed source tree.
@@ -179,8 +179,8 @@ Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-b
 ## Repository layout
 
 ```text
-anti-slop/
-├── assets/anti-slop-hero.png     # MOP-1 README banner
+scruffy/
+├── assets/scruffy-hero.png       # Scruffy README banner
 ├── SKILL.md                     # concise runtime instructions and routing
 ├── agents/openai.yaml           # optional Codex UI metadata
 ├── references/
@@ -241,6 +241,8 @@ python3 scripts/test_sentence_blind_runner.py
 ```
 
 The first checks metadata, progressive-disclosure budgets, referenced files, durability and blind-audit terms, sentence and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, sentence false-positive guards, blind-output immutability, and contamination rejection.
+
+Compatibility note: durable report markers and browser-storage keys retain the internal `anti-slop-*` namespace so existing registries, dashboards, and decisions remain readable after the rename. This does not affect `$scruffy` or `/scruffy` invocation.
 
 ## Repeat an audit without losing history
 

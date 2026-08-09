@@ -1,6 +1,6 @@
 # Contributing
 
-Anti-Slop is evidence-first. Contributions should make the method more accurate, portable, or falsifiable—not merely add more disliked styles to a blacklist.
+Scruffy is evidence-first. Contributions should make the method more accurate, portable, or falsifiable—not merely add more disliked styles to a blacklist.
 
 ## Before opening a change
 

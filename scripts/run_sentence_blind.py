@@ -103,7 +103,7 @@ def run_packet(samples: list[dict[str, Any]], agent: str) -> dict[str, Any]:
         "schema_version": "1.0",
         "phase": "blind_discovery",
         "agent": agent,
-        "skill_invoked": "anti-slop",
+        "skill_invoked": "scruffy",
         "authorship_assessment": "not_performed",
         "capabilities": [
             {"capability": "unlabeled text packet", "status": "available"},
