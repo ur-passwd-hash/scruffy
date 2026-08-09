@@ -1,0 +1,34 @@
+# Changelog
+
+All notable changes to the public Anti-Slop skill are documented here.
+
+## 1.2.0 — 2026-08-09
+
+- Added a research-grounded sentence-slop axis that measures copy-quality leads without classifying AI authorship.
+- Added length thresholds, compound finding predicates, explicit non-native and genre false-positive guards, and deterministic standard-library analysis.
+- Added six sentence-copy fixtures covering formulaic prose, UI filler, technical passive voice, supplied non-native context, concrete prose, and insufficient samples.
+- Added a two-phase blind-audit protocol with allowed/forbidden-input manifests, skill and prompt hashes, frozen discovery digests, contamination rejection, and post-reveal reconciliation.
+- Added blind-protocol and sentence-detector regression suites to package validation and CI.
+- Documented shared-source installation and direct invocation for both Codex and Claude Code.
+
+## 1.1.0 — 2026-08-08
+
+- Added schema-v2 audit registries with immutable IDs, identity keys, revision lineage, and explicit carry/fix/clear/merge/supersede dispositions.
+- Made shortlist limits presentation-only and required all active, resolved, merged, and cleared records in durable reports.
+- Added decision migration with retained notes and history.
+- Added a self-contained dashboard renderer and validators for registry continuity, decision coverage, required sections, and complete item rendering.
+- Added positive and negative durability fixtures plus an executable regression suite.
+- Added application-archetype probes for reference/course, SaaS, transactional, forms/settings, data-heavy, collaboration/realtime, media/editor, marketing/static, and hybrid interfaces.
+- Reconciled the American Mahjong Course audit as the golden cross-revision test case.
+
+## 1.0.0 — 2026-08-08
+
+- Converted the original Claude-oriented instruction set to the Agent Skills standard.
+- Added Codex metadata and explicit/implicit `$anti-slop` invocation support.
+- Replaced the monolithic runtime file with progressive-disclosure verification, scoring, and output references.
+- Added capability preflight, privacy boundaries, falsification, calibrated severity/confidence, and checks-not-run behavior.
+- Made interactive HTML optional with Markdown and JSON fallbacks.
+- Added deterministic package and corpus validators plus trigger evaluation fixtures.
+- Renamed `tools/` to the conventional `scripts/` directory.
+- Added agent-agnostic installation guidance, contributing rules, and CI validation.
+- Validated the method against the American Mahjong Course public test bed.

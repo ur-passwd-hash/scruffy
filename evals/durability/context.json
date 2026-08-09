@@ -1,0 +1,11 @@
+{
+  "title": "Durability fixture",
+  "outcome": {"label": "Sound with material gaps", "summary": "A synthetic audit used to prove revision continuity.", "confidence": "high"},
+  "product_frame": [{"question": "Who is it for?", "answer": "Fixture users", "basis": "supplied"}],
+  "tasks": [{"id": "T1", "goal": "Navigate and share", "result": "Share failed", "status": "fail", "evidence": "URL unchanged"}],
+  "capabilities": [{"capability": "Source and rendered UI", "status": "available", "scope": "fixture"}],
+  "scores": [{"category": "Information architecture", "score": "2", "evidence": "Addressability failure"}],
+  "work_orders": [{"id": "WO-01", "title": "Add route contract", "item_ids": ["AS-01", "AS-02"], "summary": "Represent state in the address.", "acceptance_checks": ["Copied URLs reopen the same state."], "verification": "Navigation regression test"}],
+  "checks_not_run": ["No performance trace; synthetic fixture."],
+  "evidence_assets": {}
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Quality-signal evaluation; no case has or needs an authorship label.",
+  "cases": [
+    {
+      "id": "formulaic-product-prose",
+      "mode": "prose",
+      "context": "general",
+      "text": "What if your work could feel seamless and powerful? What if your team could unlock transformative possibilities? What if every moment could elevate your journey? Here is the truth: innovation changes everything when organizations embrace a meaningful journey. Here is the truth: transformation creates meaningful impact when teams reimagine their potential. It is not about doing more, but about elevating every moment with powerful possibilities. It is not about moving faster, but about unlocking the next level through a seamless experience. Ultimately, the journey is about empowering people to create meaningful impact across an evolving landscape. Ultimately, the journey is about reimagining potential and elevating what is possible for everyone. Whether you are starting today or scaling tomorrow, the key is a transformative experience. Whether you are exploring possibilities or pursuing impact, the key is seamless innovation.",
+      "expected_leads": ["repeated_openings", "rhetorical_question_density", "formulaic_scaffolds", "detail_sparsity"],
+      "review_needed": true
+    },
+    {
+      "id": "technical-passive-is-not-authorship",
+      "mode": "prose",
+      "context": "technical",
+      "text": "Samples were refrigerated at 4 degrees Celsius after collection. Each vial was labeled with the participant code and collection date. The assay was run in duplicate on Tuesday. Results were normalized against the control plate. Outliers were removed only when the preregistered threshold was exceeded. The final table was checked by two analysts before release. Raw measurements were retained in the repository for 30 days. The procedure was repeated for batch 17 after the control failed. No result was reported until both analysts signed the review log.",
+      "expected_leads": ["passive_candidates"],
+      "review_needed": false
+    },
+    {
+      "id": "simple-supplied-nonnative-context",
+      "mode": "prose",
+      "context": "nonnative",
+      "text": "Our shop opens at nine each morning. We sell bread that we bake before sunrise. We write the price beside every loaf. We keep yesterday's bread on a separate shelf. We give that bread to the food bank at six. Customers can ask us about wheat, eggs, or nuts. We answer with the recipe card from the kitchen. We close at seven each evening. We clean the ovens after the last customer leaves. We post tomorrow's menu on the front door before we go home.",
+      "expected_leads": ["cadence_uniformity"],
+      "review_needed": false
+    },
+    {
+      "id": "distinctive-concrete-prose",
+      "mode": "prose",
+      "context": "general",
+      "text": "At 6:12 on Friday morning, Maya opened the bakery and found the proofing cabinet at 52 degrees instead of 78. The rye loaves had barely risen. She moved forty trays to the warm oven, called the Elm Street café, and pushed its delivery from seven to eight. That solved the immediate problem, but it left the Saturday crew guessing. The new dashboard now records cabinet temperature every five minutes. When a reading falls below 74, it names the affected batch, texts the opener, and starts a fifteen-minute recovery timer. A red banner alone would have been useless while Maya's hands were covered in flour; the text message includes one button that acknowledges the alert. After three weeks, the bakery had two overnight drops. Both were caught before mixing began, and neither delayed a delivery. The owner still keeps the paper checklist beside the ovens because a dead phone should not stop breakfast.",
+      "forbidden_leads": ["detail_sparsity", "rhetorical_question_density", "formulaic_scaffolds"],
+      "review_needed": false
+    },
+    {
+      "id": "repeated-ui-filler",
+      "mode": "ui",
+      "context": "general",
+      "items": [
+        {"surface": "hero", "text": "Unlock your potential"},
+        {"surface": "feature-1", "text": "Unlock your possibilities"},
+        {"surface": "feature-2", "text": "Unlock your journey"},
+        {"surface": "feature-3", "text": "Unlock your impact"},
+        {"surface": "section-1", "text": "Here is the truth: powerful work starts here"},
+        {"surface": "section-2", "text": "Here is the truth: meaningful work starts here"},
+        {"surface": "cta-1", "text": "It is not about tools, but transformation"},
+        {"surface": "cta-2", "text": "It is not about tasks, but possibility"}
+      ],
+      "expected_leads": ["repeated_openings", "formulaic_scaffolds"],
+      "review_needed": true
+    },
+    {
+      "id": "single-error-needs-human-clarity-review",
+      "mode": "ui",
+      "context": "general",
+      "items": [
+        {"surface": "account-banner", "text": "Your account was suspended."}
+      ],
+      "forbidden_leads": ["cadence_uniformity"],
+      "review_needed": false
+    }
+  ]
+}

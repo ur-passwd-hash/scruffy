@@ -1,0 +1,76 @@
+# Contributing
+
+Anti-Slop is evidence-first. Contributions should make the method more accurate, portable, or falsifiable—not merely add more disliked styles to a blacklist.
+
+## Before opening a change
+
+1. Decide whether the change belongs in runtime instructions, a progressive-disclosure reference, the research corpus, a script, or an evaluation fixture.
+2. Preserve agent, vendor, framework, browser, and operating-system neutrality in `SKILL.md` and `references/`.
+3. Separate an observable predicate from personal taste. A new negative rule needs user/task impact, a way to verify it, and a false-positive guard.
+4. Keep research provenance intact. Distill and attribute sources; do not reproduce transcripts or copyrighted source text.
+
+## Research contributions
+
+Use `scripts/intake.py` to collect caption working material. `transcripts/` and `frames/` are intentionally ignored and must not be committed.
+
+For a durable principle:
+
+1. Register the source and its status in `principles/SOURCES.md`.
+2. Add the distilled rule to a numbered section in `principles/PRINCIPLES.md` with the repository’s citation format.
+3. Include what would disprove or limit the rule.
+4. Reconcile `SKILL.md` or `references/` only when the operational method must change.
+5. Run both validators.
+
+Promotional tool demonstrations, trend galleries, and uncited aesthetic claims may inform a hypothesis but are not sufficient foundations for a general rule.
+
+## Runtime changes
+
+- Keep `SKILL.md` below 500 lines and the repository’s conservative 4,000-word proxy.
+- Put detailed protocols in one-level `references/` files and link them directly from `SKILL.md`.
+- Do not require a named agent, browser driver, framework, package manager, OS path, or proprietary service.
+- Capability-dependent steps need an explicit fallback and a **not run** state.
+- Never make HTML output, screenshots, source access, or implementation access prerequisites for a valid static audit.
+- Do not weaken the privacy boundary around passwords, cookies, tokens, or browser-storage contents.
+
+## Evaluation fixtures
+
+Update `evals/triggers.json` when the skill description changes. Positive cases should cover natural-language requests and explicit invocation. Negative cases should protect against security-only, backend-only, image-generation, and unrelated research tasks.
+
+Changes to application coverage must update `references/archetypes.md` and `evals/archetypes.json`. Every archetype needs concrete task probes; a named category without observable probes is not coverage.
+
+Changes to sentence-copy detection must update `references/sentence-slop.md`, `evals/sentence-slop/cases.json`, and the sentence regression suite. No fixture may use or expect an authorship label. Add a false-positive case for every new signal or threshold.
+
+Changes to blind-audit behavior must preserve quarantine before discovery, temporary candidate IDs, digest freeze before reveal, and contamination rejection. Never place a live blind test's evaluation key in an agent-readable packet.
+
+Changes to findings, decisions, reporting, or repeat-audit behavior must preserve these invariants:
+
+- An existing ID keeps the same `identity_key` and `first_seen_revision`.
+- Every baseline item receives an explicit revision disposition.
+- A resolved item can become active only as `reopened`.
+- Merged and superseded items retain their original records and point to a destination.
+- Non-pending decisions and their history survive migration unless a user explicitly changes them.
+- Presentation limits never remove entries from the registry, HTML, or Markdown report.
+
+## Validation
+
+```sh
+python3 scripts/validate_skill.py
+python3 scripts/validate_corpus.py
+python3 scripts/test_durability.py
+python3 scripts/test_sentence_slop.py
+python3 scripts/test_blind_protocol.py
+```
+
+When editing registry tooling, also prove the expected failure. The durability suite includes invalid fixtures for silent omission and ID reuse; add another invalid fixture when introducing a new invariant.
+
+For a behavioral change, also run the skill against a real or reproducible interface and record:
+
+- Capabilities available and checks not run
+- Representative tasks
+- Verified findings and cleared suspicions
+- Severity and confidence
+- Regressions after any implementation
+
+## Pull requests
+
+Describe the failure class, evidence, false-positive guard, files changed, and validation performed. Do not include generated transcripts, browser secrets, private application data, or claims that were not reproduced.

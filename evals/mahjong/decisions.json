@@ -1,0 +1,27 @@
+{
+  "schema_version": "2.0",
+  "audit_id": "mahjong-course-excember",
+  "revision_id": "mahjong-2026-08-08-codex-r2",
+  "baseline_revision_id": "mahjong-2026-08-08-v11",
+  "decisions": [
+    {"item_id": "AS-01", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-02", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-03", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-04", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-05", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-06", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-07", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-08", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-09", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-10", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "AS-11", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "BE-01", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "ENH-1", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "ENH-2", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "ENH-3", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": "AS-02", "history": []},
+    {"item_id": "ENH-4", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "ENH-5", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
+    {"item_id": "ENH-6", "decision": "pending", "note": "", "updated_at": null, "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "ENH-7", "decision": "pending", "note": "", "updated_at": null, "decision_source": "current", "destination_id": null, "history": []}
+  ]
+}

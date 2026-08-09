@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {"archetype": "reference-course", "reference_heading": "Reference, course, or documentation", "prompt": "Audit a 40-lesson certification course used across multiple sittings.", "required_probes": ["find-known-term", "find-unfamiliar-term", "resume", "deep-link", "sequential-navigation", "print-or-export"]},
+    {"archetype": "saas-dashboard", "reference_heading": "SaaS dashboard or operations surface", "prompt": "Audit an operations dashboard with filters, tables, alerts, and role-based data.", "required_probes": ["decision-purpose", "filter-clear", "stale-data", "drill-down-return", "permissions", "dense-keyboard"]},
+    {"archetype": "transactional", "reference_heading": "Transactional, ecommerce, booking, or payment", "prompt": "Audit an ecommerce checkout with inventory and payment steps.", "required_probes": ["browse-to-confirmation", "price-change", "validation-retry", "duplicate-submit", "auth-return", "irreversible-review"]},
+    {"archetype": "forms-settings", "reference_heading": "Form, onboarding, settings, or account management", "prompt": "Audit a multi-step onboarding and account settings experience.", "required_probes": ["partial-draft", "invalid-valid", "save-failure", "resume-reset", "conditional-fields", "focus-after-error"]},
+    {"archetype": "data-heavy", "reference_heading": "Data-heavy, analytic, or developer tool", "prompt": "Audit a query tool with large results, filters, exports, and timestamps.", "required_probes": ["running-partial-complete", "large-results", "reproducible-state", "units-timezones", "freshness-provenance", "non-color-status"]},
+    {"archetype": "collaboration-realtime", "reference_heading": "Collaboration, messaging, or realtime", "prompt": "Audit a collaborative inbox with optimistic updates and reconnect behavior.", "required_probes": ["conflict", "reconnect", "ordering", "permissions", "offline-queue", "dynamic-announcement"]},
+    {"archetype": "media-editor", "reference_heading": "Media, creative, canvas, or editor", "prompt": "Audit a browser-based editor with import, undo, autosave, and export.", "required_probes": ["import-edit-export", "undo-redo", "selection-shortcuts", "large-session", "unsaved-work", "capability-state"]},
+    {"archetype": "marketing-static", "reference_heading": "Marketing, landing, or static content", "prompt": "Audit a product landing page with one lead form and customer proof.", "required_probes": ["audience-outcome", "conversion-path", "proof-provenance", "mobile-reading", "layout-stability", "no-invented-app-states"]},
+    {"archetype": "hybrid-unknown", "reference_heading": "Hybrid or unknown product", "prompt": "Audit an unfamiliar hybrid web product without assuming it needs every SaaS state.", "required_probes": ["universal-module", "derive-visible-tasks", "classify-as-inference", "add-only-applicable-modules", "record-not-run", "avoid-invented-requirements"]}
+  ]
+}

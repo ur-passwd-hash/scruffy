@@ -1,0 +1,32 @@
+name: Validate skill
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Agent Skill package
+        run: python3 scripts/validate_skill.py
+      - name: Validate research corpus
+        run: python3 scripts/validate_corpus.py
+      - name: Test durable audit revisions
+        run: python3 scripts/test_durability.py
+      - name: Test sentence-slop signals and guards
+        run: python3 scripts/test_sentence_slop.py
+      - name: Test blind-audit integrity
+        run: python3 scripts/test_blind_protocol.py
+      - name: Test blind-output evaluator
+        run: python3 scripts/test_blind_evaluator.py
+      - name: Test deterministic sentence blind runner
+        run: python3 scripts/test_sentence_blind_runner.py

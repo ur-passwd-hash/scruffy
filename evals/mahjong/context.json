@@ -1,0 +1,64 @@
+{
+  "title": "American Mahjong Course · durable anti-slop audit",
+  "outcome": {
+    "label": "Sound with material gaps",
+    "summary": "The course is distinctive and usable, not generic visual slop. Material gaps remain in route addressability, contents scalability, semantic page changes, contrast, and implementation shape. All seventeen records from the prior dashboard are reconciled: none disappeared, five are now fixed, cleared, or merged, four need targeted verification, and two new enhancements plus three strengths were added.",
+    "confidence": "high for registry continuity and sampled source, tasks, responsive behavior, and contrast; moderate for items explicitly marked needs-verification"
+  },
+  "product_frame": [
+    {"question": "Who is it for?", "answer": "An adult beginner learning American Mahjong, often before joining experienced players at a physical table.", "basis": "observed and inferred"},
+    {"question": "What job does it perform?", "answer": "Teach rules and table procedure as a sequenced, resumable course.", "basis": "observed"},
+    {"question": "What is the primary action?", "answer": "Read a lesson, operate its learning control, and advance.", "basis": "observed"},
+    {"question": "What is meaningfully different?", "answer": "A self-contained, visually Mahjong-specific course with reveals, transcript, speech, progress, and print support.", "basis": "observed"},
+    {"question": "Why return?", "answer": "Continue a thirty-two-page course across interrupted sittings and retrieve rules before play.", "basis": "observed"},
+    {"question": "What means success?", "answer": "A learner can find and correctly apply a rule at the table.", "basis": "inferred and task-tested"}
+  ],
+  "tasks": [
+    {"id": "T1", "goal": "Resume progress after reload", "result": "Advanced from page 27 to 28, reloaded, and remained on page 28.", "status": "pass", "evidence": "Visible-state behavioral test; no browser-storage contents inspected."},
+    {"id": "T2", "goal": "Find what a Joker can never do", "result": "Contents to Module 3 to Joker rules completed in two navigation actions and about 7.5 seconds.", "status": "pass", "evidence": "Direct walkthrough cleared AS-08 as a material defect."},
+    {"id": "T3", "goal": "Reveal and hide an answer", "result": "The control changed state and exposed then removed the answer.", "status": "pass", "evidence": "Visible state and content both changed."},
+    {"id": "T4", "goal": "Open and close the transcript", "result": "Transcript toggled and exposed aria-pressed state.", "status": "pass", "evidence": "Visible content and semantic state changed."},
+    {"id": "T5", "goal": "Use the course at 375 by 812", "result": "Content, fixed navigation, and sampled controls remained usable without obvious horizontal overflow.", "status": "pass with navigation-density concern", "evidence": "Mobile viewport operation closed ENH-4 and carried AS-01."},
+    {"id": "T6", "goal": "Operate sequential navigation with keyboard", "result": "Native buttons were reachable; ArrowRight did not advance; complete focus visibility was not captured.", "status": "needs verification", "evidence": "Direct keyboard sample narrowed AS-03 instead of claiming lockout."}
+  ],
+  "capabilities": [
+    {"capability": "Source read", "status": "available", "scope": "Public 760-line, 86,582-character page and exact implementation counts."},
+    {"capability": "Rendered page and pointer interaction", "status": "available", "scope": "Desktop plus 375 by 812; Contents, navigation, reveal, transcript, and audio sampled."},
+    {"capability": "Keyboard operation", "status": "partial", "scope": "Native-control reachability and ArrowRight sampled; full focus-visible sequence not retained."},
+    {"capability": "Screenshots", "status": "available", "scope": "Prior annotated Contents, lesson, and quiz evidence retained; current mobile screenshots were not exported."},
+    {"capability": "Console, DOM, accessibility state", "status": "partial", "scope": "Sampled console and semantic inspection; no full assistive-technology run."},
+    {"capability": "Performance and network trace", "status": "not run", "scope": "No Core Web Vitals, long-task, or full waterfall evidence."},
+    {"capability": "Prior registry and decisions", "status": "partial", "scope": "Prior HTML supplied seventeen stable IDs; localStorage decision state was unavailable and the later six-item export reused IDs inconsistently, so no choice was invented."},
+    {"capability": "Source write", "status": "not authorized", "scope": "Public test bed remained read-only; only audit artifacts and the skill were changed."}
+  ],
+  "scores": [
+    {"category": "Product clarity", "score": "0 · clear", "evidence": "Audience, sequence, primary action, and success signal are understandable."},
+    {"category": "Information architecture and routing", "score": "2 · material", "evidence": "Thirty-two states share one URL and Contents remains an inline strip."},
+    {"category": "Interaction and state", "score": "1 · contained", "evidence": "Core controls and resume work; speech and focus feedback need targeted verification."},
+    {"category": "Accessibility", "score": "2 · material", "evidence": "No semantic regions or lesson announcement; three measured normal-text contrast failures."},
+    {"category": "Visual hierarchy and identity", "score": "0 · clear", "evidence": "Distinctive subject-specific system with clear lesson hierarchy; two visual suspicions were cleared and two narrowed."},
+    {"category": "Content and copy", "score": "0 · clear", "evidence": "Concrete, instructional, domain-specific content."},
+    {"category": "Implementation shape", "score": "2 · material", "evidence": "One file owns content, state, speech, rendering, and 256 inline styles."},
+    {"category": "Runtime performance", "score": "N/A", "evidence": "No runtime trace was run."}
+  ],
+  "work_orders": [
+    {"id": "WO-01", "title": "Extract content and state contracts", "item_ids": ["BE-01", "AS-06", "AS-07", "ENH-1"], "summary": "Separate lessons, route identity, platform capability adapters, semantic shell, and visual roles while preserving rendered behavior.", "acceptance_checks": ["All thirty-two lessons render unchanged before targeted improvements.", "Lesson data and route state are independently testable.", "Existing reveal, transcript, resume, print, and mobile behavior remains green."], "verification": "Source contract tests plus representative browser tasks"},
+    {"id": "WO-02", "title": "Add addressable lesson navigation", "item_ids": ["AS-02", "ENH-3", "ENH-5"], "summary": "Create stable lesson and module addresses, browser history, local-progress fallback, and an explicit return state.", "acceptance_checks": ["Copied URLs open the exact lesson.", "Back-forward traverses lesson history.", "Returning learners can resume or start over."], "verification": "Fresh-session link, history, and reload tests"},
+    {"id": "WO-03", "title": "Replace inline Contents with semantic navigation", "item_ids": ["AS-01", "ENH-6"], "summary": "Use a focus-managed disclosure or drawer with current module state and scalable mobile behavior.", "acceptance_checks": ["Open and close focus behavior is deterministic.", "Twenty modules remain usable at 320 pixels.", "Progress overview does not duplicate navigation."], "verification": "Keyboard, pointer, screen-width, and accessibility-tree checks"},
+    {"id": "WO-04", "title": "Establish semantic page-change behavior", "item_ids": ["AS-03", "AS-04"], "summary": "Add intentional landmarks, lesson heading behavior, announcement or focus placement, and focus-visible regression coverage.", "acceptance_checks": ["Semantic regions appear in the accessibility tree.", "Each lesson change is announced once.", "All representative tasks are keyboard operable with visible focus."], "verification": "Accessibility tree, keyboard walkthrough, and one screen-reader pass"},
+    {"id": "WO-05", "title": "Correct accessible color roles", "item_ids": ["AS-11"], "summary": "Create role-specific text colors without discarding the existing palette.", "acceptance_checks": ["Every normal text/control pairing is at least 4.5 to 1.", "Interaction states are remeasured."], "verification": "Computed-style contrast measurements"},
+    {"id": "WO-06", "title": "Make speech capability explicit", "item_ids": ["AS-10"], "summary": "Represent supported, playing, stopped, unavailable, and error speech states.", "acceptance_checks": ["Supported and unsupported environments both produce truthful feedback.", "Completion and cancellation restore idle state."], "verification": "Confirmed Web Speech environment plus unsupported-capability simulation"},
+    {"id": "WO-07", "title": "Add durable regression coverage", "item_ids": ["ENH-7", "ENH-2"], "summary": "Automate the core contracts and benchmark unmatched-term retrieval before committing to search.", "acceptance_checks": ["Routes, persistence fallback, semantic regions, contrast, mobile Contents, reveal, and transcript are covered.", "Search is prioritized only if the unmatched-term benchmark proves value."], "verification": "Framework-agnostic browser suite at desktop and 375 pixels"}
+  ],
+  "checks_not_run": [
+    "Core Web Vitals, long tasks, and complete network waterfall.",
+    "VoiceOver, NVDA, or JAWS output.",
+    "Browser matrix beyond the connected Chrome environment.",
+    "Every lesson at every responsive breakpoint in the current revision.",
+    "Print preview despite existing print CSS.",
+    "Confirmed supported and unsupported Web Speech environments.",
+    "Cross-device persistence because the course has no account synchronization.",
+    "Prior dashboard localStorage decisions; browser-storage contents were not inspected."
+  ],
+  "evidence_assets": {}
+}

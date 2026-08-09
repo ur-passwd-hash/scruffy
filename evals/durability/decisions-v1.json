@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "audit": {"target": "https://example.test/app", "generated_at": "2026-08-08T00:00:00Z"},
+  "decisions": [
+    {"finding_id": "AS-01", "decision": "approve", "note": "Fix routing.", "updated_at": "2026-08-08T00:01:00Z"},
+    {"finding_id": "ENH-01", "decision": "defer", "note": "Ship with routing.", "updated_at": "2026-08-08T00:02:00Z"}
+  ]
+}

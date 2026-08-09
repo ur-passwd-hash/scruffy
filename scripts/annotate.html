@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UI Audit Annotator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#111214;--panel:#1a1c1f;--line:#2a2d31;--txt:#e8e8e6;--dim:#8b8f95;--acc:#ff5b04}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:20px}
+  header{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+  h1{font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+  h1 b{color:var(--acc)}
+  .hint{color:var(--dim);font-size:12px}
+  #wrap{display:flex;gap:16px;align-items:flex-start}
+  #stage{position:relative;flex:1;min-width:0;border:1px solid var(--line);background:var(--panel);min-height:340px;
+         display:flex;align-items:center;justify-content:center;cursor:crosshair;user-select:none}
+  #stage.empty::after{content:"paste a screenshot (⌘V), drop an image, or click to browse";color:var(--dim)}
+  #img{display:block;max-width:100%;height:auto;pointer-events:none}
+  .box{position:absolute;border:2px solid var(--acc);background:rgba(255,91,4,.10)}
+  .box .tag{position:absolute;top:-22px;left:-2px;background:var(--acc);color:#111;font-weight:700;
+            font-size:11px;padding:1px 7px;white-space:nowrap}
+  #side{width:320px;flex:none}
+  #list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .row{display:flex;gap:6px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:6px 8px}
+  .row b{color:var(--acc);width:20px;flex:none}
+  .row input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--txt);
+             font:inherit;outline:none;padding:2px 0}
+  .row input:focus{border-bottom-color:var(--acc)}
+  .row button{background:none;border:none;color:var(--dim);cursor:pointer;font:inherit}
+  .row button:hover{color:#f66}
+  .btns{display:flex;flex-wrap:wrap;gap:8px}
+  .btns button{background:var(--panel);border:1px solid var(--line);color:var(--txt);font:inherit;
+               padding:8px 12px;cursor:pointer}
+  .btns button:hover{border-color:var(--acc);color:var(--acc)}
+  #out{margin-top:12px;width:100%;height:150px;background:var(--panel);border:1px solid var(--line);
+       color:var(--dim);font:11px/1.5 inherit;padding:8px;white-space:pre;overflow:auto}
+</style>
+</head>
+<body>
+<header><h1><b>UI</b> audit annotator</h1>
+<span class="hint">drag to box an element · label it · export JSON/PNG · attach either to the audit</span></header>
+<div id="wrap">
+  <div id="stage" class="empty"><img id="img" hidden alt=""></div>
+  <div id="side">
+    <div id="list"></div>
+    <div class="btns">
+      <button id="png">download annotated png</button>
+      <button id="json">copy json</button>
+      <button id="md">copy markdown</button>
+      <button id="clear">clear boxes</button>
+    </div>
+    <textarea id="out" readonly placeholder="export appears here (also copied to clipboard)"></textarea>
+  </div>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+<script>
+const stage=document.getElementById('stage'),img=document.getElementById('img'),
+      list=document.getElementById('list'),out=document.getElementById('out');
+let boxes=[],imgName='screenshot';
+
+function loadBlob(b,name){imgName=(name||'screenshot').replace(/\.[^.]+$/,'');
+  img.src=URL.createObjectURL(b);img.hidden=false;stage.classList.remove('empty');boxes=[];render();}
+addEventListener('paste',e=>{const f=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
+  if(f)loadBlob(f.getAsFile(),'pasted');});
+stage.addEventListener('dragover',e=>e.preventDefault());
+stage.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)loadBlob(f,f.name);});
+stage.addEventListener('click',e=>{if(img.hidden)document.getElementById('file').click();});
+document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(f)loadBlob(f,f.name);};
+
+let drag=null;
+stage.addEventListener('mousedown',e=>{if(img.hidden||e.target.closest('.box'))return;
+  const r=img.getBoundingClientRect();
+  drag={x0:e.clientX-r.left,y0:e.clientY-r.top,r};e.preventDefault();});
+addEventListener('mousemove',e=>{if(!drag)return;
+  drag.x1=e.clientX-drag.r.left;drag.y1=e.clientY-drag.r.top;render(drag);});
+addEventListener('mouseup',e=>{if(!drag)return;
+  const d=drag;drag=null;if(d.x1==null)return;
+  const x=Math.min(d.x0,d.x1),y=Math.min(d.y0,d.y1),w=Math.abs(d.x1-d.x0),h=Math.abs(d.y1-d.y0);
+  if(w>8&&h>8){boxes.push({label:'',x:x/d.r.width,y:y/d.r.height,w:w/d.r.width,h:h/d.r.height});}
+  render();focusLast();});
+
+function render(live){
+  stage.querySelectorAll('.box').forEach(b=>b.remove());
+  if(img.hidden)return;
+  const r=img.getBoundingClientRect(),off={x:img.offsetLeft,y:img.offsetTop};
+  const draw=(x,y,w,h,n,label)=>{const d=document.createElement('div');d.className='box';
+    Object.assign(d.style,{left:off.x+x+'px',top:off.y+y+'px',width:w+'px',height:h+'px'});
+    d.innerHTML=`<span class="tag">${n}${label?' · '+label:''}</span>`;stage.appendChild(d);};
+  boxes.forEach((b,i)=>draw(b.x*r.width,b.y*r.height,b.w*r.width,b.h*r.height,i+1,b.label));
+  if(live&&live.x1!=null)draw(Math.min(live.x0,live.x1),Math.min(live.y0,live.y1),
+    Math.abs(live.x1-live.x0),Math.abs(live.y1-live.y0),boxes.length+1,'');
+  list.innerHTML='';
+  boxes.forEach((b,i)=>{const row=document.createElement('div');row.className='row';
+    row.innerHTML=`<b>${i+1}</b><input placeholder="what is this / what's wrong" value="${b.label.replace(/"/g,'&quot;')}"><button>✕</button>`;
+    row.querySelector('input').oninput=e=>{b.label=e.target.value;
+      stage.querySelectorAll('.tag')[i].textContent=(i+1)+(b.label?' · '+b.label:'');};
+    row.querySelector('button').onclick=()=>{boxes.splice(i,1);render();};
+    list.appendChild(row);});
+}
+function focusLast(){const ins=list.querySelectorAll('input');if(ins.length)ins[ins.length-1].focus();}
+
+function payload(){const W=img.naturalWidth,H=img.naturalHeight;
+  return {image:imgName,width:W,height:H,elements:boxes.map((b,i)=>({n:i+1,label:b.label,
+    x:Math.round(b.x*W),y:Math.round(b.y*H),w:Math.round(b.w*W),h:Math.round(b.h*H),
+    pct:{x:+(b.x*100).toFixed(1),y:+(b.y*100).toFixed(1),w:+(b.w*100).toFixed(1),h:+(b.h*100).toFixed(1)}}))};}
+function show(t){out.value=t;navigator.clipboard?.writeText(t).catch(()=>{});}
+document.getElementById('json').onclick=()=>show(JSON.stringify(payload(),null,2));
+document.getElementById('md').onclick=()=>{const p=payload();
+  show(`Screenshot: ${p.image} (${p.width}×${p.height})\n`+p.elements.map(e=>
+   `${e.n}. [${e.pct.x}%,${e.pct.y}% ${e.pct.w}×${e.pct.h}%] ${e.label||'(unlabeled)'}`).join('\n'));};
+document.getElementById('clear').onclick=()=>{boxes=[];render();};
+document.getElementById('png').onclick=()=>{if(img.hidden)return;
+  const c=document.createElement('canvas'),W=img.naturalWidth,H=img.naturalHeight;
+  c.width=W;c.height=H;const g=c.getContext('2d');g.drawImage(img,0,0);
+  const s=Math.max(2,W/500);g.lineWidth=s;g.strokeStyle='#ff5b04';g.font=`bold ${s*7}px monospace`;
+  boxes.forEach((b,i)=>{const x=b.x*W,y=b.y*H,w=b.w*W,h=b.h*H;
+    g.strokeRect(x,y,w,h);const t=` ${i+1}${b.label?' · '+b.label:''} `,tw=g.measureText(t).width;
+    g.fillStyle='#ff5b04';g.fillRect(x-s,y-s*9,tw,s*9);g.fillStyle='#111';g.fillText(t,x-s,y-s*2.4);});
+  const a=document.createElement('a');a.download=imgName+'-annotated.png';a.href=c.toDataURL();a.click();};
+addEventListener('resize',()=>render());
+</script>
+</body>
+</html>

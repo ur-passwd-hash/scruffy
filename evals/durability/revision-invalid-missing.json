@@ -1,0 +1,59 @@
+{
+  "schema_version": "2.0",
+  "audit_id": "durability-fixture",
+  "target": "https://example.test/app",
+  "revision_id": "r2-missing",
+  "baseline_revision_id": "r1",
+  "items": [
+    {
+      "id": "ENH-01",
+      "identity_key": "copy-current-link",
+      "kind": "enhancement",
+      "title": "Copy a link to the current state",
+      "category": "information-architecture",
+      "severity": "medium",
+      "confidence": "high",
+      "status": "open",
+      "revision_disposition": "carried",
+      "first_seen_revision": "r1",
+      "last_observed_revision": "r2-missing",
+      "observation": "No copy-link action is present.",
+      "user_impact": "Sharing requires manual explanation.",
+      "evidence": ["Control inventory contains no copy-link action."],
+      "cause": "The interface lacks addressable state.",
+      "recommendation": "Add copy link after routing exists.",
+      "acceptance_checks": ["The copied link opens the same state."],
+      "depends_on": [],
+      "disposition_reason": "Carried without checking the missing AS-01 record.",
+      "destination_id": null
+    },
+    {
+      "id": "STR-01",
+      "identity_key": "clear-primary-action",
+      "kind": "strength",
+      "title": "Primary action remains clear",
+      "category": "product-clarity",
+      "severity": "none",
+      "confidence": "high",
+      "status": "open",
+      "revision_disposition": "carried",
+      "first_seen_revision": "r1",
+      "last_observed_revision": "r2-missing",
+      "observation": "The primary action remains clear.",
+      "user_impact": "Users can begin without instruction.",
+      "evidence": ["Primary task started directly."],
+      "cause": "Clear hierarchy.",
+      "recommendation": "Preserve it.",
+      "acceptance_checks": [],
+      "depends_on": [],
+      "disposition_reason": "Reverified.",
+      "destination_id": null
+    }
+  ],
+  "presentation": {
+    "prioritized_finding_ids": [],
+    "prioritized_enhancement_ids": ["ENH-01"],
+    "strength_ids": ["STR-01"],
+    "cleared_ids": []
+  }
+}

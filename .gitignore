@@ -1,0 +1,11 @@
+# Local intake working material; only distilled principles are source-controlled.
+/transcripts/
+/frames/
+
+# Python intake artifacts.
+__pycache__/
+*.pyc
+.venv/
+
+# Local operating-system metadata.
+.DS_Store

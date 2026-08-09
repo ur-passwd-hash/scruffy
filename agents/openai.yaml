@@ -1,0 +1,6 @@
+interface:
+  display_name: "Anti-Slop"
+  short_description: "Evidence-backed web UI audits and redesigns"
+  default_prompt: "Use $anti-slop to audit this web interface, operate its critical flows, and return prioritized fixes with evidence."
+policy:
+  allow_implicit_invocation: true
