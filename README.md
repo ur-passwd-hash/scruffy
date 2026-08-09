@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/scruffy-hero.png" alt="Scruffy the interface janitor standing with a broom" width="100%">
+  <img src="assets/scruffy-hero.png" alt="Scruffy the interface janitor leaning on a janitorial push broom" width="100%">
 </p>
 
 <h1 align="center">Scruffy</h1>
@@ -180,7 +180,7 @@ Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-b
 
 ```text
 scruffy/
-├── assets/scruffy-hero.png       # Scruffy README banner
+├── assets/scruffy-hero.png       # Transparent Scruffy mascot
 ├── SKILL.md                     # concise runtime instructions and routing
 ├── agents/openai.yaml           # optional Codex UI metadata
 ├── references/
