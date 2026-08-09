@@ -1,10 +1,62 @@
-# anti-slop
+<p align="center">
+  <img src="assets/anti-slop-hero.png" alt="MOP-1 clearing generic interface sludge to reveal a deliberate interface" width="100%">
+</p>
 
-**An evidence-backed interface audit and redesign skill for Codex, Claude, and other Agent Skills-compatible agents.**
+<h1 align="center">Anti-Slop</h1>
 
-Anti-Slop detects product, interaction, implementation-shape, visual, copy, accessibility, and performance failure patterns that make web apps feel generic, fragile, or synthetic. It then turns verified problems into dependency-ordered work orders with observable acceptance checks.
+<p align="center"><strong>Make the interface earn every pixel.</strong></p>
 
-It does **not** attempt to identify whether AI authored a page. “Slop” is a shorthand for observable outcomes. The same defects appear in hand-written, template-derived, outsourced, and AI-generated work.
+<p align="center">
+  <a href="https://github.com/ur-passwd-hash/anti-slop/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/anti-slop/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
+  <img src="https://img.shields.io/badge/Agent%20Skills-compatible-13543e" alt="Agent Skills compatible">
+  <img src="https://img.shields.io/badge/Codex%20%2B%20Claude-parity-c69b3f" alt="Codex and Claude parity">
+  <img src="https://img.shields.io/badge/license-MIT-7a4f8f" alt="MIT license">
+</p>
+
+<p align="center"><sub><strong>MOP-1</strong>, the Anti-Slop inspector: ruthless about evidence, strangely enthusiastic about clean state models.</sub></p>
+
+**Anti-Slop is an evidence engine for interfaces that need to work better.** It gives Codex, Claude, and other Agent Skills-compatible agents a rigorous way to operate a product, challenge suspicions, separate real defects from taste, and turn verified failures into dependency-ordered work orders.
+
+It audits the whole experience: product clarity, information architecture, interaction state, implementation shape, visual hierarchy, copy, accessibility, and runtime performance.
+
+It is **not an AI detector**. Anti-Slop detects the mess, not the author. The same generic, fragile, synthetic-feeling failures appear in hand-written, template-derived, outsourced, and AI-generated work.
+
+## What you get
+
+- A product frame before anyone starts arguing about border radii
+- Live task walkthroughs instead of screenshot astrology
+- Findings with evidence, user impact, confidence, falsification attempts, and acceptance checks
+- Cleared suspicions published beside confirmed defects
+- Sentence-quality analysis with explicit false-positive guards and **no authorship score**
+- Stable finding IDs that cannot quietly disappear in a repeat audit
+- Complete JSON, Markdown, and self-contained decision-dashboard outputs
+- Dependency-ordered work orders when implementation is authorized
+
+## Sixty-second start
+
+```sh
+git clone https://github.com/ur-passwd-hash/anti-slop.git
+```
+
+```sh
+mkdir -p ~/.agents/skills
+```
+
+```sh
+ln -s "$(pwd)/anti-slop" ~/.agents/skills/anti-slop
+```
+
+Then ask Codex:
+
+```text
+$anti-slop audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test sentence quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
+```
+
+Or ask Claude Code:
+
+```text
+/anti-slop audit https://example.com end to end. Challenge every suspicion and show me the cleared ones too.
+```
 
 ## What it improves
 
@@ -128,6 +180,7 @@ Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-b
 
 ```text
 anti-slop/
+├── assets/anti-slop-hero.png     # MOP-1 README banner
 ├── SKILL.md                     # concise runtime instructions and routing
 ├── agents/openai.yaml           # optional Codex UI metadata
 ├── references/
