@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/scruffy-hero.png" alt="Scruffy the interface janitor cleaning generic UI sludge in a retro-future control room" width="100%">
+  <img src="assets/scruffy-hero.png" alt="Scruffy the interface janitor standing with a broom" width="100%">
 </p>
 
 <h1 align="center">Scruffy</h1>
