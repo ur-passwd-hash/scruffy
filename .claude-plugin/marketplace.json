@@ -4,13 +4,13 @@
     "name": "Zachary Satterly",
     "url": "https://github.com/ur-passwd-hash"
   },
-  "description": "Claude Code distribution for the Scruffy interface-audit skill.",
+  "description": "Claude Code distribution for Scruffy, the AI-slop audit and cleanup skill for web apps.",
   "plugins": [
     {
       "name": "scruffy",
       "source": "./",
-      "description": "Audit and redesign web interfaces with evidence, falsification, stable findings, and implementation-ready work orders.",
-      "version": "2.1.0"
+      "description": "Find and fix AI slop in web apps with evidence, falsification, stable findings, and implementation-ready work orders.",
+      "version": "2.1.1"
     }
   ]
 }

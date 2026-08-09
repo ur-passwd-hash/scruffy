@@ -220,8 +220,9 @@ def validate_claude_metadata() -> None:
 
     if plugin.get("name") != "scruffy":
         fail(".claude-plugin/plugin.json name must be scruffy")
-    if plugin.get("version") != "2.1.0":
-        fail(".claude-plugin/plugin.json version must be 2.1.0")
+    version = plugin.get("version")
+    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        fail(".claude-plugin/plugin.json version must use semantic versioning")
     if plugin.get("repository") != "https://github.com/ur-passwd-hash/scruffy":
         fail(".claude-plugin/plugin.json repository must identify the public Scruffy repository")
 
@@ -237,8 +238,12 @@ def validate_claude_metadata() -> None:
         fail("Claude marketplace plugin name must be scruffy")
     if entry.get("source") != "./":
         fail("Claude marketplace plugin source must be ./")
-    if entry.get("version") != plugin.get("version"):
+    if entry.get("version") != version:
         fail("Claude marketplace and plugin versions must match")
+
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    if f"## {version} —" not in changelog:
+        fail("Claude plugin version must have a matching CHANGELOG.md release heading")
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     required_readme_fragments = (
@@ -259,6 +264,9 @@ def validate_public_brand() -> None:
         '<h1 align="center">Scruffy</h1>',
         "assets/scruffy-hero.png",
         "https://github.com/ur-passwd-hash/scruffy",
+        "Scruffy finds AI slop in web apps",
+        "What “AI slop” means here",
+        "does not guess whether AI wrote the app",
         "$scruffy",
         "/scruffy",
         "~/.agents/skills/scruffy",

@@ -2,6 +2,12 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.1.1 — 2026-08-09
+
+- Rewrote the README opening and tagline to say plainly that Scruffy finds, proves, and helps fix AI slop in web apps.
+- Defined AI slop as observable product, interaction, copy, accessibility, performance, visual, and implementation failures while preserving the no-authorship boundary.
+- Aligned the Claude marketplace, Claude plugin, Codex metadata, and shared skill entrypoint around the same simple product promise.
+
 ## 2.1.0 — 2026-08-09
 
 - Added a Claude Code plugin manifest and one-plugin marketplace catalog while retaining the root Agent Skills entrypoint used by Codex and standalone Claude skills.

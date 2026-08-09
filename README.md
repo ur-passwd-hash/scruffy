@@ -4,7 +4,7 @@
 
 <h1 align="center">Scruffy</h1>
 
-<p align="center"><strong>Make the interface earn every pixel.</strong></p>
+<p align="center"><strong>Find the AI slop. Prove it. Fix it.</strong></p>
 
 <p align="center">
   <a href="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
@@ -13,13 +13,13 @@
   <img src="https://img.shields.io/badge/license-MIT-7a4f8f" alt="MIT license">
 </p>
 
-<p align="center"><sub><strong>Scruffy</strong>, the interface janitor: unimpressed by card soup, relentless about evidence.</sub></p>
+<p align="center"><sub><strong>Scruffy</strong> is the interface janitor for AI slop.</sub></p>
 
-**Scruffy is an evidence engine for interfaces that need to work better.** It gives Codex, Claude, and other Agent Skills-compatible agents a rigorous way to operate a product, challenge suspicions, separate real defects from taste, and turn verified failures into dependency-ordered work orders.
+**Scruffy finds AI slop in web apps—and shows its work.** Give Claude or Codex a URL, screenshot, prototype, or source repository. Scruffy operates the real interface, inspects the available code and copy, captures evidence, and returns a prioritized report with practical fixes.
 
-It audits the whole experience: product clarity, information architecture, interaction state, implementation shape, visual hierarchy, copy, accessibility, and runtime performance.
+**What “AI slop” means here:** generic layouts, fake or broken interactions, vague or formulaic writing, missing product logic, inaccessible controls, weak performance, and vibe-coded shortcuts that make an app brittle.
 
-It is **not an AI detector**. Scruffy cleans the mess, not the author. The same generic, fragile, synthetic-feeling failures appear in hand-written, template-derived, outsourced, and AI-generated work.
+**What it does not mean:** Scruffy does not guess whether AI wrote the app. It judges the result, not the author. The same failures can appear in hand-written, template-derived, outsourced, and AI-generated work.
 
 ## What you get
 
