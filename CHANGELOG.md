@@ -2,6 +2,12 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.1.0 — 2026-08-09
+
+- Added a Claude Code plugin manifest and one-plugin marketplace catalog while retaining the root Agent Skills entrypoint used by Codex and standalone Claude skills.
+- Made Claude Code marketplace installation the primary quick start and documented the stable `/scruffy:scruffy`, bare `/scruffy`, and `$scruffy` invocation paths without duplicating runtime instructions.
+- Extended package validation to enforce Claude and Codex metadata parity and the documented install commands.
+
 ## 2.0.0 — 2026-08-09
 
 - Renamed the public skill, invocation, install directory, and repository from Anti-Slop to Scruffy.

@@ -74,6 +74,8 @@ def validate_links(text: str) -> None:
 
 def validate_required_files() -> None:
     required = (
+        ".claude-plugin/plugin.json",
+        ".claude-plugin/marketplace.json",
         "agents/openai.yaml",
         "assets/scruffy-hero.png",
         "references/verification.md",
@@ -205,6 +207,50 @@ def validate_openai_metadata() -> None:
     missing = [fragment for fragment in required_fragments if fragment not in text]
     if missing:
         fail(f"agents/openai.yaml is missing: {missing}")
+
+
+def validate_claude_metadata() -> None:
+    plugin_path = ROOT / ".claude-plugin" / "plugin.json"
+    marketplace_path = ROOT / ".claude-plugin" / "marketplace.json"
+    try:
+        plugin = json.loads(plugin_path.read_text(encoding="utf-8"))
+        marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        fail(f"Claude Code metadata is unreadable: {error}")
+
+    if plugin.get("name") != "scruffy":
+        fail(".claude-plugin/plugin.json name must be scruffy")
+    if plugin.get("version") != "2.1.0":
+        fail(".claude-plugin/plugin.json version must be 2.1.0")
+    if plugin.get("repository") != "https://github.com/ur-passwd-hash/scruffy":
+        fail(".claude-plugin/plugin.json repository must identify the public Scruffy repository")
+
+    if marketplace.get("name") != "scruffy-marketplace":
+        fail(".claude-plugin/marketplace.json name must be scruffy-marketplace")
+    entries = marketplace.get("plugins")
+    if not isinstance(entries, list) or len(entries) != 1:
+        fail(".claude-plugin/marketplace.json must contain exactly one plugin")
+    entry = entries[0]
+    if not isinstance(entry, dict):
+        fail(".claude-plugin/marketplace.json plugin entry must be an object")
+    if entry.get("name") != "scruffy":
+        fail("Claude marketplace plugin name must be scruffy")
+    if entry.get("source") != "./":
+        fail("Claude marketplace plugin source must be ./")
+    if entry.get("version") != plugin.get("version"):
+        fail("Claude marketplace and plugin versions must match")
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    required_readme_fragments = (
+        "/plugin marketplace add ur-passwd-hash/scruffy",
+        "/plugin install scruffy@scruffy-marketplace",
+        "/scruffy:scruffy",
+        "/scruffy",
+        "$scruffy",
+    )
+    missing = [fragment for fragment in required_readme_fragments if fragment not in readme]
+    if missing:
+        fail(f"README.md is missing Claude/Codex install or invocation paths: {missing}")
 
 
 def validate_public_brand() -> None:
@@ -354,6 +400,7 @@ def main() -> int:
     validate_sentence_contract(text)
     validate_blind_contract(text)
     validate_openai_metadata()
+    validate_claude_metadata()
     validate_public_brand()
     validate_trigger_evals()
     validate_archetype_evals()
@@ -361,7 +408,7 @@ def main() -> int:
     validate_portability()
     print(
         "PASS: metadata, trigger coverage, progressive-disclosure budget, local references, "
-        "durability, sentence, and blind contracts, Scruffy public brand, Codex metadata, trigger/archetype/sentence evals, "
+        "durability, sentence, and blind contracts, Scruffy public brand, Claude/Codex metadata, trigger/archetype/sentence evals, "
         "required files, and portability"
     )
     return 0

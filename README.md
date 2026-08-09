@@ -32,30 +32,34 @@ It is **not an AI detector**. Scruffy cleans the mess, not the author. The same 
 - Complete JSON, Markdown, and self-contained decision-dashboard outputs
 - Dependency-ordered work orders when implementation is authorized
 
-## Sixty-second start
+## Sixty-second start — Claude Code
+
+Inside Claude Code, add this repository as a marketplace and install Scruffy:
+
+```text
+/plugin marketplace add ur-passwd-hash/scruffy
+```
+
+```text
+/plugin install scruffy@scruffy-marketplace
+```
+
+Then run the stable, namespaced plugin command:
+
+```text
+/scruffy:scruffy audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, challenge every suspicion, and show me the cleared ones too.
+```
+
+### Codex quick start
 
 ```sh
 git clone https://github.com/ur-passwd-hash/scruffy.git
-```
-
-```sh
 mkdir -p ~/.agents/skills
-```
-
-```sh
 ln -s "$(pwd)/scruffy" ~/.agents/skills/scruffy
 ```
 
-Then ask Codex:
-
 ```text
 $scruffy audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test sentence quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
-```
-
-Or ask Claude Code:
-
-```text
-/scruffy audit https://example.com end to end. Challenge every suspicion and show me the cleared ones too.
 ```
 
 ## What it improves
@@ -131,6 +135,51 @@ Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced 
 
 This repository follows the [Agent Skills specification](https://agentskills.io/specification). Clone or copy it so the installed skill directory is named `scruffy`.
 
+### Claude Code — priority path
+
+The repository is both a Claude Code plugin and a one-plugin marketplace. Install it from inside Claude Code:
+
+```text
+/plugin marketplace add ur-passwd-hash/scruffy
+```
+
+```text
+/plugin install scruffy@scruffy-marketplace
+```
+
+Invoke the installed plugin explicitly:
+
+```text
+/scruffy:scruffy audit https://example.com and prioritize the structural fixes
+```
+
+The equivalent shell commands are:
+
+```sh
+claude plugin marketplace add ur-passwd-hash/scruffy
+claude plugin install scruffy@scruffy-marketplace
+```
+
+For local plugin development, clone the repository and load it directly:
+
+```sh
+git clone https://github.com/ur-passwd-hash/scruffy.git
+claude --plugin-dir "$(pwd)/scruffy"
+```
+
+If you prefer the bare `/scruffy` command, install the same checkout as a personal skill instead of a plugin:
+
+```sh
+mkdir -p ~/.claude/skills
+ln -s /absolute/path/to/scruffy ~/.claude/skills/scruffy
+```
+
+```text
+/scruffy audit https://example.com and prioritize the structural fixes
+```
+
+For a private GitHub repository, authenticate Git first. Claude Code uses existing credential helpers for manual installs and updates; GitHub shorthand uses SSH by default. See the [official private-marketplace guidance](https://code.claude.com/docs/en/plugin-marketplaces#private-repositories).
+
 ### Codex
 
 Install for all projects:
@@ -155,22 +204,13 @@ $scruffy audit https://example.com and prioritize the structural fixes
 
 Codex may also invoke the skill implicitly when a request matches the `SKILL.md` description.
 
-### Claude Code
+Codex and Claude load the same root `SKILL.md`; there is no duplicated runtime copy to drift. `agents/openai.yaml` provides Codex UI metadata, while `.claude-plugin/` provides Claude Code distribution metadata.
 
-Link the same source directory so Codex and Claude cannot drift:
-
-```sh
-mkdir -p ~/.claude/skills
-ln -s /absolute/path/to/scruffy ~/.claude/skills/scruffy
-```
-
-Invoke explicitly:
-
-```text
-/scruffy audit https://example.com and prioritize the structural fixes
-```
-
-[Claude Code supports](https://code.claude.com/docs/en/skills) personal skills at this location and direct `/skill-name` invocation. The runtime instructions remain vendor-neutral; the link only selects the same installed source tree.
+| Runtime | Native entrypoint | Explicit invocation |
+|---|---|---|
+| Claude Code plugin | `.claude-plugin/plugin.json` + root `SKILL.md` | `/scruffy:scruffy` |
+| Claude Code personal skill | `~/.claude/skills/scruffy/SKILL.md` | `/scruffy` |
+| Codex | root `SKILL.md` + `agents/openai.yaml` | `$scruffy` |
 
 ### Other agents
 
@@ -180,11 +220,15 @@ Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-b
 
 ```text
 scruffy/
+├── .claude-plugin/
+│   ├── plugin.json               # Claude Code plugin manifest
+│   └── marketplace.json          # installable one-plugin marketplace
 ├── assets/
 │   ├── scruffy-hero.png          # Transparent README action banner
 │   └── scruffy-character.png     # Transparent reusable character model
-├── SKILL.md                     # concise runtime instructions and routing
-├── agents/openai.yaml           # optional Codex UI metadata
+├── SKILL.md                      # shared Agent Skills runtime instructions
+├── agents/
+│   └── openai.yaml               # Codex UI metadata
 ├── references/
 │   ├── verification.md          # live-operation and falsification protocol
 │   ├── scoring.md               # calibrated severity, confidence, and scores

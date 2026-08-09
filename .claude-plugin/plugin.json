@@ -1,0 +1,12 @@
+{
+  "name": "scruffy",
+  "description": "Evidence-backed interface audits and redesigns that challenge generic product, interaction, visual, copy, accessibility, implementation, and performance patterns.",
+  "version": "2.1.0",
+  "author": {
+    "name": "Zachary Satterly",
+    "url": "https://github.com/ur-passwd-hash"
+  },
+  "homepage": "https://github.com/ur-passwd-hash/scruffy#readme",
+  "repository": "https://github.com/ur-passwd-hash/scruffy",
+  "license": "MIT"
+}
