@@ -1,8 +1,8 @@
 {
   "schema_version": "2.0",
-  "audit_id": "mahjong-course-excember",
-  "revision_id": "mahjong-2026-08-08-codex-r2",
-  "baseline_revision_id": "mahjong-2026-08-08-v11",
+  "audit_id": "sample-course",
+  "revision_id": "sample-course-r2",
+  "baseline_revision_id": "sample-course-r1",
   "decisions": [
     {"item_id": "AS-01", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},
     {"item_id": "AS-02", "decision": "pending", "note": "", "updated_at": null, "decision_source": "unavailable", "destination_id": null, "history": []},

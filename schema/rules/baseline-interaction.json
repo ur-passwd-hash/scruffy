@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "pack": "baseline-interaction",
+  "origin": "baseline",
+  "description": "Operated-artifact leads for interaction, information-architecture, and semantic-control slop. Every lead requires confirmation by operating the interface; none is a finding by itself.",
+  "source_attribution": null,
+  "rules": [
+    {
+      "id": "OP-DEAD-HREF",
+      "category": "interaction",
+      "severity": "warning",
+      "message": "Anchor promises navigation but has no destination (bare '#', empty, or javascript: href).",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "A hash href that targets an existing element id is legitimate in-page navigation; confirm the target is genuinely absent before reporting.",
+      "predicate": {
+        "type": "element_pattern",
+        "tags": ["a"],
+        "attr": "href",
+        "value_pattern": "^(#|javascript:.*)?$"
+      }
+    },
+    {
+      "id": "OP-DIV-BUTTON",
+      "category": "interaction",
+      "severity": "warning",
+      "message": "A non-semantic element (div/span) is wired as a click control without role or tabindex, so it has no keyboard path and no accessible name.",
+      "citation": "principles/PRINCIPLES.md §29",
+      "false_positive_guard": "A div with a click handler that only delegates to a real interactive descendant is legitimate; confirm the element itself is the control before reporting.",
+      "predicate": {
+        "type": "interactive_non_semantic"
+      }
+    },
+    {
+      "id": "OP-UNLABELED-INPUT",
+      "category": "accessibility",
+      "severity": "error",
+      "message": "Text-like input has no accessible name: no wrapping label, no for/id association, and no aria-label. Placeholder text is not a label.",
+      "citation": "principles/PRINCIPLES.md §27",
+      "false_positive_guard": "Inputs named by aria-labelledby pointing at visible text are legitimate; confirm the reference resolves before reporting.",
+      "predicate": {
+        "type": "unlabeled_input"
+      }
+    },
+    {
+      "id": "OP-NO-STATE-URL",
+      "category": "information_architecture",
+      "severity": "suggestion",
+      "message": "A multi-view control group changes what the page shows, but no script touches the URL (history/pushState/location.hash), so no view has an address and none can be shared or restored.",
+      "citation": "principles/PRINCIPLES.md §24",
+      "false_positive_guard": "A single two-state toggle needs no address; this lead applies to groups of two or more named views. Confirm by switching views and inspecting the URL before reporting.",
+      "predicate": {
+        "type": "state_group_without_address",
+        "group_attr": "data-view",
+        "min_count": 2
+      }
+    }
+  ]
+}

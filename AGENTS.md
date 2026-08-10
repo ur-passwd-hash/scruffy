@@ -36,6 +36,7 @@ diagnoses, or proposed fixes is not blind.
 | Modes, authority, capabilities, evidence, editorial receipts | `schema/audit-contract.json` | `references/audit-contract.md` and the README modes block |
 | Detailed audit protocols | `references/*.md` | Loaded progressively from `SKILL.md` |
 | Research-backed principles and provenance | `principles/PRINCIPLES.md`, `principles/SOURCES.md`, `principles/INSPIRATIONS.md` | Operational rules only after reconciliation into the runtime contract |
+| Lead rules and packs | `schema/rules/*.json` | Rule-engine lead output |
 | Deterministic behavior | `scripts/*.py` | Reports, dashboards, validation output, and generated adapters |
 | Regression evidence | `evals/` and `scripts/test_*.py` | Test results; never product claims by themselves |
 | Claude distribution | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` | Claude plugin cache after installation |
@@ -51,6 +52,8 @@ Root `SKILL.md` is the sole runtime instruction source. Never add audit rules to
 - Change modes, authority, capabilities, evidence kinds, or editorial receipts
   only in `schema/audit-contract.json`, then run
   `python3 scripts/audit_contract.py --write`.
+- Change lead rules only in `schema/rules/*.json`; validate with
+  `python3 scripts/rule_engine.py --check` and keep every rule cited and guarded.
 - After changing root skill frontmatter, run
   `python3 scripts/claude_adapter.py --write`.
 - Do not hand-edit `references/taxonomy.md`, `references/audit-contract.md`,
@@ -90,6 +93,9 @@ python3 scripts/test_sentence_slop.py
 python3 scripts/test_blind_protocol.py
 python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py
+python3 scripts/test_web_fixtures.py
+python3 scripts/rule_engine.py --check
+python3 scripts/test_rule_engine.py
 ```
 
 When Claude Code is installed, also run `claude plugin validate .`. If behavior

@@ -161,10 +161,11 @@ def build_fixture(base: Path) -> tuple[dict, dict]:
         }
         for index in range(1, 4)
     ]
+    capability_status = {"source_write": "not_authorized", "screenshots": "not_run"}
     capabilities = [
         {
             "key": row["key"],
-            "status": "available" if row["key"] != "source_write" else "not_authorized",
+            "status": capability_status.get(row["key"], "available"),
             "scope": "Synthetic contract fixture.",
         }
         for row in contract["context"]["capabilities"]
@@ -362,6 +363,106 @@ def main() -> int:
         wrong_analyzer_kind["evidence_assets"][1]["kind"] = "measurement"
         expect_failure(registry, wrong_analyzer_kind, base, "kind analysis_receipt")
 
+        # --- evidence-kind enforcement: performance ---
+        perf = copy.deepcopy(registry)
+        perf["items"][0]["category"] = "performance"
+        perf["items"][0]["facets"] = ["resilience_recovery"]
+        perf["items"][0]["editorial_review"] = None
+        expect_failure(perf, context, base, "performance finding without runtime evidence")
+
+        perf_guarded = copy.deepcopy(perf)
+        perf_context = copy.deepcopy(context)
+        perf_context["evidence_assets"].append(
+            {
+                "id": "EV-TRACE",
+                "kind": "runtime_trace",
+                "locator": "devtools-performance-trace",
+                "description": "Recorded interaction trace with elapsed timings.",
+                "verification": "observed",
+            }
+        )
+        perf_guarded["items"][0]["evidence_refs"] = ["EV-TRACE"]
+        validate_registry(perf_guarded)
+        validate_context(perf_context, perf_guarded, base_path=base)
+
+        # --- evidence-kind enforcement: accessibility ---
+        axe = copy.deepcopy(registry)
+        axe["items"][0]["category"] = "accessibility"
+        axe["items"][0]["facets"] = ["resilience_recovery"]
+        axe["items"][0]["editorial_review"] = None
+        expect_failure(axe, context, base, "without an accessibility_observation receipt")
+
+        axe_context = copy.deepcopy(context)
+        axe_context["evidence_assets"].append(
+            {
+                "id": "EV-AXE",
+                "kind": "accessibility_observation",
+                "locator": "focus-order-walkthrough",
+                "description": "Keyboard walkthrough recording focus order and announcements.",
+                "verification": "observed",
+            }
+        )
+        axe_named = copy.deepcopy(axe)
+        axe_named["items"][0]["evidence_refs"] = ["EV-AXE"]
+        expect_failure(axe_named, axe_context, base, "without a named criterion")
+
+        axe_guarded = copy.deepcopy(axe_named)
+        axe_guarded["items"][0]["observation"] = (
+            "Focus order skips the dialog close control, failing WCAG 2.4.3 focus order."
+        )
+        validate_registry(axe_guarded)
+        validate_context(axe_context, axe_guarded, base_path=base)
+
+        # --- evidence-kind enforcement: visual must be rendered ---
+        vis = copy.deepcopy(registry)
+        vis["items"][0]["category"] = "visual"
+        vis["items"][0]["facets"] = ["trust_integrity"]
+        vis["items"][0]["editorial_review"] = None
+        vis["items"][0]["evidence_refs"] = ["EV-SCORE"]
+        expect_failure(vis, context, base, "without rendered evidence")
+
+        vis_guarded = copy.deepcopy(vis)
+        vis_guarded["items"][0]["evidence_refs"] = ["EV-TASK"]
+        validate_registry(vis_guarded)
+        validate_context(context, vis_guarded, base_path=base)
+
+        # Guard: a cleared visual suspicion may keep source-only evidence.
+        vis_cleared = copy.deepcopy(vis)
+        vis_cleared["items"][0]["status"] = "cleared"
+        vis_cleared["items"][0]["revision_disposition"] = "cleared"
+        vis_cleared["presentation"]["prioritized_finding_ids"] = []
+        vis_cleared["presentation"]["cleared_ids"] = ["AS-01"]
+        validate_registry(vis_cleared)
+        validate_context(context, vis_cleared, base_path=base)
+
+        # --- capability/evidence reconciliation: screenshots ---
+        shot_claimed = copy.deepcopy(context)
+        for row in shot_claimed["capabilities"]:
+            if row["key"] == "screenshots":
+                row["status"] = "available"
+        expect_failure(registry, shot_claimed, base, "captured no screenshot evidence asset")
+
+        shot_file = base / "capture.png"
+        shot_file.write_bytes(b"synthetic")
+        shot_context = copy.deepcopy(context)
+        shot_context["evidence_assets"].append(
+            {
+                "id": "EV-SHOT",
+                "kind": "screenshot",
+                "locator": shot_file.name,
+                "description": "Synthetic capture for reconciliation tests.",
+                "verification": "captured",
+            }
+        )
+        expect_failure(registry, shot_context, base, "contradicts the screenshots capability status")
+
+        shot_guarded = copy.deepcopy(shot_context)
+        for row in shot_guarded["capabilities"]:
+            if row["key"] == "screenshots":
+                row["status"] = "available"
+        validate_registry(registry)
+        validate_context(shot_guarded, registry, base_path=base)
+
         legacy = copy.deepcopy(registry)
         legacy["schema_version"] = "2.0"
         legacy.pop("run")
@@ -383,7 +484,7 @@ def main() -> int:
         current_revision["items"][0]["disposition_reason"] = "Reconciled from the schema-2.0 baseline."
         validate_baseline(current_revision, legacy_baseline)
 
-    print("PASS: canonical taxonomy, run authority, evidence links, editorial receipts, and legacy compatibility")
+    print("PASS: canonical taxonomy, run authority, evidence links, evidence-kind enforcement, capability reconciliation, editorial receipts, and legacy compatibility")
     return 0
 
 

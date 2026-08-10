@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `f5907004622ec2abd70c57c36277d9ec39dcb5d373714a8f38eb56473aba6a5a`
+Target SHA-256: `99ce16d0d58ea09fe19af32f297a1fe31b3ffedd7649c3ad36ba664cbf5700ed`
 
 Command:
 
@@ -116,3 +116,17 @@ clearance is bounded to this file and hash. It combines normalized sentence
 measurements, four sentence checks, and four broader editorial checks; it is not
 an AI-authorship verdict. The former taxonomy contradiction is recorded as a
 fixed editorial defect, not erased by the clean current result.
+
+## Reconciliation after the continuity-fixture rename
+
+`README.md` changed for repository structure: the evaluation fixture directory
+was renamed to `evals/continuity/`, the known-answer `evals/web-fixtures/` suite
+was added, and the `schema/rules/` lead packs joined the validation list and
+layout tree.
+Every edited line sits inside a fenced code block, which the analyzer excludes
+as markup, so each rerun reported identical measurements: 2,948 source words, 1,484 analyzed reader-facing words, 1,464 excluded
+markup words, 122 sentences, adequacy `adequate`, and one `repeated_openings` lead in
+the `rhythm` family. One signal family does not meet the independent-family predicate,
+so no sentence-pattern finding is raised. The manual passes below were re-read against
+the edited section and their conclusions are unchanged. This receipt makes no
+authorship assessment.

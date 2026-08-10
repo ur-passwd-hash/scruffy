@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "pack": "baseline-editorial",
+  "origin": "baseline",
+  "description": "Reader-facing text leads for editorial and synthetic-proof slop. Seed patterns, deliberately narrow; they surface candidates for the editorial review contract and never conclude on their own.",
+  "source_attribution": null,
+  "rules": [
+    {
+      "id": "ED-SUPERLATIVE-UNGROUNDED",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "Superlative or transformation claim with no measurable content nearby (most advanced, revolutionize, unparalleled, cutting-edge, industry-leading).",
+      "citation": "principles/PRINCIPLES.md §21",
+      "false_positive_guard": "A superlative directly supported by a cited measurement or named comparison is legitimate; read the surrounding block before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "world's (most|leading)|most advanced|revolutioniz|unparalleled|cutting-edge|industry-leading|game-chang"
+      }
+    },
+    {
+      "id": "ED-EMPOWER-FILLER",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "Audience-free empowerment filler that survives transplant to any product (unlock your full potential, empowering professionals everywhere).",
+      "citation": "principles/PRINCIPLES.md §21",
+      "false_positive_guard": "Empowerment language tied to a named user, task, and observable result is legitimate voice; test sentence portability before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "unlock (your|their) (full )?potential|empower(ing)? (professionals|teams|everyone|people)"
+      }
+    },
+    {
+      "id": "ED-LOREM",
+      "category": "copy",
+      "severity": "error",
+      "message": "Placeholder text (lorem ipsum) is visible in shipped reader-facing content.",
+      "citation": "principles/PRINCIPLES.md §7",
+      "false_positive_guard": "A page that is explicitly a template specimen or type sample may show placeholder text by design; confirm the surface is user-facing product UI before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "lorem ipsum"
+      }
+    },
+    {
+      "id": "ED-TRUSTED-BY-UNNAMED",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "A trust-by-numbers claim (Trusted by N users/leaders/companies) with no named or linked source in the claim itself.",
+      "citation": "principles/PRINCIPLES.md §8",
+      "false_positive_guard": "The same claim adjacent to named customers, a case-study link, or a counting methodology is legitimate; operate the surrounding links before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "trusted by (over )?[0-9][0-9,+]* (users|leaders|companies|professionals|teams|customers)"
+      }
+    },
+    {
+      "id": "ED-GRADE-CLAIM",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "Unfalsifiable security-grade claim (bank-grade, military-grade) naming no standard, audit, or control.",
+      "citation": "principles/PRINCIPLES.md §21",
+      "false_positive_guard": "The same words next to a named certification or audit report are legitimate; confirm nothing on the page resolves the claim before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "(bank|military)-grade (security|encryption)"
+      }
+    },
+    {
+      "id": "VIS-STAR-SELFRATED",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Star-rating decoration or a self-declared score (Rated N/N) citing no review source, count, or link.",
+      "citation": "principles/PRINCIPLES.md §17",
+      "false_positive_guard": "Ratings that resolve to a named review platform with a count are legitimate proof; operate the badge before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "★{3,}|rated [0-9](\\.[0-9])?/[0-9]"
+      }
+    },
+    {
+      "id": "VIS-AWARD-UNATTRIBUTED",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Award or certification badge naming no awarding body (Best X 20NN, Certified Excellence).",
+      "citation": "principles/PRINCIPLES.md §17",
+      "false_positive_guard": "An award naming its body and year with a resolvable reference is legitimate; confirm the badge resolves nowhere before reporting.",
+      "predicate": {
+        "type": "text_pattern",
+        "pattern": "best [a-z]+ (tool|app|software|platform) 20[0-9][0-9]|certified excellence"
+      }
+    }
+  ]
+}

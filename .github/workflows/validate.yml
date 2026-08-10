@@ -34,3 +34,9 @@ jobs:
         run: python3 scripts/test_blind_evaluator.py
       - name: Test deterministic sentence blind runner
         run: python3 scripts/test_sentence_blind_runner.py
+      - name: Test deterministic web fixtures
+        run: python3 scripts/test_web_fixtures.py
+      - name: Validate rule packs
+        run: python3 scripts/rule_engine.py --check
+      - name: Test deterministic rule engine
+        run: python3 scripts/test_rule_engine.py

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fern &amp; Field — Shop seeds</title>
+<style>
+  :root{--ink:#22301f;--paper:#f7f5ef;--line:#d8d2c4;--acc:#3e6b2f}
+  *{box-sizing:border-box;margin:0}
+  body{font:16px/1.5 Georgia,serif;color:var(--ink);background:var(--paper);padding:24px}
+  header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
+  h1{font-size:22px}
+  nav a{margin-left:14px;color:var(--ink)}
+  .controls{display:flex;gap:12px;margin:16px 0;align-items:center}
+  select,input[type=search]{font:inherit;padding:6px 8px;border:1px solid var(--ink);background:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .card{border:1px solid var(--line);background:#fff;padding:12px}
+  .card h3{font-size:15px;margin-bottom:4px}
+  .card .price{font-weight:bold}
+  .card .cat{font-size:12px;color:#5c6653;text-transform:uppercase;letter-spacing:.06em}
+  .views{display:flex;gap:0;margin:18px 0 10px}
+  .views button{font:inherit;padding:8px 16px;border:1px solid var(--ink);background:#fff;cursor:pointer}
+  .views button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .share{margin-left:auto;font-size:14px}
+  .panel{border:1px solid var(--ink);background:#fff;padding:16px;min-height:120px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Fern &amp; Field</h1>
+  <nav><a href="#shop">Shop</a><a href="#guides">Guides</a><a href="#basket">Basket (0)</a></nav>
+</header>
+
+<main id="shop">
+  <h2>Seed catalogue</h2>
+
+  <div class="controls">
+    <!-- Working search: filters as typed. -->
+    <label data-sample="WF-A-02">Search
+      <input type="search" id="q" placeholder="e.g. kale">
+    </label>
+    <!-- "Filter by category" control. -->
+    <label data-sample="WF-A-01">Filter by category
+      <select id="catfilter">
+        <option value="">All categories</option>
+        <option value="herb">Herbs</option>
+        <option value="veg">Vegetables</option>
+        <option value="flower">Flowers</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="views" data-sample="WF-A-03">
+    <button aria-pressed="true" data-view="grid">Catalogue</button>
+    <button aria-pressed="false" data-view="planting">Planting calendar</button>
+    <button aria-pressed="false" data-view="saved">Saved for later</button>
+    <button class="share" id="share">Share this view</button>
+  </div>
+
+  <section class="panel" id="viewpanel">
+    <div class="grid" id="grid" data-sample="WF-A-04">
+      <article class="card" data-cat="herb"><p class="cat">Herb</p><h3>Genovese Basil</h3><p class="price">$3.50</p></article>
+      <article class="card" data-cat="veg"><p class="cat">Vegetable</p><h3>Lacinato Kale</h3><p class="price">$4.00</p></article>
+      <article class="card" data-cat="flower"><p class="cat">Flower</p><h3>Calendula</h3><p class="price">$3.00</p></article>
+      <article class="card" data-cat="veg"><p class="cat">Vegetable</p><h3>Cherry Radish</h3><p class="price">$2.75</p></article>
+      <article class="card" data-cat="herb"><p class="cat">Herb</p><h3>Common Chives</h3><p class="price">$3.25</p></article>
+      <article class="card" data-cat="flower"><p class="cat">Flower</p><h3>Bee Balm</h3><p class="price">$4.50</p></article>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Search filters correctly.
+  document.getElementById('q').addEventListener('input', function () {
+    var term = this.value.toLowerCase();
+    document.querySelectorAll('#grid .card').forEach(function (card) {
+      card.style.display = card.querySelector('h3').textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+  });
+  // "Filter by category" sorts the grid by name instead of filtering it.
+  document.getElementById('catfilter').addEventListener('change', function () {
+    var grid = document.getElementById('grid');
+    var cards = Array.from(grid.children);
+    cards.sort(function (a, b) {
+      return a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent);
+    });
+    cards.forEach(function (card) { grid.appendChild(card); });
+  });
+  // View tabs swap content with no address; Share copies the bare URL, losing the state.
+  document.querySelectorAll('.views button[data-view]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      document.querySelectorAll('.views button[data-view]').forEach(function (other) {
+        other.setAttribute('aria-pressed', String(other === button));
+      });
+      var panel = document.getElementById('viewpanel');
+      if (button.dataset.view === 'planting') {
+        panel.innerHTML = '<p>March: sow basil indoors. April: direct-sow radish. May: harden off kale.</p>';
+      } else if (button.dataset.view === 'saved') {
+        panel.innerHTML = '<p>Nothing saved yet.</p>';
+      } else {
+        location.reload();
+      }
+    });
+  });
+  document.getElementById('share').addEventListener('click', function () {
+    navigator.clipboard && navigator.clipboard.writeText(location.href);
+    this.textContent = 'Copied';
+  });
+</script>
+</body>
+</html>

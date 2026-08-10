@@ -1,21 +1,21 @@
 {
-  "title": "American Mahjong Course · durable Scruffy audit",
+  "title": "Sample Course · durable Scruffy audit",
   "outcome": {
     "label": "Sound with material gaps",
     "summary": "The course is distinctive and usable, not generic visual slop. Material gaps remain in route addressability, contents scalability, semantic page changes, contrast, and implementation shape. All seventeen records from the prior dashboard are reconciled: none disappeared, five are now fixed, cleared, or merged, four need targeted verification, and two new enhancements plus three strengths were added.",
     "confidence": "high for registry continuity and sampled source, tasks, responsive behavior, and contrast; moderate for items explicitly marked needs-verification"
   },
   "product_frame": [
-    {"question": "Who is it for?", "answer": "An adult beginner learning American Mahjong, often before joining experienced players at a physical table.", "basis": "observed and inferred"},
+    {"question": "Who is it for?", "answer": "An adult beginner learning the course subject, often before practising with experienced peers.", "basis": "observed and inferred"},
     {"question": "What job does it perform?", "answer": "Teach rules and table procedure as a sequenced, resumable course.", "basis": "observed"},
     {"question": "What is the primary action?", "answer": "Read a lesson, operate its learning control, and advance.", "basis": "observed"},
-    {"question": "What is meaningfully different?", "answer": "A self-contained, visually Mahjong-specific course with reveals, transcript, speech, progress, and print support.", "basis": "observed"},
+    {"question": "What is meaningfully different?", "answer": "A self-contained, visually subject-specific course with reveals, transcript, speech, progress, and print support.", "basis": "observed"},
     {"question": "Why return?", "answer": "Continue a thirty-two-page course across interrupted sittings and retrieve rules before play.", "basis": "observed"},
     {"question": "What means success?", "answer": "A learner can find and correctly apply a rule at the table.", "basis": "inferred and task-tested"}
   ],
   "tasks": [
     {"id": "T1", "goal": "Resume progress after reload", "result": "Advanced from page 27 to 28, reloaded, and remained on page 28.", "status": "pass", "evidence": "Visible-state behavioral test; no browser-storage contents inspected."},
-    {"id": "T2", "goal": "Find what a Joker can never do", "result": "Contents to Module 3 to Joker rules completed in two navigation actions and about 7.5 seconds.", "status": "pass", "evidence": "Direct walkthrough cleared AS-08 as a material defect."},
+    {"id": "T2", "goal": "Look up a specific exception rule", "result": "Contents to Module 3 to exception rules completed in two navigation actions and about 7.5 seconds.", "status": "pass", "evidence": "Direct walkthrough cleared AS-08 as a material defect."},
     {"id": "T3", "goal": "Reveal and hide an answer", "result": "The control changed state and exposed then removed the answer.", "status": "pass", "evidence": "Visible state and content both changed."},
     {"id": "T4", "goal": "Open and close the transcript", "result": "Transcript toggled and exposed aria-pressed state.", "status": "pass", "evidence": "Visible content and semantic state changed."},
     {"id": "T5", "goal": "Use the course at 375 by 812", "result": "Content, fixed navigation, and sampled controls remained usable without obvious horizontal overflow.", "status": "pass with navigation-density concern", "evidence": "Mobile viewport operation closed ENH-4 and carried AS-01."},

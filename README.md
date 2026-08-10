@@ -270,6 +270,7 @@ scruffy/
 │   └── openai.yaml               # Codex UI metadata
 ├── schema/
 │   ├── taxonomy.json             # canonical layers, categories, facets, labels, and proof rules
+│   ├── rules/                    # deterministic lead packs: cited, guarded, leads never findings
 │   └── audit-contract.json       # canonical modes, authority, capabilities, evidence, and editorial receipts
 ├── references/
 │   ├── taxonomy.md              # generated human projection of the category contract
@@ -286,7 +287,8 @@ scruffy/
 │   ├── archetypes.json          # application-class coverage fixtures
 │   ├── sentence-slop/           # quality-signal and false-positive fixtures
 │   ├── durability/              # valid and intentionally invalid synthetic revisions
-│   └── mahjong/                 # real seventeen-record reconciliation golden case
+│   └── continuity/                 # real seventeen-record reconciliation golden case
+│   └── web-fixtures/            # known-answer pages with a hidden discrimination key
 ├── principles/
 │   ├── PRINCIPLES.md            # source-of-truth research corpus
 │   ├── SOURCES.md               # source registry and intake provenance
@@ -335,6 +337,9 @@ python3 scripts/test_sentence_slop.py
 python3 scripts/test_blind_protocol.py
 python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py
+python3 scripts/test_web_fixtures.py
+python3 scripts/rule_engine.py --check
+python3 scripts/test_rule_engine.py
 ```
 
 The first checks metadata, the Claude maintainer contract, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.

@@ -17,7 +17,7 @@
   "should_not_trigger": [
     {"prompt": "Perform a security-only scan of this API for injection vulnerabilities.", "reason": "Use a security-review workflow."},
     {"prompt": "Optimize this SQL query plan.", "reason": "No interface-design task."},
-    {"prompt": "Generate a Mahjong tile illustration.", "reason": "Use an image-generation workflow."},
+    {"prompt": "Generate a board-game illustration.", "reason": "Use an image-generation workflow."},
     {"prompt": "Review the correctness of this backend authentication middleware.", "reason": "Non-interface code review."},
     {"prompt": "Summarize these YouTube transcripts.", "reason": "Research summarization alone does not invoke an interface audit."},
     {"prompt": "Fix a failing GitHub Actions test.", "reason": "Use a CI-debugging workflow."},

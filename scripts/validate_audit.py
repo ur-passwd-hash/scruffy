@@ -39,6 +39,13 @@ NON_FINDING_SEVERITIES = {"high", "medium", "low", "none"}
 ITEM_ID = re.compile(r"^[A-Z][A-Z0-9]{1,5}-\d{1,4}$")
 IDENTITY_KEY = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 EVIDENCE_ID = re.compile(r"^EV-[A-Z0-9][A-Z0-9-]{0,31}$")
+ACTIVE_FINDING_STATUSES = {"open", "needs-verification"}
+RUNTIME_EVIDENCE_KINDS = {"runtime_trace", "measurement"}
+RENDERED_EVIDENCE_KINDS = {"screenshot", "task_observation"}
+ACCESSIBILITY_CRITERION = re.compile(
+    r"\b(?:WCAG|SC)\s*\d+\.\d+\.\d+\b|\bEN\s*301\s*549\b|\bSection\s*508\b",
+    re.IGNORECASE,
+)
 REQUIRED_ITEM_FIELDS = {
     "id",
     "identity_key",
@@ -780,6 +787,48 @@ def validate_context(
             analyzer_ref = item["editorial_review"].get("analyzer_evidence_ref")
             if analyzer_ref is not None and by_evidence[analyzer_ref]["kind"] != "analysis_receipt":
                 fail(f"registry item {item_id} analyzer evidence must use kind analysis_receipt")
+
+        evidence_kinds = {
+            by_evidence[evidence_id]["kind"]
+            for evidence_id in item["evidence_refs"]
+            if evidence_id in by_evidence
+        }
+        if item["kind"] == "finding" and item["status"] in ACTIVE_FINDING_STATUSES:
+            if item["category"] == "performance" and not evidence_kinds & RUNTIME_EVIDENCE_KINDS:
+                fail(
+                    f"registry item {item_id} is an active performance finding without runtime evidence"
+                    " (attach a runtime_trace or measurement receipt, or mark the item needs-verification evidence)"
+                )
+            if item["category"] == "accessibility":
+                if "accessibility_observation" not in evidence_kinds:
+                    fail(
+                        f"registry item {item_id} is an active accessibility finding without an"
+                        " accessibility_observation receipt"
+                    )
+                claim_text = " ".join([item["title"], item["observation"], *item["evidence"]])
+                if not ACCESSIBILITY_CRITERION.search(claim_text):
+                    fail(
+                        f"registry item {item_id} is an active accessibility finding without a named"
+                        " criterion (for example WCAG 1.4.3)"
+                    )
+            if item["category"] == "visual" and not evidence_kinds & RENDERED_EVIDENCE_KINDS:
+                fail(
+                    f"registry item {item_id} is an active visual finding without rendered evidence"
+                    " (attach a screenshot or task_observation receipt; source-only visual claims are unverified)"
+                )
+
+    screenshots_status = by_capability["screenshots"]["status"]
+    screenshot_assets = [asset for asset in by_evidence.values() if asset["kind"] == "screenshot"]
+    if screenshots_status in {"available", "partial"} and not screenshot_assets:
+        fail(
+            "context.capabilities claims screenshots "
+            f"{screenshots_status} but the run captured no screenshot evidence asset;"
+            " record the capability as not_run, unavailable, or not_needed instead"
+        )
+    if screenshots_status in {"unavailable", "not_run", "not_authorized", "not_needed"} and any(
+        asset.get("verification") == "captured" for asset in screenshot_assets
+    ):
+        fail("captured screenshot evidence contradicts the screenshots capability status")
 
     missing_blind = sorted(set(run["blind_artifact_refs"]) - set(by_evidence))
     if missing_blind:

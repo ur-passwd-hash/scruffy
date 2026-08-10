@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Hidden expectation key for the known-answer web fixtures. Never open this file during an audit of the fixtures; list this directory as a forbidden input in every blind manifest.",
+  "authorship_labels_used": false,
+  "sample_expectations": {
+    "WF-A-01": {
+      "expected_disposition": "candidate",
+      "category": "interaction",
+      "planted": "The category control is labeled as a filter but sorts the grid by name; no card is ever removed.",
+      "detectable_by": "Operating the select and observing that all six cards remain visible in changed order."
+    },
+    "WF-A-02": {
+      "expected_disposition": "cleared",
+      "category": "interaction",
+      "planted": null,
+      "detectable_by": "The search input hides non-matching cards as typed; it behaves as labeled."
+    },
+    "WF-A-03": {
+      "expected_disposition": "candidate",
+      "category": "information_architecture",
+      "planted": "View tabs swap content with no address; Share copies the bare URL, so a shared planting-calendar view opens the default catalogue. Returning to Catalogue reloads the page.",
+      "detectable_by": "Switching views, observing an unchanged URL, and operating Share."
+    },
+    "WF-A-04": {
+      "expected_disposition": "cleared",
+      "category": "visual",
+      "planted": null,
+      "detectable_by": "The repeated card grid is a consistent system primitive; repetition alone is not slop."
+    },
+    "WF-B-01": {
+      "expected_disposition": "candidate",
+      "category": "copy",
+      "planted": "Unsupported superlatives and audience-free filler: most advanced, 10,000 industry leaders with no source, revolutionize, unparalleled, unlock full potential.",
+      "detectable_by": "No claim in the block is checkable; every sentence survives transplant to any product."
+    },
+    "WF-B-02": {
+      "expected_disposition": "cleared",
+      "category": "copy",
+      "planted": null,
+      "detectable_by": "Each claim is concrete and checkable: price, cancellation, transfer time, CSV export, reminder policy, linked uptime record."
+    },
+    "WF-B-03": {
+      "expected_disposition": "candidate",
+      "category": "visual",
+      "planted": "Synthetic proof: five-star rating citing no source or count, an unattributed Best Invoicing Tool 2026 award, a Certified Excellence badge certifying nothing, and a bank-grade security claim with no named control.",
+      "detectable_by": "No badge resolves to a verifiable source anywhere on the page."
+    },
+    "WF-B-04": {
+      "expected_disposition": "cleared",
+      "category": "visual",
+      "planted": null,
+      "detectable_by": "The interface imagery is explicitly captioned as a product demonstration with simulated data; provenance is honest."
+    },
+    "WF-C-01": {
+      "expected_disposition": "candidate",
+      "category": "accessibility",
+      "planted": "Placeholder-only inputs with no labels; helper text at roughly 2.8:1 contrast (#999999 on #f5f5f5), below the WCAG 1.4.3 minimum of 4.5:1; Apply defaults is a span with no keyboard path, no focus state, and no effect.",
+      "detectable_by": "Keyboard traversal skips the span; computed contrast fails; inputs have no accessible name."
+    },
+    "WF-C-02": {
+      "expected_disposition": "cleared",
+      "category": "accessibility",
+      "planted": null,
+      "detectable_by": "Visible labels bound with for/id, autocomplete tokens, a real button with a visible focus style, and a role=status confirmation."
+    },
+    "WF-C-03": {
+      "expected_disposition": "candidate",
+      "category": "interaction",
+      "planted": "Save changes gives no feedback and clears the field; the value is silently discarded.",
+      "detectable_by": "Typing a note, activating Save, and observing the field empty with no confirmation and no persisted state."
+    },
+    "WF-C-04": {
+      "expected_disposition": "cleared",
+      "category": "interaction",
+      "planted": null,
+      "detectable_by": "The toggle updates aria-pressed and mirrors its state in visible text; it behaves as promised."
+    }
+  }
+}

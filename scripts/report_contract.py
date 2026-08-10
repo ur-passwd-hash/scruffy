@@ -66,9 +66,19 @@ def capability_rows(context: dict[str, Any]) -> list[list[Any]]:
     ]
 
 
+def score_row_label(key: Any) -> str:
+    """Name the canonical slop category first so a reader can map a score to the
+    public category, then the measurement framing used for the score itself."""
+    public = CATEGORY_LABELS.get(key)
+    scored = SCORE_LABELS.get(key)
+    if public and scored:
+        return f"{public} · {scored}"
+    return public or scored or str(key or "")
+
+
 def score_rows(context: dict[str, Any]) -> list[list[Any]]:
     return [
-        [SCORE_LABELS.get(row.get("category"), row.get("category", "")), row.get("score", ""), row.get("evidence", "")]
+        [score_row_label(row.get("category")), row.get("score", ""), row.get("evidence", "")]
         for row in context.get("scores", [])
     ]
 

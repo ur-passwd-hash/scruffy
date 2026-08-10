@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerline — Simple invoicing for freelancers</title>
+<style>
+  :root{--ink:#1c2430;--paper:#fcfbf8;--acc:#274690}
+  *{box-sizing:border-box;margin:0}
+  body{font:16px/1.55 "Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--paper)}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px}
+  h1{font-size:34px;line-height:1.15;margin-bottom:10px}
+  .sub{font-size:18px;color:#46505c;margin-bottom:24px}
+  .claims{border:1px solid #ccd3dd;background:#fff;padding:18px;margin:20px 0}
+  .claims h2{font-size:16px;margin-bottom:8px}
+  .badges{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap}
+  .badge{border:1px solid #ccd3dd;background:#fff;padding:8px 12px;font-size:13px}
+  .stars{color:#b58900;letter-spacing:2px}
+  .plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+  .plan{border:1px solid #ccd3dd;background:#fff;padding:18px}
+  .plan .price{font-size:26px;font-weight:bold}
+  .plan ul{margin:10px 0 0 18px}
+  .demo{border:1px solid #ccd3dd;background:#eef1f6;padding:14px;text-align:center;margin:22px 0}
+  .demo .frame{background:#fff;border:1px solid #ccd3dd;height:120px;display:flex;align-items:center;justify-content:center;color:#6a7482}
+  .demo figcaption{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#46505c;margin-top:8px}
+  .cta{display:inline-block;background:var(--acc);color:#fff;padding:12px 22px;text-decoration:none;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Invoices that get you paid.</h1>
+  <p class="sub">Ledgerline creates, sends, and chases invoices for freelance work.</p>
+
+  <!-- Claim block one. -->
+  <div class="claims" data-sample="WF-B-01">
+    <h2>Why freelancers choose Ledgerline</h2>
+    <p>The world's most advanced invoicing platform. Trusted by over 10,000 industry
+    leaders to revolutionize their billing. Our cutting-edge technology delivers
+    unparalleled results, empowering professionals everywhere to unlock their full
+    potential.</p>
+  </div>
+
+  <!-- Claim block two. -->
+  <div class="claims" data-sample="WF-B-02">
+    <h2>What you get, exactly</h2>
+    <p>$12 per month, cancel any month. Unlimited invoices and clients. Payments land
+    by bank transfer in 2 business days. Every invoice and payment exports as CSV.
+    If a client has not paid in 14 days, Ledgerline sends one reminder and shows you
+    the date it was opened. Uptime for the last 12 months is published at
+    <a href="#uptime-report">/uptime</a>.</p>
+  </div>
+
+  <!-- Recognition row. -->
+  <div class="badges" data-sample="WF-B-03">
+    <span class="badge"><span class="stars">★★★★★</span> Rated 5/5 by users</span>
+    <span class="badge">🏆 Best Invoicing Tool 2026</span>
+    <span class="badge">✔ Certified Excellence</span>
+    <span class="badge">🔒 Bank-grade security</span>
+  </div>
+
+  <div class="plans">
+    <div class="plan">
+      <h3>Solo</h3>
+      <p class="price">$12<span style="font-size:14px">/mo</span></p>
+      <ul><li>Unlimited invoices</li><li>CSV export</li><li>One reminder per invoice</li></ul>
+    </div>
+    <div class="plan">
+      <h3>Studio</h3>
+      <p class="price">$29<span style="font-size:14px">/mo</span></p>
+      <ul><li>Everything in Solo</li><li>3 team seats</li><li>Late-fee automation</li></ul>
+    </div>
+  </div>
+
+  <!-- Product imagery. -->
+  <figure class="demo" data-sample="WF-B-04">
+    <div class="frame">Invoice editor interface</div>
+    <figcaption>Product demonstration — simulated data, not a customer account</figcaption>
+  </figure>
+
+  <a class="cta" href="#signup">Start invoicing</a>
+  <p id="uptime-report" style="margin-top:28px;font-size:13px;color:#46505c">
+    Uptime, incident history, and reminder-delivery rates for the previous 12 months
+    are recorded here monthly: 99.2% (Jul), 99.9% (Jun), 99.8% (May).
+  </p>
+</div>
+</body>
+</html>

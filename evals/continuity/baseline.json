@@ -1,14 +1,14 @@
 {
   "schema_version": "2.0",
-  "audit_id": "mahjong-course-excember",
-  "target": "https://excember.github.io/mahjong-course.html",
-  "revision_id": "mahjong-2026-08-08-v11",
+  "audit_id": "sample-course",
+  "target": "https://example.invalid/sample-course.html",
+  "revision_id": "sample-course-r1",
   "baseline_revision_id": null,
   "items": [
     {
       "id": "AS-01", "identity_key": "contents-inline-wrapping-chip-row", "kind": "finding",
       "title": "Contents opens a wrapping chip row, not a panel", "category": "information-architecture", "severity": "high", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Contents injected 71 nodes as a wrapping inline module strip and displaced the lesson.",
       "user_impact": "The navigation becomes harder to scan and will degrade as modules grow.",
       "evidence": ["Interaction walk reproduced a nine-chip strip wrapping to two rows.", "00-evidence-contents-menu-annotated.jpg"],
@@ -20,7 +20,7 @@
     {
       "id": "AS-02", "identity_key": "lesson-state-not-addressable", "kind": "finding",
       "title": "Thirty-two states share one URL", "category": "information-architecture", "severity": "critical", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Lesson navigation did not update the URL.",
       "user_impact": "Learners cannot bookmark or share a particular lesson or use browser history between lessons.",
       "evidence": ["All lesson states retained the same page URL."],
@@ -32,7 +32,7 @@
     {
       "id": "AS-03", "identity_key": "keyboard-and-focus-contract", "kind": "finding",
       "title": "Keyboard unserved and focus styles absent", "category": "accessibility", "severity": "high", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Arrow keys did not navigate and source contained no explicit focus rules.",
       "user_impact": "Keyboard users receive weak location and accelerated-navigation feedback.",
       "evidence": ["ArrowLeft and ArrowRight produced no lesson navigation.", "Source contained zero focus selectors in the sampled audit."],
@@ -44,7 +44,7 @@
     {
       "id": "AS-04", "identity_key": "semantic-landmarks-and-lesson-announcement", "kind": "finding",
       "title": "No landmarks or live lesson announcement", "category": "accessibility", "severity": "high", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The dynamic page used generic containers with no landmarks or live region.",
       "user_impact": "Assistive-technology users receive weaker orientation when lessons change.",
       "evidence": ["DOM inspection found zero header, nav, main, footer, or live-region elements."],
@@ -56,7 +56,7 @@
     {
       "id": "AS-05", "identity_key": "windows-only-font-stack", "kind": "finding",
       "title": "Windows-only font stack", "category": "visual", "severity": "high", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The declared type choices were interpreted as unavailable outside Windows.",
       "user_impact": "The original report predicted inconsistent rendering across platforms.",
       "evidence": ["Source declared Cambria and Calibri before common fallbacks."],
@@ -68,7 +68,7 @@
     {
       "id": "AS-06", "identity_key": "typography-scale-and-weight-proliferation", "kind": "finding",
       "title": "Six-to-seven font sizes and bold as the default voice", "category": "visual", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Page one rendered eight distinct font sizes and lesson states used many bold roles.",
       "user_impact": "Excessive type roles can weaken hierarchy and make the interface feel mechanically assembled.",
       "evidence": ["Fresh run measured eight distinct sizes on page one.", "01-lesson-before-annotated.jpg"],
@@ -80,7 +80,7 @@
     {
       "id": "AS-07", "identity_key": "dead-viewport-on-lesson-states", "kind": "finding",
       "title": "Dead viewport on lesson states", "category": "visual", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Nine of twenty-one measured pages filled only 45 to 58 percent of the available region.",
       "user_impact": "Short lesson states can appear top-heavy or unfinished on desktop.",
       "evidence": ["Per-page measurements found nine low-fill lesson states.", "01-lesson-before-annotated.jpg"],
@@ -92,7 +92,7 @@
     {
       "id": "AS-08", "identity_key": "missing-course-search-as-defect", "kind": "finding",
       "title": "No search across thirty-two states of reference material", "category": "product", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The course exposed no full-text lookup control.",
       "user_impact": "The original report predicted long rule-lookup paths at a physical table.",
       "evidence": ["Control inventory contained no search action."],
@@ -104,7 +104,7 @@
     {
       "id": "AS-09", "identity_key": "all-caps-letterspaced-kickers", "kind": "finding",
       "title": "All-caps letterspaced kickers on every heading", "category": "visual", "severity": "low", "confidence": "moderate",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Repeated headings used small all-caps letterspaced labels.",
       "user_impact": "The pattern was suspected of making the course feel templated.",
       "evidence": ["Repeated rendered kicker labels were observed throughout lesson states."],
@@ -116,7 +116,7 @@
     {
       "id": "AS-10", "identity_key": "audio-active-and-failure-feedback", "kind": "finding",
       "title": "Play audio produces no visible response", "category": "interaction", "severity": "medium", "confidence": "moderate",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The audio label did not change during two sampled operations.",
       "user_impact": "A learner may not know whether speech started, failed, or is unsupported.",
       "evidence": ["Two operations produced no visible label or state change; one speech probe was inconclusive."],
@@ -128,7 +128,7 @@
     {
       "id": "AS-11", "identity_key": "small-text-contrast-failures", "kind": "finding",
       "title": "Four text and background pairs fail contrast", "category": "accessibility", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The audit initially counted four contrast failures, while its own detail excluded one alpha-compositing artifact.",
       "user_impact": "Three genuine small-text roles are harder to read for low-vision users.",
       "evidence": ["Gold on green measured 3.45:1.", "Green on gold measured 3.45:1.", "Muted text on cream measured 3.44:1."],
@@ -140,7 +140,7 @@
     {
       "id": "BE-01", "identity_key": "content-state-rendering-monolith", "kind": "finding",
       "title": "Course content is trapped inside React components", "category": "implementation-shape", "severity": "high", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "One 760-line, 86,582-character file fused content, state, rendering, speech, and styles.",
       "user_impact": "Routing, search, print material, semantic structure, and consistent tokens share one expensive change surface.",
       "evidence": ["Source inspection counted 256 inline style attributes in the monolithic page."],
@@ -152,7 +152,7 @@
     {
       "id": "ENH-1", "identity_key": "printable-cheat-card", "kind": "enhancement",
       "title": "One-page printable cheat card", "category": "product", "severity": "high", "confidence": "moderate",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "No concise table-side reference is exposed.", "user_impact": "A learner lacks a compact aid during a real game.",
       "evidence": ["Product frame identifies physical-table performance as the post-course job."],
       "cause": "The course is optimized for sequential learning rather than table-side recall.",
@@ -163,9 +163,9 @@
     {
       "id": "ENH-2", "identity_key": "rule-search-jump-to-term", "kind": "enhancement",
       "title": "Rule search and jump to term", "category": "product", "severity": "high", "confidence": "moderate",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The interface has no full-text term lookup.", "user_impact": "Terms that do not match module titles may take longer to retrieve.",
-      "evidence": ["Control inventory contained no search; the Joker lookup still succeeded in three operations."],
+      "evidence": ["Control inventory contained no search; the exception-rule lookup still succeeded in three operations."],
       "cause": "Course content is not exposed through a searchable data model.",
       "recommendation": "Add term search if unmatched-term task evidence justifies it.",
       "acceptance_checks": ["Unmatched terms resolve to the relevant lesson with a measurable improvement."],
@@ -174,7 +174,7 @@
     {
       "id": "ENH-3", "identity_key": "per-module-deep-links", "kind": "enhancement",
       "title": "Per-module deep links", "category": "information-architecture", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "Individual modules cannot be linked directly.", "user_impact": "A teacher or peer cannot send a learner to a precise module.",
       "evidence": ["All module navigation retained one URL."],
       "cause": "Lesson identity is not addressable.",
@@ -185,7 +185,7 @@
     {
       "id": "ENH-4", "identity_key": "mobile-375px-pass", "kind": "enhancement",
       "title": "375-pixel mobile pass", "category": "responsive", "severity": "high", "confidence": "unknown",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The original environment could not run a 375-pixel responsive verification.", "user_impact": "The likely table-side device remained unverified.",
       "evidence": ["Coverage ledger recorded 375-pixel emulation as blocked."],
       "cause": "Responsive browser capability was unavailable in that run.",
@@ -196,7 +196,7 @@
     {
       "id": "ENH-5", "identity_key": "surface-resume-state", "kind": "enhancement",
       "title": "Surface the resume state", "category": "interaction", "severity": "medium", "confidence": "high",
-      "status": "open", "revision_disposition": "new", "first_seen_revision": "mahjong-2026-08-08-v11", "last_observed_revision": "mahjong-2026-08-08-v11",
+      "status": "open", "revision_disposition": "new", "first_seen_revision": "sample-course-r1", "last_observed_revision": "sample-course-r1",
       "observation": "The app restores progress silently without telling the learner.", "user_impact": "A valuable repeat-use feature is invisible and offers no start-over choice.",
       "evidence": ["Behavioral reload test confirmed resume but the interface exposed no resume message."],
       "cause": "Persistence is implemented as hidden behavior rather than an explicit return state.",

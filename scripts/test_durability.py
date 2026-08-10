@@ -147,40 +147,70 @@ def main() -> int:
             contains="Markdown report omits registry items",
         )
 
-        mahjong = ROOT / "evals" / "mahjong"
-        mahjong_dashboard = temp / "mahjong-dashboard.html"
-        mahjong_markdown = temp / "mahjong-audit.md"
+        continuity = ROOT / "evals" / "continuity"
+        continuity_dashboard = temp / "continuity-dashboard.html"
+        continuity_markdown = temp / "continuity-audit.md"
         run(
             "scripts/render_dashboard.py",
-            str(mahjong / "revision.json"),
-            str(mahjong / "context.json"),
-            str(mahjong / "decisions.json"),
-            str(mahjong_dashboard),
+            str(continuity / "revision.json"),
+            str(continuity / "context.json"),
+            str(continuity / "decisions.json"),
+            str(continuity_dashboard),
             contains="rendered 22 registry items",
         )
         run(
             "scripts/render_markdown.py",
-            str(mahjong / "revision.json"),
-            str(mahjong / "context.json"),
-            str(mahjong / "decisions.json"),
-            str(mahjong_markdown),
+            str(continuity / "revision.json"),
+            str(continuity / "context.json"),
+            str(continuity / "decisions.json"),
+            str(continuity_markdown),
             contains="rendered 22 registry items",
         )
         run(
             validator,
-            str(mahjong / "revision.json"),
+            str(continuity / "revision.json"),
             "--baseline",
-            str(mahjong / "baseline.json"),
+            str(continuity / "baseline.json"),
             "--decisions",
-            str(mahjong / "decisions.json"),
+            str(continuity / "decisions.json"),
             "--dashboard",
-            str(mahjong_dashboard),
+            str(continuity_dashboard),
             "--markdown",
-            str(mahjong_markdown),
+            str(continuity_markdown),
             contains="baseline continuity",
         )
 
-    print("PASS: continuity failures are caught, decisions survive migration, and complete reports validate")
+        from report_contract import score_row_label
+
+        # Regression: a canonical category key names the public slop category first,
+        # so a reader can map a score back to the eight public categories.
+        if score_row_label("backend_shape") != "Structure slop \u00b7 Implementation shape":
+            print("FAIL: canonical category key must name its public slop category")
+            return 1
+        if not score_row_label("copy").startswith("Editorial slop"):
+            print("FAIL: copy must present as Editorial slop")
+            return 1
+
+        # Guard: an unrecognized key degrades to the raw key rather than inventing a label.
+        if score_row_label("not_a_category") != "not_a_category":
+            print("FAIL: unknown category key must fall back to the raw key")
+            return 1
+        if "slop" in score_row_label("not_a_category"):
+            print("FAIL: unknown category key must not be given a slop label")
+            return 1
+
+        # Guard: legacy schema-2.0 contexts store display strings, not keys. They must
+        # pass through unchanged so existing registries keep rendering.
+        legacy = continuity_markdown.read_text(encoding="utf-8")
+        for legacy_label in ("Implementation shape", "Runtime performance"):
+            if legacy_label not in legacy:
+                print(f"FAIL: legacy score label {legacy_label!r} no longer renders")
+                return 1
+        if score_row_label("Implementation shape") != "Implementation shape":
+            print("FAIL: legacy display string must pass through unchanged")
+            return 1
+
+    print("PASS: continuity failures are caught, decisions survive migration, complete reports validate, and score rows name canonical categories")
     return 0
 
 

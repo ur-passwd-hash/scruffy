@@ -2,6 +2,46 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.4.0 — 2026-08-10
+
+- Enforced four evidence rules that previously existed only as prose. Schema-2.1
+  validation now fails closed when an active performance finding lacks a
+  runtime_trace or measurement receipt, an active accessibility finding lacks an
+  accessibility_observation receipt or a named criterion (for example WCAG 2.4.3),
+  an active visual finding carries no rendered evidence (screenshot or
+  task_observation), or the capability ledger claims screenshots while the run
+  captured no screenshot evidence; captured screenshots likewise contradict a
+  not-run screenshot capability. Cleared and legacy schema-2.0 items are exempt,
+  preserving falsified-suspicion records and existing registries.
+- Renamed the golden reconciliation fixture to evals/continuity/ and anonymized
+  its target, prose, and identifiers; the seventeen-record structure, dispositions,
+  and regression value are unchanged.
+- Score tables now name the canonical slop category beside the score framing
+  (for example "Structure slop · Implementation shape"), with a regression, an
+  unknown-key fallback guard, and a legacy display-string passthrough guard.
+- Added a deterministic rule engine (`scripts/rule_engine.py`) with rules as data
+  in `schema/rules/*.json`. Every rule carries a canonical category, a severity on
+  the suggestion/warning/error ratchet, a citation into the reconciled principles
+  corpus, an explicit false-positive guard, and a narrow predicate. The engine
+  emits leads, never findings: every lead requires confirmation by operating the
+  interface, and output records `authorship_assessment: not_performed`. Two
+  baseline packs ship (interaction/IA/semantic controls and editorial/synthetic
+  proof, 11 rules); user packs load with `--pack`, require source attribution, and
+  carry credit into every lead. Against the known-answer fixtures the baseline
+  packs surface four of six planted defects statically with zero guard false
+  positives; the remaining two are operation-only by design.
+- Added `evals/web-fixtures/`: three deterministic, self-contained pages with six
+  planted defects and six adjacent legitimate patterns across interaction,
+  information architecture, copy, visual, and accessibility, plus a hidden
+  discrimination key consumed by `scripts/evaluate_blind_outputs.py`. A new
+  `scripts/test_web_fixtures.py` suite enforces page/key agreement, determinism,
+  self-containment, per-page defect/guard pairing, and the no-authorship boundary.
+  Detection quality on these fixtures is now a measured number rather than a claim.
+- Known residual: kind-level checks cannot distinguish a static measurement from
+  a runtime one; a measurement receipt derived from source alone still satisfies
+  the performance predicate. Closing this requires a runtime attribute on
+  measurement receipts in a future schema revision.
+
 ## 2.3.1 — 2026-08-10
 
 - Added an agent-neutral root `AGENTS.md` maintainer contract and a thin
@@ -66,7 +106,7 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 - Added a self-contained dashboard renderer and validators for registry continuity, decision coverage, required sections, and complete item rendering.
 - Added positive and negative durability fixtures plus an executable regression suite.
 - Added application-archetype probes for reference/course, SaaS, transactional, forms/settings, data-heavy, collaboration/realtime, media/editor, marketing/static, and hybrid interfaces.
-- Reconciled the American Mahjong Course audit as the golden cross-revision test case.
+- Reconciled an anonymized course audit as the golden cross-revision test case.
 
 ## 1.0.0 — 2026-08-08
 
@@ -78,4 +118,4 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 - Added deterministic package and corpus validators plus trigger evaluation fixtures.
 - Renamed `tools/` to the conventional `scripts/` directory.
 - Added agent-agnostic installation guidance, contributing rules, and CI validation.
-- Validated the method against the American Mahjong Course public test bed.
+- Validated the method against an external public test bed.
