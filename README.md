@@ -17,7 +17,7 @@
 
 **Scruffy finds AI slop in web apps—and shows its work.** Give Claude or Codex a URL, screenshot, prototype, or source repository. Scruffy operates the real interface, inspects the available code and copy, captures evidence, and returns a prioritized report with practical fixes.
 
-**What “AI slop” means here:** generic layouts, fake or broken interactions, vague or formulaic writing, missing product logic, inaccessible controls, weak performance, and vibe-coded shortcuts that make an app brittle.
+**What “AI slop” means here:** low-quality app output that looks finished because the generator, template, or builder supplied a plausible surface while important product decisions were skipped. Scruffy checks seven places where that shortcut becomes visible: product, interaction, structure, visual design, writing, accessibility, and performance.
 
 **What it does not mean:** Scruffy does not guess whether AI wrote the app. It judges the result, not the author. The same failures can appear in hand-written, template-derived, outsourced, and AI-generated work.
 
@@ -27,7 +27,7 @@
 - Live task walkthroughs instead of screenshot astrology
 - Findings with evidence, user impact, confidence, falsification attempts, and acceptance checks
 - Cleared suspicions published beside confirmed defects
-- Sentence-quality analysis with explicit false-positive guards and **no authorship score**
+- Sentence-quality analysis that excludes markup and code, measures recurring patterns, requires a human semantic-coherence pass, and returns **no authorship score**
 - Stable finding IDs that cannot quietly disappear in a repeat audit
 - Complete JSON, Markdown, and self-contained decision-dashboard outputs
 - Dependency-ordered work orders when implementation is authorized
@@ -71,41 +71,55 @@ $scruffy audit https://example.com end to end. Operate the real tasks, capture d
 | Interaction | Real tasks, feedback, errors, persistence, keyboard and mobile behavior | Controls that behave as promised and recover cleanly |
 | Accessibility | Semantics, names, focus, states, contrast, reflow | Broader access and more robust interaction contracts |
 | Visual identity | Hierarchy, composition, typography, color, density, imagery | A distinctive interface without card soup or decoration theater |
-| Copy | Specificity, terminology, sentence cadence, rhetorical scaffolds, responsibility, errors, recovery language | Concrete, product-specific language instead of filler, without guessing authorship |
+| Copy | Specificity, terminology, conceptual coherence, passage structure, cadence, responsibility, errors, recovery language | Concrete, coherent, product-specific language instead of filler, without guessing authorship |
 | Implementation shape | State ownership, routing, shared primitives, tokens, silent failures | Cheaper changes and fewer repeated defects |
 | Performance | Runtime traces and interaction measurements | Faster, more truthful loading and response behavior |
 
 The method is deliberately evidence-first. It operates representative tasks, challenges its own suspicions, distinguishes defects from enhancements, and publishes cleared suspicions alongside findings. Repeated audits use an immutable registry: every earlier item must be carried, reopened, fixed, cleared, merged, or superseded. A shortlist may change; the historical record cannot silently shrink.
 
-## The recurring slop classes
+## The seven slop categories
 
-### Product slop — the wrong thing, confidently
+Scruffy does not compress an app into one “vibe” score. Every finding belongs to a specific failure class and must carry the matching proof.
 
-The surface never established who it serves or what job it performs. Common signals include unshareable multi-state experiences, absent recovery or resume behavior, dead-end terminal states, and features present only because similar products have them.
+| Category | Plain meaning | What turns a suspicion into a finding |
+|---|---|---|
+| **Product slop** | The app has no clear user, job, outcome, or reason to return. | A missing or contradictory product decision blocks understanding or task success. |
+| **Interaction slop** | Controls, state, feedback, and recovery do not behave as promised. | Operating the real task exposes a wrong action, dead end, lost state, or unusable path. |
+| **Structure slop** (`backend_shape`) | Routes, data, state, content, or components are shaped so badly that several features fail together. | Source and runtime evidence connect multiple symptoms to one shared implementation cause. |
+| **Visual slop** | The interface defaults to card soup, decoration, and interchangeable composition instead of hierarchy and identity. | Rendered evidence shows scanning friction, weakened task priority, or lost product character. |
+| **Writing slop** (`copy`) | The words are vague, repetitive, conceptually incoherent, or useless at the moment of action. | Quoted copy plus an adequate sample shows at least two independent signal families and a clarity, choice, trust, recovery, differentiation, or voice consequence. |
+| **Accessibility slop** | Semantics, focus, state, contrast, or reflow excludes people from the task. | A named requirement or interaction contract fails with reproducible evidence. |
+| **Performance slop** | Loading and interaction are slow, unstable, or dishonest about waiting. | A runtime trace or measurement connects the delay or shift to user-visible harm. |
 
-### Interaction slop — behavior that breaks the affordance
+### Product slop — the app has no clear job
 
-A control promises one thing and does another: a contents button opens an unwieldy chip strip, a filter sorts, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects can be found only by operating the interface.
+The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent resume behavior, and dead-end terminal states.
 
-### Backend-shape slop — structure that makes good features expensive
+### Interaction slop — controls do not keep their promise
 
-Content is fused to rendering, navigation state has no address, styles are copied instead of tokenized, or failures disappear into empty exception handlers. The binding rule is simple: when several wanted features are expensive for the same structural reason, that shared cause is the finding.
+A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects can be found only by operating the interface.
 
-### Visual slop — a generic mean masquerading as design
+### Structure slop — one implementation shortcut breaks several features
+
+Content is fused to rendering, navigation state has no address, styles are copied instead of tokenized, or failures disappear into empty exception handlers. Reports retain the stable category key `backend_shape`. When several wanted features are expensive for the same structural reason, that shared cause is the finding.
+
+### Visual slop — plausible decoration replaces hierarchy and identity
 
 Card soup, excessive type roles, decorative badges, arbitrary gradients, identical radii everywhere, synthetic proof, and interchangeable hero composition are candidate signals. They become findings only when rendered evidence shows weak hierarchy, task friction, or lost identity.
 
-### Copy slop — words that could belong to any product
+### Writing slop — the sentences do not earn their space
 
-Generalized verbs, unexplained “Oops” messages, inconsistent terminology, claims presented as evidence, repeated rhetorical scaffolds, monotonous cadence, and responsibility-obscuring passives can make an interface vague or interchangeable. A word, passive construction, rhetorical question, emoji, exclamation mark, or headline length is never an automatic defect. The sentence analyzer produces length-gated review leads and deliberately refuses to classify authorship.
+Generalized verbs, unexplained “Oops” messages, inconsistent terminology, claims presented as evidence, conceptual collisions, recycled paragraph choreography, repeated rhetorical scaffolds, monotonous cadence, and responsibility-obscuring passives can make an interface vague or interchangeable. Reports retain the stable category key `copy`.
 
-### Performance slop — quality below the speed floor
+Scruffy first removes repository markup, tables, URLs, and code from prose measurements. Its analyzer groups recurring leads into independent signal families, then requires a human to test conceptual coherence, sentence portability, paragraph purpose, and voice fit. An em dash, triad, favorite word, passive construction, rhetorical question, fragment, emoji, or polished sentence is never an automatic defect. Scruffy reports what the words fail to do and deliberately refuses to classify who wrote them.
 
-Slow interaction, unstable layout, delayed primary content, blocking third parties, or dishonest wait states count only when measured at runtime. Source size alone is not a performance finding.
-
-### Accessibility slop — semantics and state treated as decoration
+### Accessibility slop — people cannot perceive or operate the state
 
 Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced state changes, and layouts that fail under zoom are functional defects. The skill identifies specific barriers; it does not claim full conformance from a sample.
+
+### Performance slop — the app misses the speed and truthfulness floor
+
+Slow interaction, unstable layout, delayed primary content, blocking third parties, or dishonest wait states count only when measured at runtime. Source size alone is not a performance finding.
 
 ## Why the method is harder to fool
 
@@ -254,7 +268,7 @@ scruffy/
 │   ├── analyze_sentence_slop.py  # deterministic measurements; never an authorship score
 │   ├── blind_protocol.py         # blind manifest, freeze, and integrity verification
 │   ├── evaluate_blind_outputs.py # hidden-key scoring with no authorship labels
-│   ├── run_sentence_blind.py     # context-free, unlabeled sentence packet runner
+│   ├── run_sentence_blind.py     # unlabeled surface leads; defers semantic checks
 │   ├── validate_audit.py         # registry, decisions, and report validation
 │   ├── migrate_decisions.py      # carry decisions into a new revision
 │   ├── render_dashboard.py       # complete self-contained decision dashboard

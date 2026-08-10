@@ -2,6 +2,15 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.2.0 — 2026-08-10
+
+- Rebuilt sentence-slop analysis around verified reader-facing prose extraction so README HTML, badges, tables, URLs, and install commands no longer inflate sentence counts or specificity markers.
+- Added independent signal families, dependency collapse for duplicated evidence, short-sentence bursts, paragraph-pattern reuse, expanded contrast/scaffold coverage, and stricter passive and phrase-repetition thresholds.
+- Made conceptual coherence, sentence portability, discourse purpose, and voice/subtext mandatory human checks; the deterministic analyzer explicitly marks them unscored and still refuses authorship classification.
+- Expanded the sentence regression corpus from six to eleven cases, including markup contamination, single-device false positives, paragraph choreography, punchline stacks, and semantic collisions.
+- Reconciled the supplied languagejones transcript, Hank Green's primary public statement, current r/WritingWithAI discourse, and coherence/discourse research without promoting community folklore into automatic tells.
+- Rewrote the README around seven plain-language slop categories and the exact evidence each category requires.
+
 ## 2.1.1 — 2026-08-09
 
 - Rewrote the README opening and tagline to say plainly that Scruffy finds, proves, and helps fix AI slop in web apps.

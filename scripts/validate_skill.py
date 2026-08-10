@@ -147,11 +147,15 @@ def validate_durability_contract(text: str) -> None:
 
 def validate_sentence_contract(text: str) -> None:
     reference = (ROOT / "references" / "sentence-slop.md").read_text(encoding="utf-8")
+    analyzer = (ROOT / "scripts" / "analyze_sentence_slop.py").read_text(encoding="utf-8")
     required_skill_fragments = (
         "references/sentence-slop.md",
         "never infer authorship",
         "perplexity",
         "non-native",
+        "verified reader-facing extraction",
+        "conceptual coherence",
+        "independent signal families",
     )
     missing_skill = [fragment for fragment in required_skill_fragments if fragment not in text]
     if missing_skill:
@@ -159,15 +163,31 @@ def validate_sentence_contract(text: str) -> None:
     required_reference_fragments = (
         "Compound finding predicate",
         "adequate sample",
-        "at least two independent signals",
+        "at least two independent signal families",
         "authorship_assessment",
         "not_performed",
         "False-positive guards",
         "UI microcopy",
+        "Extract prose before measuring it",
+        "Required manual passage checks",
+        "Count shared evidence once",
+        "conceptual_coherence",
     )
     missing_reference = [fragment for fragment in required_reference_fragments if fragment not in reference]
     if missing_reference:
         fail(f"sentence-slop reference is missing: {missing_reference}")
+    required_analyzer_fragments = (
+        "normalize_prose",
+        "SIGNAL_FAMILIES",
+        '"manual_review"',
+        '"conceptual_coherence"',
+        '"markup_excluded_from_prose_statistics"',
+        '"dependency_collapses"',
+        '"authorship_assessment": "not_performed"',
+    )
+    missing_analyzer = [fragment for fragment in required_analyzer_fragments if fragment not in analyzer]
+    if missing_analyzer:
+        fail(f"sentence-slop analyzer is missing durable guards: {missing_analyzer}")
 
 
 def validate_blind_contract(text: str) -> None:
@@ -352,8 +372,10 @@ def validate_sentence_evals() -> None:
     except (OSError, json.JSONDecodeError) as error:
         fail(f"sentence-slop fixture is unreadable: {error}")
     cases = data.get("cases")
-    if not isinstance(cases, list) or len(cases) < 6:
-        fail("sentence-slop fixture needs at least six cases")
+    if data.get("schema_version") != "1.1":
+        fail("sentence-slop fixture schema version must be 1.1")
+    if not isinstance(cases, list) or len(cases) < 11:
+        fail("sentence-slop fixture needs at least eleven cases")
     identifiers: list[str] = []
     contexts: set[str] = set()
     for index, case in enumerate(cases):

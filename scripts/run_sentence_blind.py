@@ -20,7 +20,9 @@ CONSEQUENCES = {
     "passive_candidates": "The affected user may not know what acted, what changed, or who can resolve it.",
     "repeated_openings": "Repeated frames flatten distinctions between claims or states.",
     "cadence_uniformity": "Uniform cadence may flatten an intended editorial voice.",
+    "short_sentence_burst": "Repeated punchline-length units may replace development with a promotional beat.",
     "transition_concentration": "Discourse markers may conceal a weak information hierarchy.",
+    "paragraph_pattern_reuse": "Different ideas may be forced through the same rhetorical paragraph choreography.",
     "phrase_repetition": "Repeated phrasing can make distinct claims or actions harder to distinguish.",
 }
 
@@ -74,15 +76,39 @@ def run_packet(samples: list[dict[str, Any]], agent: str) -> dict[str, Any]:
                     "sample_id": sample["id"],
                     "category": "error_recovery_copy" if "missing_recovery_information" in codes else "sentence_copy",
                     "signals": codes,
+                    "signal_families": result["compound_signal"]["independent_signal_families"],
                     "evidence": evidence_for(result["leads"]),
                     "consequence": " ".join(dict.fromkeys(consequences)) or "Multiple signals require product-context review.",
                     "counterexample_tested": (
                         "Checked supplied genre/context guards and whether repetition was required terminology, teaching, safety, or recovery language; none cleared the compound signal."
                     ),
-                    "confidence": "moderate" if result["sample"]["adequacy"] == "limited" else "high",
+                    "confidence": (
+                        "moderate"
+                        if result["sample"]["adequacy"] == "limited" or result["manual_review"]["required"]
+                        else "high"
+                    ),
+                    "finding_eligible": False,
+                    "manual_checks_status": "not_run" if result["manual_review"]["required"] else "not_needed",
                 }
             )
+            if result["manual_review"]["required"]:
+                checks_not_run.append(
+                    {
+                        "sample_id": sample["id"],
+                        "check": "manual sentence passage review",
+                        "reason": "Conceptual coherence, sentence portability, discourse purpose, and voice fit require product-aware human review.",
+                    }
+                )
         else:
+            if result["manual_review"]["required"]:
+                checks_not_run.append(
+                    {
+                        "sample_id": sample["id"],
+                        "check": "manual sentence passage review",
+                        "reason": "Automated surface measurements did not escalate, but they cannot clear conceptual coherence, portability, discourse purpose, or voice fit.",
+                    }
+                )
+                continue
             if result["guards"]["protected_context_applied"]:
                 reason = "Supplied genre/language context makes regularity or passive construction functional; no unguarded compound signal remains."
             elif result["sample"]["adequacy"] == "insufficient":
@@ -100,7 +126,7 @@ def run_packet(samples: list[dict[str, Any]], agent: str) -> dict[str, Any]:
                 }
             )
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "phase": "blind_discovery",
         "agent": agent,
         "skill_invoked": "scruffy",

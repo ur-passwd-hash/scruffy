@@ -1,12 +1,13 @@
 # Sentence-slop audit protocol
 
-Sentence slop is an observable copy-quality failure: repeated rhetorical machinery, monotonous cadence, vague abstraction, or obscured responsibility makes a product less clear, less distinctive, or harder to act on. It is **not** evidence that AI authored the text.
+Sentence slop is an observable copy-quality failure: repeated rhetorical machinery, monotonous cadence, vague abstraction, conceptual collisions, or obscured responsibility makes a product less clear, less distinctive, or harder to act on. It is **not** evidence that AI authored the text.
 
 ## Boundary
 
 - Never classify authorship, calculate an “AI probability,” or use perplexity or burstiness as proof. Machine-text detectors fail under paraphrase and domain/model shift, and low-perplexity methods have produced severe false positives for non-native English writers. [SADASIVAN23][MAGE24][LIANG23]
 - Treat linguistic measurements as leads. Research finds group-level differences in syntax, semantics, and feature variability, but also substantial domain and model variation; those observations do not identify the author of an individual passage. [ZANOTTO25]
-- A finding requires an adequate sample, at least two independent signals, quoted examples, and a demonstrated product consequence. A single phrase, short sentence, passive construction, rhetorical question, or smooth paragraph is not a finding.
+- A finding requires an adequate sample, at least two independent signal families, quoted examples, and a demonstrated product consequence. Count shared evidence once: four repetitions of one “not X, but Y” frame do not become independent because an opening counter and a scaffold counter both see them.
+- A single phrase, em dash, triad, short sentence, passive construction, rhetorical question, polished paragraph, or favorite word is not a finding. These are normal resources of human rhetoric and genre writing. [ORgKY9AlybA 4:06–8:32]
 - Never infer language background, disability, education, or writing assistance from prose. Apply special-context guards only when the user or product context supplies them.
 
 ## Select the copy mode
@@ -19,6 +20,12 @@ Use for landing-page sections, onboarding explanations, lessons, help content, a
 
 Use for labels, buttons, errors, empty states, notifications, and tooltips. Do not apply prose statistics to isolated fragments. Compare at least eight equivalent strings or three related surfaces. Test terminology, grammatical person, specificity, responsibility, recovery information, and repeated filler across the set.
 
+## Extract prose before measuring it
+
+Repository documents are mixed inputs. Exclude frontmatter, HTML-only elements, images, headings, tables, raw URLs, fenced and inline code, and install commands before calculating word count, cadence, repetition, or specificity. Keep visible body copy and list text. Record what was excluded.
+
+This is a trust boundary, not cleanup theater. HTML attributes, Markdown badge syntax, and shell commands can create fake repeated openings, fake proper-name “anchors,” and fragment-heavy sentence counts. A report that measures the source file without proving the extracted reader-facing sample must mark sentence statistics **not run**.
+
 ## Candidate signals
 
 The bundled analyzer reports these as review leads, not verdicts:
@@ -27,18 +34,29 @@ The bundled analyzer reports these as review leads, not verdicts:
 2. **Repeated openings** — several sentences begin with the same two- or three-token frame.
 3. **Formulaic scaffolds** — repeated constructions such as “not X, but Y,” “here is the truth,” or “whether you are…” carry structure without adding product information.
 4. **Rhetorical-question density** — questions repeatedly manufacture momentum but are not answered with concrete information or a decision.
-5. **Passive candidates** — responsibility may be hidden. Confirm the actor or action is actually unclear; passive voice is legitimate when the actor is unknown, irrelevant, or deliberately deemphasized.
-6. **Transition concentration** — paragraphs repeatedly advance through the same discourse markers instead of an information hierarchy.
-7. **Phrase repetition** — nontrivial n-grams recur without being required product terminology.
-8. **Detail sparsity** — abstract promises dominate while actors, objects, conditions, numbers, dates, examples, or consequences are absent.
-9. **Missing error recovery** — a set of error or denial messages states failure but repeatedly omits cause, affected or retained state, and a useful next action.
+5. **Short-sentence burst** — several punchline-length sentences replace development with a uniform promotional beat.
+6. **Passive candidates** — responsibility may be hidden. Confirm the actor or action is actually unclear; passive voice is legitimate when the actor is unknown, irrelevant, or deliberately deemphasized.
+7. **Transition concentration** — paragraphs repeatedly advance through the same discourse markers instead of an information hierarchy.
+8. **Paragraph-pattern reuse** — three or more paragraphs repeat the same non-plain sequence of question, scaffold, transition, statement, or short punchline.
+9. **Phrase repetition** — nontrivial n-grams recur without being required product terminology.
+10. **Detail sparsity** — abstract promises dominate while actors, objects, conditions, numbers, dates, quoted interface labels, examples, or consequences are absent.
+11. **Missing error recovery** — a set of error or denial messages states failure but repeatedly omits cause, affected or retained state, and a useful next action.
+
+### Required manual passage checks
+
+The analyzer cannot safely score these. Run them on every adequate prose sample:
+
+1. **Conceptual coherence** — trace each metaphor, comparison, and key noun across adjacent sentences. Quote any verb-object or source-target mapping that stops making literal or figurative sense. Smooth local wording can still produce an incoherent claim. [COHESENTIA23][ORgKY9AlybA 10:36–14:36]
+2. **Sentence portability** — ask whether a representative claim could move unchanged to several unrelated products. Name the missing actor, object, condition, example, evidence, or consequence; “sounds generic” is not enough.
+3. **Discourse purpose** — label what each paragraph contributes to the reader's task. Repeated setup, contrast, validation, summary, and call-to-action moves are slop only when they add no decision-relevant information. Research on discourse similarity supports examining repeated document structure rather than treating one token as a tell. [QUDSIM25]
+4. **Voice and subtext** — compare with the supplied voice and neighboring surfaces. Identify a necessary point of view, lived detail, restraint, or subtext that was flattened. Do not invent a preferred voice or use “more human” as an acceptance criterion.
 
 ## Compound finding predicate
 
 Promote a lead only when all conditions hold:
 
 1. The sample threshold for its mode is met.
-2. At least two independent signals recur; duplicated measurements of the same repetition count as one signal.
+2. At least two independent signal families recur. Rhythm, rhetorical structure, discourse structure, lexical repetition, specificity, and responsibility are the current families. Collapse duplicated measurements that quote the same evidence.
 3. The audit quotes representative examples and identifies their surfaces.
 4. The copy causes at least one observable consequence: users cannot tell what the product does, who acts, what changed, what to choose, how to recover, or why this product is distinct; or the stated editorial voice is materially flattened.
 5. A plausible counterexample was tested and rejected.
@@ -51,6 +69,7 @@ Report the consequence, not an authorship story. A valid title is “Repeated rh
 - Do not penalize non-native, translated, accessibility-focused, technical, scientific, legal, regulated, or safety-critical prose for low variation. Evaluate whether it serves its intended user and genre. [LIANG23]
 - Passive voice becomes a product-copy issue only when it obscures responsibility, state, or recovery. Clear-language guidance favors active voice because passive constructions can lengthen and obscure content, but this is contextual guidance rather than a ban. [GOVUK-CLEAR]
 - Repetition is legitimate for commands, safety warnings, legal terms, navigation labels, design-system consistency, and teaching reinforcement.
+- Em dashes, parentheticals, rhetorical triads, fragments, contrast frames, and genre calls to action are normal writing devices. Review their density and consequence; never ban them globally. [ORgKY9AlybA 7:30–8:32][ORgKY9AlybA 16:28–16:52]
 - A distinctive voice is not automatically a good one. Clarity, accessibility, truth, and task completion outrank stylistic flamboyance.
 
 ## Evidence record
@@ -61,7 +80,9 @@ For each sentence-copy candidate, record:
 {
   "mode": "prose | ui_microcopy",
   "sample": {"words": 0, "sentences": 0, "surfaces": 0, "adequacy": "adequate | limited | insufficient"},
-  "signals": [{"code": "repeated_openings", "measurement": "", "examples": []}],
+  "normalization": {"source_words": 0, "analyzed_words": 0, "removed": {}},
+  "signals": [{"code": "repeated_openings", "signal_family": "rhythm", "measurement": "", "examples": []}],
+  "manual_checks": [{"code": "conceptual_coherence", "evidence": "", "result": "clear | candidate | not_run"}],
   "consequence": "",
   "counterexample_tested": "",
   "authorship_assessment": "not_performed",
@@ -74,7 +95,7 @@ When the sample is insufficient, report the check as limited or not run. Do not 
 
 ## Optional deterministic analyzer
 
-Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file>` when command execution is available. It uses only the Python standard library and emits measurements plus length-gated leads. The output deliberately contains no authorship score. Inspect the quoted text and product consequence before creating a finding.
+Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file>` when command execution is available. It uses only the Python standard library, strips common repository markup before prose measurement, groups leads by independent signal family, and emits the four required manual checks. The output deliberately contains no authorship score and never makes a finding. Inspect the normalized sample, perform the semantic checks, quote the text, and prove the product consequence before promotion.
 
 ## Research basis
 
@@ -82,5 +103,9 @@ Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file>` when command 
 - [Liang et al., *GPT detectors are biased against non-native English writers*](https://pmc.ncbi.nlm.nih.gov/articles/PMC10382961/) — measured false positives and perplexity bias.
 - [Li et al., *MAGE: Machine-generated Text Detection in the Wild*](https://aclanthology.org/2024.acl-long.3/) — domain/model shift and diminishing linguistic differences.
 - [Zanotto and Aroyehun, *Linguistic and Embedding-Based Profiling of Texts Generated by Humans and Large Language Models*](https://aclanthology.org/2025.emnlp-main.1163/) — syntax, semantics, and variability as population-level features.
+- [Namuduri et al., *QUDsim: Quantifying Discourse Similarities in LLM-Generated Text*](https://openreview.net/forum?id=zFz1BJu211) — repeated discourse structures across generated texts; useful for passage-shape hypotheses, not individual authorship claims.
+- [Maimon and Tsarfaty, *COHESENTIA*](https://aclanthology.org/2023.emnlp-main.324/) — human-perceived coherence, incremental sentence-level annotation, and the unsatisfactory reliability of automated coherence models.
+- [languagejones, *How to Detect AI Slop*](https://www.youtube.com/watch?v=ORgKY9AlybA) — targeted creator source for the surface-tell counterexample and conceptual-coherence review; used only where corroborated and not as an authorship authority. Auto-captions extracted 2026-08-10.
+- [Hank Green, public statement about AI use](https://www.reddit.com/r/nerdfighters/comments/1vc37aw/hanks_comment_about_his_ai_use_posted_here_as_its/) — primary process evidence separating research assistance, personal authorship, voice dilution, trust, and overreliance; not a textual detector rule. [HANKGREEN26]
 - [W3C, *Understanding Success Criterion 3.1.5: Reading Level*](https://www.w3.org/WAI/WCAG22/Understanding/reading-level.html) — audience-aware readability and sample-based evaluation.
 - [GOV.UK, *Use clear language*](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/writing-guidelines/clear-language/) — contextual active-voice and clarity guidance.

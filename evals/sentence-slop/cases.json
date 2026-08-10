@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "purpose": "Quality-signal evaluation; no case has or needs an authorship label.",
   "cases": [
     {
@@ -59,6 +59,54 @@
         {"surface": "account-banner", "text": "Your account was suspended."}
       ],
       "forbidden_leads": ["cadence_uniformity"],
+      "review_needed": false
+    },
+    {
+      "id": "markdown-and-commands-are-not-prose",
+      "mode": "prose",
+      "context": "general",
+      "text": "<p align=\"center\"><img src=\"hero.png\" alt=\"Cartoon mascot\"></p>\n\n# Install the tool\n\n```sh\ngit clone https://example.com/repository.git\nmkdir -p ~/.agents/skills\nln -s \"$(pwd)/repository\" ~/.agents/skills/example\n```\n\nThe guide explains how a reviewer examines a working interface before changing it. Each observation names the surface, the action taken, and the visible result. A suspected defect remains provisional until the reviewer tries to disprove it. The final record separates verified failures from enhancements and cleared suspicions. Follow-up runs preserve every earlier identifier so resolved items cannot disappear. This body copy is long enough to exercise normalization without treating the image element, heading, URL, or shell commands as reader-facing sentences. Reviewers can still inspect those excluded elements with the appropriate accessibility, installation, or implementation check.",
+      "forbidden_leads": ["repeated_openings", "phrase_repetition", "detail_sparsity"],
+      "expected_words_excluded_min": 12,
+      "expected_removed": ["fenced_code_blocks", "heading_lines", "html_images"],
+      "forbidden_result_substrings": ["img src", "git clone", "p align"],
+      "manual_check_codes": ["conceptual_coherence", "sentence_portability"],
+      "review_needed": false
+    },
+    {
+      "id": "one-repeated-contrast-device-is-one-evidence-cluster",
+      "mode": "prose",
+      "context": "general",
+      "text": "It is not a prettier calendar, but a schedule that shows which nurse accepted each shift and when the handoff occurred. The overnight supervisor sees the ward, start time, and unresolved coverage count on one screen. It is not another notification feed, but a dated record that links each alert to the person who acknowledged it. During Friday's drill, Mateo reopened the 11 p.m. assignment after Priya reported a transit delay. It is not a promise of effortless staffing, but a visible queue with named owners and a documented fallback. The charge nurse can call the backup, record the response, and keep the original assignment history. It is not a replacement for judgment, but a shared account of the decision that the morning team can audit. Two hospitals tested the flow for six weeks, and both retained their paper downtime roster. A single repeated contrast construction should prompt editing, yet that one rhetorical habit does not become independent evidence merely because another measurement also sees its opening words.",
+      "expected_leads": ["formulaic_scaffolds", "repeated_openings"],
+      "expected_dependency_collapse": true,
+      "review_needed": false
+    },
+    {
+      "id": "promotional-short-sentence-stack",
+      "mode": "prose",
+      "context": "general",
+      "text": "Here is the truth: work should feel seamless and powerful. Move faster. Dream bigger. Unlock everything. Here is the truth: every journey deserves transformative possibilities. Make the leap. Reimagine the landscape. Elevate the moment. It is not about ordinary progress, but meaningful impact. It is not about specific work, but limitless potential. Ultimately, innovation empowers everyone. Ultimately, transformation changes everything. Whether you are beginning or scaling, the key is possibility. Whether you are planning or building, the key is a powerful journey.",
+      "expected_leads": ["short_sentence_burst", "formulaic_scaffolds", "detail_sparsity"],
+      "expected_signal_families": ["rhythm", "rhetorical_structure", "specificity"],
+      "review_needed": true
+    },
+    {
+      "id": "reused-paragraph-choreography",
+      "mode": "prose",
+      "context": "general",
+      "text": "What if planning felt seamless? Here is the truth: a powerful journey begins with possibility. Start today.\n\nWhat if teamwork felt transformative? Here is the truth: meaningful impact begins with potential. Move together.\n\nWhat if growth felt effortless? Here is the truth: an innovative landscape begins with vision. Go further.\n\nThe three sections use different nouns, yet each makes the reader walk through the same question, declaration, and punchline without supplying an actor, condition, product behavior, or decision. The extra lines continue praising possibility, potential, transformation, and meaningful impact while withholding the thing being offered. Nothing identifies a user, object, place, date, amount, example, constraint, or observable result.",
+      "expected_leads": ["paragraph_pattern_reuse", "formulaic_scaffolds", "rhetorical_question_density", "detail_sparsity"],
+      "expected_signal_families": ["discourse_structure", "rhetorical_structure", "specificity"],
+      "review_needed": true
+    },
+    {
+      "id": "semantic-collision-remains-a-manual-check",
+      "mode": "prose",
+      "context": "general",
+      "text": "The proposal describes two overarching pillars that also undergird the program, leaving the spatial relationship impossible to picture. A later paragraph points a toolkit at the pricing problem and asks what the toolkit can buy, even though no tool, direction, or purchase maps to the actual decision. Another sentence calls the policy both a container to be filled and a blank slate, combining two familiar phrases whose implied actions do not agree. The grammar is smooth and the sentences vary in length. Surface counts cannot determine whether those conceptual mappings work. A reviewer must quote the collision, explain the intended claim, and show how the wording changes the reader's understanding before creating a finding.",
+      "forbidden_leads": ["formulaic_scaffolds", "detail_sparsity", "cadence_uniformity"],
+      "manual_check_codes": ["conceptual_coherence"],
       "review_needed": false
     }
   ]

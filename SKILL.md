@@ -1,6 +1,6 @@
 ---
 name: scruffy
-description: Find, audit, and fix AI slop in web apps, including generic layouts, broken or fake interactions, vague or formulaic copy, accessibility failures, performance problems, and vibe-coded implementation shortcuts. Use for first, repeat, fresh-eyes, or blind audits of a web app, URL, screenshot, prototype, repository, or blank interface; requests to roast, de-vibe-code, redesign, improve, reconcile, or regression-test a UI; questions about generic or AI-like interface writing; and evidence-backed findings, design directions, implementation work orders, or decision reports. Do not use for AI-authorship classification, security-only reviews, or non-interface code work.
+description: Find, audit, and fix AI slop in web apps, including generic layouts, broken or fake interactions, vague, formulaic, or conceptually incoherent copy, accessibility failures, performance problems, and vibe-coded implementation shortcuts. Use for first, repeat, fresh-eyes, or blind audits of a web app, URL, screenshot, prototype, repository, or blank interface; requests to roast, de-vibe-code, redesign, improve, reconcile, or regression-test a UI; questions about generic or AI-like interface writing; and evidence-backed findings, design directions, implementation work orders, or decision reports. Do not use for AI-authorship classification, security-only reviews, or non-interface code work.
 ---
 
 # Scruffy
@@ -87,7 +87,9 @@ Run each representative task. Exercise every unique interaction pattern at least
 
 Collect the smallest evidence that can prove or disprove each candidate finding: task outcome and elapsed time, state transition, URL change, computed contrast, DOM semantics, accessibility state, console/network result, source location, or screenshot. Actively try to falsify the suspicion. Record cleared suspicions and retract disproven claims with the same prominence as findings.
 
-Use [principles/PRINCIPLES.md](principles/PRINCIPLES.md) as the detailed pattern library. Use [principles/SOURCES.md](principles/SOURCES.md) and [principles/INSPIRATIONS.md](principles/INSPIRATIONS.md) for provenance and further study. For sentence-copy candidates, apply the compound predicate in [references/sentence-slop.md](references/sentence-slop.md): adequate sample, at least two independent signals, quoted evidence, a task or voice consequence, and a tested counterexample. Measurements remain leads; never infer authorship.
+Use [principles/PRINCIPLES.md](principles/PRINCIPLES.md) as the detailed pattern library. Use [principles/SOURCES.md](principles/SOURCES.md) and [principles/INSPIRATIONS.md](principles/INSPIRATIONS.md) for provenance and further study. For sentence-copy candidates, apply the compound predicate in [references/sentence-slop.md](references/sentence-slop.md): verified reader-facing extraction, adequate sample, at least two independent signal families, quoted evidence, a task or voice consequence, and a tested counterexample. Count shared evidence once.
+
+For every adequate prose sample, the sentence check has two required passes. First, use deterministic measurements when available. Second, manually test conceptual coherence, sentence portability, paragraph purpose, and fit with any supplied voice. The analyzer deliberately does not score those properties. A no-leads result clears only the automated surface measurements; it does not clear sentence slop until the manual pass is recorded. Measurements remain leads; never infer authorship.
 
 ### 6. Synthesize
 
@@ -130,7 +132,7 @@ Select using product fit, task clarity, accessibility, feasibility, and distinct
 - “Generic” must be tied to concrete sameness, weak hierarchy, irrelevant decoration, synthetic copy, or task friction.
 - Source-only visual claims are unverified until rendered.
 - Automated heuristics generate leads, not verdicts.
-- Sentence regularity, passive voice, rhetorical questions, low lexical variation, and familiar phrases never establish AI authorship. Do not calculate or report an AI probability, perplexity score, or burstiness verdict.
+- Sentence regularity, passive voice, rhetorical questions, em dashes, triads, fragments, low lexical variation, favorite words, and familiar phrases never establish AI authorship. Do not calculate or report an AI probability, perplexity score, or burstiness verdict.
 - Do not infer language background, disability, education, or writing assistance from prose. Respect supplied technical, legal, regulated, translated, accessibility-simple, and non-native contexts as false-positive guards.
 - Accessibility claims require an identified criterion and evidence. Do not claim conformance from a partial audit.
 - Performance claims require measured runtime evidence. Do not infer speed from file size alone.
@@ -160,7 +162,7 @@ The work is complete only when:
 - Product framing and representative tasks are explicit.
 - Available capabilities and checks not run are disclosed.
 - Findings are evidence-backed and falsification has been attempted.
-- Sentence-copy findings meet the compound predicate and make no authorship claim.
+- Sentence-copy findings use verified reader-facing extraction, complete the automated and manual passage checks, meet the independent-family compound predicate, and make no authorship claim.
 - A requested blind run was frozen before baseline reveal, or contamination was disclosed.
 - Structural causes precede cosmetic prescriptions.
 - Severity, confidence, and any scores follow the calibrated rubric.

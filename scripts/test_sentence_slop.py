@@ -21,8 +21,8 @@ def fail(message: str) -> None:
 def main() -> int:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     cases = data.get("cases")
-    if not isinstance(cases, list) or len(cases) < 6:
-        fail("fixture must contain at least six cases")
+    if not isinstance(cases, list) or len(cases) < 11:
+        fail("fixture must contain at least eleven cases")
 
     for case in cases:
         items = case.get("items", [])
@@ -46,8 +46,51 @@ def main() -> int:
             fail(f"{case['id']} made an authorship assessment")
         if not result["guards"]["no_authorship_inference"]:
             fail(f"{case['id']} lacks the authorship guard")
+        if result["schema_version"] != "1.1":
+            fail(f"{case['id']} returned an unexpected schema version")
+        if any("signal_family" not in lead for lead in result["leads"]):
+            fail(f"{case['id']} returned a lead without a signal family")
+        families = set(result["compound_signal"]["independent_signal_families"])
+        if result["compound_signal"]["independent_signal_count"] != len(families):
+            fail(f"{case['id']} independent-signal count does not match its families")
 
-    print(f"PASS: {len(cases)} sentence-slop cases, compound predicate, and authorship guards")
+        expected_families = set(case.get("expected_signal_families", []))
+        if expected_families and not expected_families.issubset(families):
+            fail(
+                f"{case['id']} missing expected signal families: "
+                f"{sorted(expected_families - families)}; got {sorted(families)}"
+            )
+        if case.get("expected_dependency_collapse") and not result["compound_signal"]["dependency_collapses"]:
+            fail(f"{case['id']} did not collapse duplicated evidence")
+
+        normalization = result["normalization"]
+        excluded_minimum = int(case.get("expected_words_excluded_min", 0))
+        if normalization["words_excluded"] < excluded_minimum:
+            fail(
+                f"{case['id']} excluded {normalization['words_excluded']} words; "
+                f"expected at least {excluded_minimum}"
+            )
+        removed = normalization.get("removed", {})
+        missing_removed = [name for name in case.get("expected_removed", []) if removed.get(name, 0) < 1]
+        if missing_removed:
+            fail(f"{case['id']} did not record removed source structures: {missing_removed}")
+        rendered = json.dumps(result).lower()
+        leaked = [value for value in case.get("forbidden_result_substrings", []) if value.lower() in rendered]
+        if leaked:
+            fail(f"{case['id']} leaked excluded markup/code into analysis: {leaked}")
+
+        manual_codes = {check["code"] for check in result["manual_review"]["checks"]}
+        missing_manual = set(case.get("manual_check_codes", [])) - manual_codes
+        if missing_manual:
+            fail(f"{case['id']} missing manual checks: {sorted(missing_manual)}")
+        if case["mode"] == "prose" and result["sample"]["adequacy"] != "insufficient":
+            if not result["manual_review"]["required"]:
+                fail(f"{case['id']} did not require the semantic/manual pass")
+
+    print(
+        f"PASS: {len(cases)} sentence-slop cases, markup normalization, independent-family predicate, "
+        "manual semantic checks, and authorship guards"
+    )
     return 0
 
 

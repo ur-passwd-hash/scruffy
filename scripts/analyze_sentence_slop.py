@@ -16,13 +16,29 @@ from typing import Any
 WORD = re.compile(r"[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*")
 URL = re.compile(r"\b(?:https?://|www\.)\S+", re.I)
 NUMBER_OR_DATE = re.compile(
-    r"(?:\b\d+(?:[.,]\d+)?%?\b|\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}\b)",
+    r"(?:[$£€]\s?\d+(?:[.,]\d+)?|\b\d+(?:[.,]\d+)?%?\b|\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}\b)",
     re.I,
+)
+QUOTED_LABEL = re.compile(r"[\"“]([A-Za-z0-9][^\"”\n]{1,48})[\"”]")
+FENCED_CODE = re.compile(r"(?ms)^\s*(```|~~~).*?^\s*\1\s*$")
+HTML_CODE_BLOCK = re.compile(r"(?is)<(?:script|style|pre|code)\b[^>]*>.*?</(?:script|style|pre|code)>")
+HTML_COMMENT = re.compile(r"(?s)<!--.*?-->")
+HTML_IMAGE = re.compile(r"(?is)<img\b[^>]*>")
+HTML_TAG = re.compile(r"(?s)<[^>]+>")
+MARKDOWN_IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+MARKDOWN_LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+INLINE_CODE = re.compile(r"`[^`\n]+`")
+MARKDOWN_TABLE_SEPARATOR = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$")
+HORIZONTAL_RULE = re.compile(r"^\s{0,3}(?:[-*_]\s*){3,}$")
+COMMAND_LINE = re.compile(
+    r"^\s{0,3}(?:[$>]\s*)?(?:git|gh|npm|npx|pnpm|yarn|python\d*|pip|uv|cargo|go|curl|wget|mkdir|ln|cp|mv|claude|codex|/scruffy|\$scruffy)\b"
 )
 
 SCAFFOLDS: dict[str, re.Pattern[str]] = {
-    "not_x_but_y": re.compile(r"\b(?:it'?s|this is|we are)\s+not\b.{0,80}\bbut\b", re.I),
-    "here_is_the": re.compile(r"\bhere(?:'s| is)\s+the\b", re.I),
+    "not_x_but_y": re.compile(r"\b(?:it'?s|this is|we are|that is)?\s*not\s+(?!(?:because|just|about)\b)[^.!?\n]{0,100}\bbut\b", re.I),
+    "not_because_but": re.compile(r"\bnot because\b[^.!?\n]{0,100}\bbut because\b", re.I),
+    "not_just_but": re.compile(r"\bnot just\b[^.!?\n]{0,100}\b(?:but|also)\b", re.I),
+    "here_is_the": re.compile(r"\bhere(?:'s| is)\s+the\s+(?:truth|thing|catch|problem|point)\b", re.I),
     "truth_frame": re.compile(r"\bthe truth is\b", re.I),
     "whether_you": re.compile(r"\bwhether you(?:'re| are)\b", re.I),
     "in_a_world": re.compile(r"\bin a world where\b", re.I),
@@ -31,6 +47,9 @@ SCAFFOLDS: dict[str, re.Pattern[str]] = {
     "not_about": re.compile(r"\bit'?s not about\b", re.I),
     "at_end_of_day": re.compile(r"\bat the end of the day\b", re.I),
     "lets_frame": re.compile(r"\blet'?s\b", re.I),
+    "this_is_why": re.compile(r"\bthis is why\b", re.I),
+    "that_matters": re.compile(r"\band that matters\b", re.I),
+    "simply_put": re.compile(r"\bsimply put\b", re.I),
 }
 
 TRANSITIONS = (
@@ -101,14 +120,114 @@ PROTECTED_CONTEXTS = {
     "accessibility-simple",
 }
 
+SIGNAL_FAMILIES = {
+    "cadence_uniformity": "rhythm",
+    "repeated_openings": "rhythm",
+    "short_sentence_burst": "rhythm",
+    "rhetorical_question_density": "rhetorical_structure",
+    "formulaic_scaffolds": "rhetorical_structure",
+    "transition_concentration": "rhetorical_structure",
+    "paragraph_pattern_reuse": "discourse_structure",
+    "phrase_repetition": "lexical_repetition",
+    "detail_sparsity": "specificity",
+    "passive_candidates": "responsibility",
+    "missing_recovery_information": "responsibility",
+}
+
 
 def tokens(text: str) -> list[str]:
     return [match.group(0).lower().replace("’", "'") for match in WORD.finditer(text)]
 
 
+def normalize_prose(text: str) -> tuple[str, dict[str, Any]]:
+    """Remove repository markup and code before measuring reader-facing prose."""
+    source_words = len(tokens(text))
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    removed: Counter[str] = Counter()
+
+    if normalized.startswith("---\n"):
+        end = normalized.find("\n---", 4)
+        if end != -1:
+            newline = normalized.find("\n", end + 4)
+            normalized = normalized[newline + 1 :] if newline != -1 else ""
+            removed["frontmatter_blocks"] += 1
+
+    normalized, count = FENCED_CODE.subn("\n", normalized)
+    removed["fenced_code_blocks"] += count
+    normalized, count = HTML_CODE_BLOCK.subn(" ", normalized)
+    removed["html_code_blocks"] += count
+    normalized, count = HTML_COMMENT.subn(" ", normalized)
+    removed["html_comments"] += count
+    normalized, count = MARKDOWN_IMAGE.subn(" ", normalized)
+    removed["markdown_images"] += count
+    normalized, count = HTML_IMAGE.subn(" ", normalized)
+    removed["html_images"] += count
+    normalized, count = INLINE_CODE.subn(" ", normalized)
+    removed["inline_code_spans"] += count
+    normalized, count = MARKDOWN_LINK.subn(r"\1", normalized)
+    removed["markdown_link_destinations"] += count
+    normalized, count = URL.subn(" ", normalized)
+    removed["raw_urls"] += count
+
+    output: list[str] = []
+    for raw_line in normalized.splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if not stripped:
+            output.append("")
+            continue
+        if re.match(r"^\s{0,3}#{1,6}\s+", line):
+            removed["heading_lines"] += 1
+            output.append("")
+            continue
+        if HORIZONTAL_RULE.match(line) or MARKDOWN_TABLE_SEPARATOR.match(line):
+            removed["structural_lines"] += 1
+            output.append("")
+            continue
+        if line.count("|") >= 2 and stripped.startswith("|"):
+            removed["table_rows"] += 1
+            output.append("")
+            continue
+        if COMMAND_LINE.match(line):
+            removed["command_lines"] += 1
+            output.append("")
+            continue
+
+        without_tags, tag_count = HTML_TAG.subn(" ", line)
+        if tag_count:
+            removed["html_tag_occurrences"] += tag_count
+        cleaned = re.sub(r"^\s*>+\s?", "", without_tags)
+        list_match = re.match(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(.*)$", cleaned)
+        if list_match:
+            cleaned = list_match.group(1)
+            removed["list_markers"] += 1
+        cleaned = re.sub(r"(?<!\w)[*_~]{1,2}([^*_~]+)[*_~]{1,2}(?!\w)", r"\1", cleaned)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        if not tokens(cleaned):
+            if stripped:
+                removed["markup_only_lines"] += 1
+            output.append("")
+            continue
+
+        output.append(cleaned)
+        if list_match:
+            output.append("")
+
+    cleaned_text = re.sub(r"\n{3,}", "\n\n", "\n".join(output)).strip()
+    analyzed_words = len(tokens(cleaned_text))
+    return cleaned_text, {
+        "applied": True,
+        "source_words": source_words,
+        "analyzed_words": analyzed_words,
+        "words_excluded": max(0, source_words - analyzed_words),
+        "source_characters": len(text),
+        "analyzed_characters": len(cleaned_text),
+        "removed": dict(sorted(removed.items())),
+    }
+
+
 def split_sentences(text: str) -> list[str]:
-    normalized = re.sub(r"```.*?```", " ", text, flags=re.S)
-    blocks = re.split(r"\n\s*\n|(?<=[.!?])\s+(?=[\"'“”‘’(]*[A-Z0-9])", normalized)
+    blocks = re.split(r"\n\s*\n|(?<=[.!?])\s+(?=[\"'“”‘’(]*[A-Za-z0-9])", text)
     sentences: list[str] = []
     for block in blocks:
         for line in block.splitlines():
@@ -116,6 +235,63 @@ def split_sentences(text: str) -> list[str]:
             if tokens(cleaned):
                 sentences.append(cleaned)
     return sentences
+
+
+def sentence_role(sentence: str) -> str:
+    lowered = sentence.lower().lstrip("\"'“”‘’(")
+    if sentence.rstrip().endswith("?"):
+        return "question"
+    if any(pattern.search(sentence) for pattern in SCAFFOLDS.values()):
+        return "scaffold"
+    if any(lowered.startswith(transition) for transition in TRANSITIONS):
+        return "transition"
+    if len(tokens(sentence)) <= 5:
+        return "short"
+    return "statement"
+
+
+def paragraph_patterns(text: str) -> list[dict[str, Any]]:
+    signatures: Counter[tuple[str, ...]] = Counter()
+    examples: dict[tuple[str, ...], list[str]] = {}
+    for paragraph in re.split(r"\n\s*\n", text):
+        sentences = split_sentences(paragraph)
+        if len(sentences) < 2:
+            continue
+        signature = tuple(sentence_role(sentence) for sentence in sentences[:3])
+        if not any(role != "statement" for role in signature):
+            continue
+        signatures[signature] += 1
+        examples.setdefault(signature, []).append(paragraph[:240])
+    return [
+        {
+            "signature": " > ".join(signature),
+            "count": count,
+            "examples": examples[signature][:3],
+        }
+        for signature, count in signatures.most_common()
+        if count >= 3
+    ]
+
+
+def specificity_markers(text: str, sentences: list[str]) -> dict[str, Any]:
+    numeric = NUMBER_OR_DATE.findall(text)
+    quoted = [match.group(1) for match in QUOTED_LABEL.finditer(text)]
+    proper: list[str] = []
+    for sentence in sentences:
+        matches = list(WORD.finditer(sentence))
+        for position, match in enumerate(matches):
+            value = match.group(0)
+            if position == 0 or len(value) < 3:
+                continue
+            if value.isupper() or value[0].isupper():
+                proper.append(value)
+    return {
+        "count": len(numeric) + len(quoted) + len(proper),
+        "numeric_or_date": len(numeric),
+        "quoted_labels": len(quoted),
+        "proper_names": len(proper),
+        "examples": (numeric[:3] + quoted[:3] + proper[:3])[:8],
+    }
 
 
 def load_input(path: Path) -> tuple[str, list[dict[str, str]], str | None]:
@@ -182,6 +358,7 @@ def repeated_openings(sentences: list[str]) -> list[dict[str, Any]]:
 
 def repeated_ngrams(text: str, size: int = 3) -> list[dict[str, Any]]:
     words = tokens(text)
+    minimum_count = 3 if len(words) >= 300 else 2
     counts: Counter[tuple[str, ...]] = Counter()
     for index in range(len(words) - size + 1):
         gram = tuple(words[index : index + size])
@@ -191,7 +368,7 @@ def repeated_ngrams(text: str, size: int = 3) -> list[dict[str, Any]]:
     return [
         {"ngram": " ".join(gram), "count": count}
         for gram, count in counts.most_common(8)
-        if count >= 2
+        if count >= minimum_count
     ]
 
 
@@ -199,6 +376,7 @@ def add_lead(leads: list[dict[str, Any]], code: str, measurement: str, reason: s
     leads.append(
         {
             "code": code,
+            "signal_family": SIGNAL_FAMILIES[code],
             "measurement": measurement,
             "reason_to_review": reason,
             "examples": examples[:6],
@@ -210,8 +388,21 @@ def add_lead(leads: list[dict[str, Any]], code: str, measurement: str, reason: s
 def analyze(text: str, *, mode: str = "auto", context: str = "general", items: list[dict[str, str]] | None = None) -> dict[str, Any]:
     items = items or []
     resolved_mode = "ui_microcopy" if mode == "ui" or (mode == "auto" and items) else "prose"
-    sentences = split_sentences(text)
-    word_list = tokens(text)
+    if resolved_mode == "prose":
+        analysis_text, normalization = normalize_prose(text)
+    else:
+        analysis_text = text
+        normalization = {
+            "applied": False,
+            "source_words": len(tokens(text)),
+            "analyzed_words": len(tokens(text)),
+            "words_excluded": 0,
+            "source_characters": len(text),
+            "analyzed_characters": len(text),
+            "removed": {},
+        }
+    sentences = split_sentences(analysis_text)
+    word_list = tokens(analysis_text)
     lengths = [len(tokens(sentence)) for sentence in sentences if tokens(sentence)]
     word_count = len(word_list)
     sentence_count = len(lengths)
@@ -238,7 +429,9 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
     ]
     passives = passive_candidates(sentences)
     scaffold_hits = {
-        name: len(pattern.findall(text)) for name, pattern in SCAFFOLDS.items() if pattern.search(text)
+        name: len(pattern.findall(analysis_text))
+        for name, pattern in SCAFFOLDS.items()
+        if pattern.search(analysis_text)
     }
     transition_hits: list[dict[str, Any]] = []
     for index, sentence in enumerate(sentences, 1):
@@ -246,14 +439,20 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
         hit = next((transition for transition in TRANSITIONS if lowered.startswith(transition)), None)
         if hit:
             transition_hits.append({"sentence": index, "transition": hit, "text": sentence[:240]})
-    grams = repeated_ngrams(text)
+    grams = repeated_ngrams(analysis_text)
     filler_hits = {
-        phrase: len(re.findall(rf"\b{re.escape(phrase)}\b", text, re.I))
+        phrase: len(re.findall(rf"\b{re.escape(phrase)}\b", analysis_text, re.I))
         for phrase in ABSTRACT_FILLER
-        if re.search(rf"\b{re.escape(phrase)}\b", text, re.I)
+        if re.search(rf"\b{re.escape(phrase)}\b", analysis_text, re.I)
     }
-    proper_tokens = re.findall(r"(?<![.!?]\s)\b[A-Z][A-Za-z0-9'-]{2,}\b", text)
-    anchors = len(NUMBER_OR_DATE.findall(text)) + len(URL.findall(text)) + len(proper_tokens)
+    specificity = specificity_markers(analysis_text, sentences)
+    anchors = specificity["count"]
+    short_sentences = [
+        {"sentence": index, "words": len(tokens(sentence)), "text": sentence[:240]}
+        for index, sentence in enumerate(sentences, 1)
+        if 1 <= len(tokens(sentence)) <= 5
+    ]
+    reused_paragraph_patterns = paragraph_patterns(analysis_text) if resolved_mode == "prose" else []
     unrecoverable_errors = [
         {"surface": item["surface"], "text": item["text"][:240]}
         for item in items
@@ -272,7 +471,8 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "Short, plain, procedural, safety, or accessibility-focused sentences may be intentionally regular.",
         )
     repeated_count = sum(entry["count"] - 1 for entry in openings)
-    if sentence_count >= 5 and repeated_count >= 2:
+    strongly_repeated_opening = any(entry["count"] >= 3 for entry in openings)
+    if sentence_count >= 5 and repeated_count >= 3 and (strongly_repeated_opening or len(openings) >= 2):
         add_lead(
             leads,
             "repeated_openings",
@@ -290,11 +490,12 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             questions,
             "Questions are appropriate when the interface actually requests an answer or teaches through inquiry.",
         )
-    if len(passives) >= 2 and sentence_count >= 4:
+    passive_ratio = len(passives) / sentence_count if sentence_count else 0.0
+    if len(passives) >= 3 and sentence_count >= 5 and passive_ratio >= 0.20:
         add_lead(
             leads,
             "passive_candidates",
-            f"{len(passives)} approximate passive constructions",
+            f"{len(passives)} approximate passive constructions ({passive_ratio:.0%} of sentences)",
             "Responsibility, state, or recovery may be obscured.",
             passives,
             "The heuristic is approximate; passive voice is valid when the actor is unknown, irrelevant, or deliberately deemphasized.",
@@ -309,6 +510,16 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             [{"pattern": key, "count": value} for key, value in scaffold_hits.items()],
             "One familiar construction is not a defect; confirm repetition and lost specificity.",
         )
+    short_sentence_ratio = len(short_sentences) / sentence_count if sentence_count else 0.0
+    if prose_stats_allowed and sentence_count >= 10 and len(short_sentences) >= 3 and short_sentence_ratio >= 0.25:
+        add_lead(
+            leads,
+            "short_sentence_burst",
+            f"{len(short_sentences)} sentences of five words or fewer ({short_sentence_ratio:.0%})",
+            "Repeated punchline-length units can flatten prose into a promotional beat instead of developing the idea.",
+            short_sentences,
+            "Short sentences are legitimate for emphasis, accessibility, dialogue, instructions, and deliberate pacing; verify repetition and consequence.",
+        )
     if sentence_count >= 6 and len(transition_hits) >= 3 and len(transition_hits) / sentence_count >= 0.30:
         add_lead(
             leads,
@@ -318,7 +529,8 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             transition_hits,
             "Transitions are useful in arguments; confirm they repeat without adding structure.",
         )
-    if grams and word_count >= 60:
+    repeated_gram_excess = sum(entry["count"] - 1 for entry in grams)
+    if grams and word_count >= 60 and repeated_gram_excess >= 2:
         add_lead(
             leads,
             "phrase_repetition",
@@ -326,6 +538,15 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "Unnecessary phrase reuse can make copy feel templated.",
             grams,
             "Exclude required terminology, commands, warnings, and deliberate teaching reinforcement.",
+        )
+    if reused_paragraph_patterns:
+        add_lead(
+            leads,
+            "paragraph_pattern_reuse",
+            f"{len(reused_paragraph_patterns)} non-plain paragraph signature(s) recur at least three times",
+            "Repeated paragraph choreography can make different ideas arrive in the same prebuilt rhetorical container.",
+            reused_paragraph_patterns,
+            "FAQ, lesson, legal, comparison, and procedural formats may deliberately repeat a paragraph shape; confirm that the structure obscures rather than supports the task.",
         )
     filler_total = sum(filler_hits.values())
     anchors_per_100 = anchors / word_count * 100 if word_count else 0.0
@@ -350,12 +571,58 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
 
     protected = context in PROTECTED_CONTEXTS
     independent_codes = {lead["code"] for lead in leads}
-    compound_signal = adequacy != "insufficient" and len(independent_codes) >= 2 and not protected
+    independent_families = {lead["signal_family"] for lead in leads}
+    dependency_collapses: list[str] = []
+    rhythm_codes = independent_codes & {"cadence_uniformity", "repeated_openings", "short_sentence_burst"}
+    if rhythm_codes == {"repeated_openings"}:
+        repeated_sentence_indexes = {
+            index
+            for opening in openings
+            for index in opening["sentences"]
+            if opening["count"] >= 2
+        }
+        repeated_roles = {
+            sentence_role(sentences[index - 1])
+            for index in repeated_sentence_indexes
+            if 0 < index <= len(sentences)
+        }
+        if repeated_roles and repeated_roles <= {"question", "scaffold", "transition"}:
+            independent_families.discard("rhythm")
+            dependency_collapses.append(
+                "repeated_openings reused the same question, scaffold, or transition evidence as the rhetorical-structure lead"
+            )
+    compound_signal = adequacy != "insufficient" and len(independent_families) >= 2 and not protected
+    manual_checks = []
+    if resolved_mode == "prose" and adequacy != "insufficient":
+        manual_checks = [
+            {
+                "code": "conceptual_coherence",
+                "procedure": "Trace each metaphor, comparison, and key noun across adjacent sentences; quote any verb-object or source-target mapping that stops making literal or figurative sense.",
+                "promotion_rule": "Promote only when the collision changes or obscures the claimed meaning; mixed metaphor alone does not identify an author.",
+            },
+            {
+                "code": "sentence_portability",
+                "procedure": "Test whether a representative claim could be pasted into several unrelated products without changing its meaning; then identify the missing actor, object, condition, example, evidence, or consequence.",
+                "promotion_rule": "Promote only when the missing detail prevents understanding, choice, trust, recovery, or differentiation.",
+            },
+            {
+                "code": "discourse_purpose",
+                "procedure": "Label what each paragraph contributes to the reader's task; challenge repeated setup, contrast, validation, summary, or call-to-action moves that add no new decision-relevant information.",
+                "promotion_rule": "Repeated form is acceptable when the genre or task benefits from it.",
+            },
+            {
+                "code": "voice_and_subtext",
+                "procedure": "Compare the passage with the product's supplied voice and neighboring surfaces; identify where generic explanation erases a necessary point of view, lived detail, restraint, or subtext.",
+                "promotion_rule": "Do not invent a preferred voice and do not equate polish, formality, simplicity, or language background with a defect.",
+            },
+        ]
+
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "mode": resolved_mode,
         "context": context,
         "authorship_assessment": "not_performed",
+        "normalization": normalization,
         "sample": {
             "words": word_count,
             "sentences": sentence_count,
@@ -371,13 +638,24 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "passive_candidates": len(passives),
             "formulaic_scaffolds": scaffold_total,
             "concrete_anchors": anchors,
+            "specificity_markers": specificity,
             "abstract_filler_matches": filler_total,
+            "short_sentences": len(short_sentences),
+            "paragraph_patterns_reused": len(reused_paragraph_patterns),
             "error_states_without_recovery_cue": len(unrecoverable_errors),
         },
         "leads": leads,
+        "manual_review": {
+            "required": bool(manual_checks),
+            "automation_boundary": "Conceptual coherence, sentence portability, discourse purpose, and voice fit are not scored automatically.",
+            "checks": manual_checks,
+        },
         "compound_signal": {
             "review_needed": compound_signal,
-            "independent_signal_count": len(independent_codes),
+            "independent_signal_count": len(independent_families),
+            "independent_signal_families": sorted(independent_families),
+            "lead_codes": sorted(independent_codes),
+            "dependency_collapses": dependency_collapses,
             "finding_eligible": False,
             "reason": (
                 "Protected context supplied; judge clarity and task fit without cadence-based escalation."
@@ -389,6 +667,9 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "protected_context_applied": protected,
             "no_authorship_inference": True,
             "statistical_leads_are_length_gated": True,
+            "markup_excluded_from_prose_statistics": resolved_mode == "prose",
+            "single_surface_tell_is_not_a_finding": True,
+            "semantic_coherence_requires_human_review": True,
         },
     }
 
