@@ -4,6 +4,10 @@ Scruffy is evidence-first. Contributions should make the method more accurate, p
 
 ## Before opening a change
 
+Read `AGENTS.md` for the canonical project map, generated-file routes, and the
+boundary between maintainer sessions and clean-room blind tests. Claude imports
+the same contract through `CLAUDE.md`; there is no second maintenance method.
+
 1. Decide whether the change belongs in runtime instructions, a progressive-disclosure reference, the research corpus, a script, or an evaluation fixture.
 2. Preserve agent, vendor, framework, browser, and operating-system neutrality in `SKILL.md` and `references/`.
 3. Separate an observable predicate from personal taste. A new negative rule needs user/task impact, a way to verify it, and a false-positive guard.
@@ -67,6 +71,8 @@ python3 scripts/test_durability.py
 python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py
 python3 scripts/test_blind_protocol.py
+python3 scripts/test_blind_evaluator.py
+python3 scripts/test_sentence_blind_runner.py
 ```
 
 When editing registry tooling, also prove the expected failure. The durability suite includes invalid fixtures for silent omission and ID reuse; add another invalid fixture when introducing a new invariant.

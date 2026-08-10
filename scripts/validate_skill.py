@@ -79,6 +79,8 @@ def validate_links(text: str) -> None:
 
 def validate_required_files() -> None:
     required = (
+        "AGENTS.md",
+        "CLAUDE.md",
         ".claude-plugin/plugin.json",
         ".claude-plugin/marketplace.json",
         "agents/openai.yaml",
@@ -143,6 +145,42 @@ def validate_required_files() -> None:
     missing = [path for path in required if not (ROOT / path).is_file()]
     if missing:
         fail(f"required files are missing: {missing}")
+
+
+def validate_maintainer_project_contract() -> None:
+    path = ROOT / "AGENTS.md"
+    text = path.read_text(encoding="utf-8")
+    if len(text.splitlines()) > 200:
+        fail("AGENTS.md must stay at or below 200 lines")
+    required = (
+        "`USE`, `MAINTAIN`, or `BLIND FORWARD TEST`",
+        "Root `SKILL.md` is the sole runtime instruction source",
+        "schema/taxonomy.json",
+        "schema/audit-contract.json",
+        "skills/scruffy/SKILL.md",
+        "python3 scripts/taxonomy_contract.py --write",
+        "python3 scripts/audit_contract.py --write",
+        "python3 scripts/claude_adapter.py --write",
+        "Never convert sentence signals into an AI-authorship score",
+        "fresh neutral session",
+        "Freeze blind discovery before revealing any baseline",
+        "git config user.email",
+    )
+    missing = [fragment for fragment in required if fragment not in text]
+    if missing:
+        fail(f"AGENTS.md is missing maintainer invariants: {missing}")
+    claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    required_claude = ("@AGENTS.md", "claude --plugin-dir .", "/scruffy:scruffy", "CLAUDE.local.md")
+    missing_claude = [fragment for fragment in required_claude if fragment not in claude]
+    if missing_claude:
+        fail(f"CLAUDE.md is missing the shared contract import or Claude entrypoint: {missing_claude}")
+    if len(claude.splitlines()) > 20:
+        fail("CLAUDE.md should stay a thin adapter at or below 20 lines")
+    ignored = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    local_paths = ("CLAUDE.local.md", ".claude/settings.local.json")
+    missing_ignores = [path for path in local_paths if path not in ignored]
+    if missing_ignores:
+        fail(f"machine-specific Claude configuration is not ignored: {missing_ignores}")
 
 
 def validate_generated_contracts() -> None:
@@ -501,6 +539,7 @@ def main() -> int:
     validate_budget(text)
     validate_links(text)
     validate_required_files()
+    validate_maintainer_project_contract()
     validate_generated_contracts()
     validate_durability_contract(text)
     validate_sentence_contract(text)
@@ -515,7 +554,7 @@ def main() -> int:
     validate_portability()
     print(
         "PASS: metadata, trigger coverage, progressive-disclosure budget, local references, "
-        "canonical taxonomy, audit, durability, sentence, and blind contracts, Scruffy public brand, Claude/Codex metadata, trigger/archetype/sentence evals, "
+        "canonical taxonomy, audit, durability, sentence, blind, and cross-agent maintainer contracts, Scruffy public brand, Claude/Codex metadata, trigger/archetype/sentence evals, "
         "required files, and portability"
     )
     return 0

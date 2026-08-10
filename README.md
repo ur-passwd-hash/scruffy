@@ -178,8 +178,29 @@ For local plugin development, clone the repository and load it directly:
 
 ```sh
 git clone https://github.com/ur-passwd-hash/scruffy.git
-claude --plugin-dir "$(pwd)/scruffy"
+cd scruffy
+claude --plugin-dir .
 ```
+
+Root `CLAUDE.md` makes the checkout a Claude maintainer project by importing the
+agent-neutral contract in `AGENTS.md`. That contract maps canonical files,
+generated projections, validation, and clean-room test boundaries. Start Claude
+in the repository and paste this prompt:
+
+```text
+Work in Scruffy MAINTAIN mode. Read CLAUDE.md and its imported AGENTS.md first,
+then map the canonical source, generated projections, tests, and distribution entrypoints before
+editing. Use the current skill on the evidence I provide, but do not treat a
+prior audit or my suspected fix as ground truth. Reproduce the gap, identify
+the narrowest canonical owner, add a regression and a false-positive guard for
+behavior changes, regenerate projections, and run the full validation suite.
+If the runtime behavior changes, give me a separate neutral prompt for a fresh
+blind forward test; do not call this maintainer session blind. Explain what
+changed, what remains unverified, and whether a release version should change.
+```
+
+Use `CLAUDE.local.md` for machine-specific notes and keep it uncommitted. Do not
+put target findings or expected blind-test answers in either project file.
 
 If you prefer the bare `/scruffy` command, install the same checkout as a personal skill instead of a plugin:
 
@@ -237,6 +258,8 @@ scruffy/
 ├── .claude-plugin/
 │   ├── plugin.json               # Claude Code plugin manifest
 │   └── marketplace.json          # installable one-plugin marketplace
+├── AGENTS.md                      # canonical agent-neutral maintainer contract
+├── CLAUDE.md                      # Claude import and local plugin invocation
 ├── skills/scruffy/
 │   └── SKILL.md                   # generated Claude discovery adapter; points to canonical root skill
 ├── assets/
@@ -314,7 +337,7 @@ python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py
 ```
 
-The first checks metadata, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.
+The first checks metadata, the Claude maintainer contract, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.
 
 Compatibility note: durable report markers and browser-storage keys retain the internal `anti-slop-*` namespace so existing registries, dashboards, and decisions remain readable after the rename. This does not affect `$scruffy` or `/scruffy` invocation.
 

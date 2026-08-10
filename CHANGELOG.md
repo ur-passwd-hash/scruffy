@@ -2,6 +2,16 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.3.1 — 2026-08-10
+
+- Added an agent-neutral root `AGENTS.md` maintainer contract and a thin
+  `CLAUDE.md` import that turns the checkout into a Claude-priority project
+  without duplicating the runtime skill.
+- Mapped canonical sources to generated projections and made package validation
+  enforce the DRY edit routes, no-authorship boundary, and blind-test separation.
+- Added a paste-ready Claude maintenance prompt and completed the documented
+  validation suite.
+
 ## 2.3.0 — 2026-08-10
 
 - Made **Editorial slop** a first-class public category spanning content strategy, terminology, microcopy, sentence and passage construction, claims, provenance, information sequence, recovery language, and voice while preserving `copy` as the durable compatibility key.

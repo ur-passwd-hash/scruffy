@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `1b5176b9a744be333a575fdd9d60a3812ef8b0e99bf5231ed108e748c646af6a`
+Target SHA-256: `f5907004622ec2abd70c57c36277d9ec39dcb5d373714a8f38eb56473aba6a5a`
 
 Command:
 
@@ -22,17 +22,19 @@ and install commands as prose. Its baseline run reported 2,318 words, 150
 sentences, and 252 “concrete anchors.” That contaminated sentence segmentation
 and specificity evidence.
 
-The schema-2.3 dogfood run reported:
+The release-2.3.1 dogfood run reported:
 
 - analyzer schema 1.2 with verified `en` scope and `supported` language status
-- 2,753 source words
-- 1,424 analyzed reader-facing words
-- 1,329 excluded markup/code words
-- 113 analyzed sentences
-- 19 fenced code blocks, 18 table rows, 26 headings, 5 HTML images, and 32
+- 2,948 source words
+- 1,484 analyzed reader-facing words
+- 1,464 excluded markup/code words
+- 122 analyzed sentences
+- 20 fenced code blocks, 18 table rows, 26 headings, 5 HTML images, and 35
   inline-code spans excluded
-- 83 specificity markers after extraction
-- zero automated review leads
+- 86 specificity markers after extraction
+- one rhythm-family review lead: three opening phrases each appeared twice
+- one independent signal family, so the compound predicate remained false and
+  the README was not finding-eligible
 - manual passage review required
 
 Disposition: **AS-04 fixed and regression-covered.** Automated surface measures
@@ -59,11 +61,14 @@ They do not stand as portable promotional filler.
 ### Discourse purpose — clear
 
 The sequence has distinct jobs: plain promise, deliverables, quick starts,
-eight-category map, evidence discipline, modes, installation,
+eight-category map, evidence discipline, modes, installation, maintainer setup,
 repository anatomy, validation, repeat-audit durability, corpus growth, and
-boundaries. The analyzer found no repeated non-plain paragraph signature. The
-category table deliberately repeats a comparison structure; that repetition
-supports scanning and is not prose slop.
+boundaries. The analyzer found no repeated non-plain paragraph signature. Its
+three duplicated sentence openings—“Editorial review,” “Do not,” and “No
+claim”—occur in separated explanatory or boundary statements with different
+objects. Parallel wording improves recognition there and creates no reader or
+task consequence. The category table likewise repeats a comparison structure
+to support scanning.
 
 ### Voice and subtext — clear
 
@@ -78,7 +83,7 @@ plain category names instead of being silently renamed.
 
 The previous README said seven public categories while scoring and runtime
 instructions described a different shape. Sentence analysis did not detect that
-taxonomy contradiction. Schema 2.3 fixes it by generating the eight-category
+taxonomy contradiction. Release 2.3.0 fixed it by generating the eight-category
 table and details from `schema/taxonomy.json`; package validation now rejects a
 stale projection. “Editorial slop” is the public term and `copy` is explicitly
 identified as the compatibility key.
@@ -93,9 +98,10 @@ and the validation section names the executable checks behind the claim.
 ### Action and recovery clarity — clear
 
 Claude, Codex, and generic Agent Skills paths each include an install command,
-an invocation, and the relevant fallback. Repeat-audit instructions name the
-required baseline artifacts and validation command. No error-state promise is
-made without a next action.
+an invocation, and the relevant fallback. The Claude maintainer path now names
+the project file, startup command, improvement prompt, and blind-test boundary.
+Repeat-audit instructions name the required baseline artifacts and validation
+command. No error-state promise is made without a next action.
 
 ### Voice and audience fit — clear
 
