@@ -1,5 +1,6 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
+  "language": "en",
   "purpose": "Quality-signal evaluation; no case has or needs an authorship label.",
   "cases": [
     {
@@ -107,6 +108,15 @@
       "text": "The proposal describes two overarching pillars that also undergird the program, leaving the spatial relationship impossible to picture. A later paragraph points a toolkit at the pricing problem and asks what the toolkit can buy, even though no tool, direction, or purchase maps to the actual decision. Another sentence calls the policy both a container to be filled and a blank slate, combining two familiar phrases whose implied actions do not agree. The grammar is smooth and the sentences vary in length. Surface counts cannot determine whether those conceptual mappings work. A reviewer must quote the collision, explain the intended claim, and show how the wording changes the reader's understanding before creating a finding.",
       "forbidden_leads": ["formulaic_scaffolds", "detail_sparsity", "cadence_uniformity"],
       "manual_check_codes": ["conceptual_coherence"],
+      "review_needed": false
+    },
+    {
+      "id": "non-english-analysis-abstains",
+      "mode": "prose",
+      "context": "general",
+      "language": "non_en",
+      "text": "Nuestro equipo abre la tienda a las nueve de la mañana. Cada pan lleva su precio y una lista clara de ingredientes. Cuando falta un producto, el cartel explica cuándo volverá y qué alternativa queda disponible. Los clientes pueden preguntar por trigo, huevos o frutos secos. La persona de caja consulta la receta de la cocina antes de responder. Al final del día, el pan restante se separa para el banco de alimentos. Este texto permite probar que las expresiones regulares inglesas no deben juzgar un pasaje escrito en español. La revisión editorial necesita una persona competente en el idioma y el contexto.",
+      "expected_language_status": "abstained",
       "review_needed": false
     }
   ]

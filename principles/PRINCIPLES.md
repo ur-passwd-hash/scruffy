@@ -177,7 +177,7 @@ Grade a landing page by level, then prescribe the next level's fixes [eMMiLeo_UG
 - Personalization must be legible (recognizable buckets, shareable representations) — hyper-specific AI categories failed in Spotify Wrapped; comparison-to-past-self framing is cheap high value; never remove features users anchored on. [goWOAFqJHpA 0:00–5:27]
 - Flag as dark patterns: shame-nag modals with subscribe-to-dismiss, ad-gated continues, blocking housekeeping modals with no off-ramp, demoralizing goal framing, streak-punishment games, walls on trivially expected content, social-pressure checkout add-ons. [BUDipdbKK7Y 0:34–4:17]
 
-## 21. Copy & content slop — validated field axis
+## 21. Editorial slop — validated field axis
 
 **Admission:** the field candidates were checked against the standing corpus plus NNgroup, Baymard, and repeated live YC critiques. Compiled 2026-08-08. **Confidence: moderate** — inconsistency, ambiguity, missing recovery information, and audience mismatch are observable; vocabulary frequency alone cannot prove AI authorship.
 
@@ -199,6 +199,8 @@ Grade a landing page by level, then prescribe the next level's fixes [eMMiLeo_UG
 - Cross-references: straight typewriter quotes (skill C1-5, [Butterick]); “corporate AI mush” and its fix [SfX43uIubj4 0:00].
 
 **Rejected automatic tells:** exclamation marks, emoji in system copy, em dashes, triads, fragments, any single marketing verb or favorite word, passive voice by itself, a rhetorical question, short or regular sentences, low lexical variety, and the earlier ~7-word/~14-word hero budget do not independently establish a defect. Never report AI authorship or an AI probability from these features. Report the measurable ambiguity, conceptual collision, inconsistency, accessibility loss, voice failure, or task consequence instead.
+
+**Canonical implementation ruling:** editorial slop is the public category; `copy` remains its durable registry key so published audit history does not break. Content strategy, terminology, microcopy, claims, provenance, information sequence, recovery language, voice, and sentence construction are review types inside that one category, not competing taxonomies. Author category labels, facets, and required receipts only in `schema/taxonomy.json` and `schema/audit-contract.json`; generated projections and validators must consume those manifests instead of copying the rules.
 
 ## 22. Performance slop — validated measurable axis
 

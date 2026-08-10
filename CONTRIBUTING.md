@@ -31,6 +31,10 @@ Promotional tool demonstrations, trend galleries, and uncited aesthetic claims m
 - Capability-dependent steps need an explicit fallback and a **not run** state.
 - Never make HTML output, screenshots, source access, or implementation access prerequisites for a valid static audit.
 - Do not weaken the privacy boundary around passwords, cookies, tokens, or browser-storage contents.
+- Keep the taxonomy DRY. Edit category/layer/facet definitions only in `schema/taxonomy.json`, then run `python3 scripts/taxonomy_contract.py --write`; do not hand-edit the generated README block or `references/taxonomy.md`.
+- Keep execution rules DRY. Edit modes, authority, capabilities, evidence kinds, and editorial receipt requirements only in `schema/audit-contract.json`, then run `python3 scripts/audit_contract.py --write`; do not hand-edit the generated modes block or `references/audit-contract.md`.
+- Treat **Editorial slop** as the public category and `copy` as its compatibility key. Content strategy, claims/provenance, microcopy, voice, and sentence construction are review types, not new top-level categories.
+- Keep Claude distribution DRY. Root `SKILL.md` is canonical; regenerate `skills/scruffy/SKILL.md` with `python3 scripts/claude_adapter.py --write` after changing frontmatter. Never add runtime rules to the adapter.
 
 ## Evaluation fixtures
 
@@ -38,7 +42,9 @@ Update `evals/triggers.json` when the skill description changes. Positive cases 
 
 Changes to application coverage must update `references/archetypes.md` and `evals/archetypes.json`. Every archetype needs concrete task probes; a named category without observable probes is not coverage.
 
-Changes to sentence-copy detection must update `references/sentence-slop.md`, `evals/sentence-slop/cases.json`, and the sentence regression suite. No fixture may use or expect an authorship label. Add a false-positive case for every new signal or threshold.
+Changes to sentence-copy detection must update `references/sentence-slop.md`, `evals/sentence-slop/cases.json`, and the sentence regression suite. No fixture may use or expect an authorship label. Add a false-positive case for every new signal or threshold. English analysis must declare `en`; non-English and unknown-language input must exercise the abstention path unless a language-competent human review is recorded.
+
+Changes to any editorial review path must also update the canonical audit contract and `scripts/test_audit_contract.py`. An active editorial finding needs typed evidence, a demonstrated consequence, a tested counterexample, and the applicable manual-review receipt; sentence patterns additionally require an adequate or limited sample and two independent signal families.
 
 Changes to blind-audit behavior must preserve quarantine before discovery, temporary candidate IDs, digest freeze before reveal, and contamination rejection. Never place a live blind test's evaluation key in an agent-readable packet.
 
@@ -55,8 +61,10 @@ Changes to findings, decisions, reporting, or repeat-audit behavior must preserv
 
 ```sh
 python3 scripts/validate_skill.py
+python3 scripts/claude_adapter.py --check
 python3 scripts/validate_corpus.py
 python3 scripts/test_durability.py
+python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py
 python3 scripts/test_blind_protocol.py
 ```

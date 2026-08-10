@@ -6,11 +6,12 @@ For durable or repeated audits, [references/durability.md](durability.md) is bin
 
 For a substantial file-backed audit, produce:
 
-1. `findings.json` — complete registry, revision lineage, and presentation lists
-2. `decisions.json` — one decision record per finding/enhancement plus history
-3. Markdown report — complete human-readable audit
-4. Self-contained HTML dashboard when a viewer is available
-5. `tokens.json` only when observed token changes are proposed
+1. `findings.json` — complete registry, revision lineage, presentation lists, and run receipt
+2. `context.json` — product frame, tasks, capabilities, category scores, typed evidence, work orders, and checks not run
+3. `decisions.json` — one decision record per finding/enhancement plus history
+4. Markdown report — complete human-readable audit
+5. Self-contained HTML dashboard when a viewer is available
+6. `tokens.json` only when observed token changes are proposed
 
 Chat-only work emits the same registry as a JSON block when files are unavailable.
 
@@ -31,15 +32,47 @@ Chat-only work emits the same registry as a JSON block when files are unavailabl
 
 Every registry item must be present in the Markdown report and HTML dashboard. Collapsing resolved items is allowed; omission is not.
 
+## Registry and run receipt
+
+New audits emit registry schema `2.1`. Schema `2.0` remains readable for revision durability, but it is not a template for new reports. Mode names and authority rules come only from [audit-contract.md](audit-contract.md); categories and facets come only from [taxonomy.md](taxonomy.md).
+
+```json
+{
+  "schema_version": "2.1",
+  "audit_id": "stable-product-id",
+  "target": "https://example.com",
+  "revision_id": "r2",
+  "baseline_revision_id": "r1",
+  "run": {
+    "requested_mode": "audit",
+    "effective_mode": "audit",
+    "mode_selection_basis": "explicit",
+    "repository_write_authority": "not_authorized",
+    "authority_basis_type": "not_granted",
+    "authority_basis": "The request authorized inspection and reporting only.",
+    "repository_writes_performed": false,
+    "repository_write_paths": [],
+    "live_demonstration_performed": false,
+    "blind_status": "not_run",
+    "blind_artifact_refs": []
+  },
+  "items": [],
+  "presentation": {}
+}
+```
+
+Validation rejects writes in `audit` or `demonstrate_fix`, writes without authority, missing mutation paths, impossible live-demonstration combinations, and unsupported blind claims.
+
 ## Registry item
 
 ```json
 {
   "id": "AS-01",
-  "identity_key": "contents-navigation-affordance",
+  "identity_key": "portable-editorial-claim",
   "kind": "finding",
-  "title": "Contents does not behave as scalable navigation",
-  "category": "information-architecture",
+  "title": "Portable claims hide the product outcome",
+  "category": "copy",
+  "facets": ["trust_integrity"],
   "severity": "medium",
   "confidence": "high",
   "status": "open",
@@ -48,15 +81,55 @@ Every registry item must be present in the Markdown report and HTML dashboard. C
   "last_observed_revision": "r2",
   "observation": "What happened without interpretation",
   "user_impact": "Who is affected and which task becomes harder",
-  "evidence": ["measurement, task result, source location, or screenshot"],
+  "evidence": ["Human-readable summary of the observed evidence"],
+  "evidence_refs": ["EV-COPY", "EV-ANALYZER"],
   "cause": "Verified or explicitly inferred cause",
   "recommendation": "Smallest coherent change",
   "acceptance_checks": ["observable pass condition"],
   "depends_on": [],
   "disposition_reason": "Why this item carried or changed state",
-  "destination_id": null
+  "destination_id": null,
+  "editorial_review": {
+    "review_type": "sentence_pattern",
+    "sample_adequacy": "adequate",
+    "analysis_language_scope": "en",
+    "language_review_basis": "verified_english_analyzer",
+    "analyzer_evidence_ref": "EV-ANALYZER",
+    "independent_signal_families": ["rhetorical_structure", "specificity"],
+    "manual_checks": [
+      {
+        "code": "conceptual_coherence",
+        "result": "clear",
+        "evidence": "Quoted review result",
+        "evidence_ref": "EV-COPY"
+      },
+      {
+        "code": "sentence_portability",
+        "result": "candidate",
+        "evidence": "Representative claims remain interchangeable across unrelated products.",
+        "evidence_ref": "EV-COPY"
+      },
+      {
+        "code": "discourse_purpose",
+        "result": "clear",
+        "evidence": "Each paragraph's reader task was labeled.",
+        "evidence_ref": "EV-COPY"
+      },
+      {
+        "code": "voice_and_subtext",
+        "result": "clear",
+        "evidence": "The supplied voice and implied audience relationship were compared.",
+        "evidence_ref": "EV-COPY"
+      }
+    ],
+    "consequence": "What becomes unclear, misleading, unsupported, or harder to act on",
+    "counterexample_tested": "Why the pattern is not legitimate genre, voice, safety, or accessibility-simple writing",
+    "authorship_assessment": "not_performed"
+  }
 }
 ```
+
+Every schema-2.1 item includes `facets`, `evidence_refs`, and `editorial_review`. Use `editorial_review: null` outside Editorial slop findings and enhancements. Every active `copy` finding completes the applicable editorial contract. Sentence-pattern and mixed findings include all four sentence manual checks, as shown above.
 
 Allowed statuses: `open`, `fixed`, `cleared`, `needs-verification`, `merged`, `superseded`.
 
@@ -64,11 +137,42 @@ Allowed revision dispositions: `new`, `carried`, `reopened`, `fixed`, `cleared`,
 
 `merged` and `superseded` require `destination_id`. `fixed` and `cleared` require direct revision evidence. Findings require severity `critical`, `high`, `medium`, or `low`. Strengths use `none`. Enhancements use `high`, `medium`, or `low` as priority.
 
+## Context and typed evidence
+
+Schema-2.1 registries require `context.json`. Use the exact product-frame, capability, score, task, and evidence keys generated in [audit-contract.md](audit-contract.md).
+
+```json
+{
+  "schema_version": "1.0",
+  "audit_id": "stable-product-id",
+  "revision_id": "r2",
+  "title": "Example audit",
+  "outcome": {"label": "Sound with material gaps", "summary": "...", "confidence": "high"},
+  "product_frame": [{"key": "audience", "answer": "...", "basis": "observed"}],
+  "tasks": [{"id": "T1", "goal": "...", "result": "...", "status": "pass", "evidence_refs": ["EV-TASK"]}],
+  "capabilities": [{"key": "source_read", "status": "available", "scope": "..."}],
+  "scores": [{"category": "product", "score": 0, "evidence": "...", "evidence_refs": ["EV-TASK"]}],
+  "work_orders": [],
+  "checks_not_run": [{"check": "Runtime performance", "reason": "No trace access", "impact": "Performance score is N/A"}],
+  "evidence_assets": [
+    {
+      "id": "EV-TASK",
+      "kind": "task_observation",
+      "locator": "T1",
+      "description": "Observed primary-task result",
+      "verification": "observed"
+    }
+  ]
+}
+```
+
+The complete document contains every required product-frame question, capability, and canonical category score. Registry, task, score, blind, and editorial references resolve to typed evidence IDs. Captured local screenshots, source files, traces, copy samples, and analysis receipts must exist relative to `context.json` or at their absolute path.
+
 ## Decisions
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "audit_id": "stable-product-id",
   "revision_id": "r2",
   "baseline_revision_id": "r1",
@@ -87,6 +191,12 @@ Allowed revision dispositions: `new`, `carried`, `reopened`, `fixed`, `cleared`,
 ```
 
 Allowed decisions are `pending`, `approve`, `defer`, and `reject`. Preserve history append-only. A merged or superseded source retains its decision; never transfer approval to the destination automatically.
+
+The decisions schema version must match its registry. Validate a new audit with:
+
+```sh
+python3 scripts/validate_audit.py findings.json --context context.json --decisions decisions.json --dashboard dashboard.html --markdown report.md
+```
 
 ## Token data
 

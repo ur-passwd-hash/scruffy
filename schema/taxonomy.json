@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "registry_schema": {
+    "current": "2.1",
+    "legacy": ["2.0"]
+  },
+  "inspection_layers": [
+    {
+      "key": "product",
+      "label": "Product",
+      "purpose": "Establish the audience, job, outcome, differentiator, return reason, and success signal.",
+      "category_keys": ["product"]
+    },
+    {
+      "key": "structure",
+      "label": "Structure",
+      "purpose": "Inspect information organization, routes, data, state ownership, content structure, and shared implementation primitives.",
+      "category_keys": ["information_architecture", "backend_shape"]
+    },
+    {
+      "key": "experience",
+      "label": "Experience",
+      "purpose": "Operate tasks and verify interaction, access, recovery, responsive behavior, and runtime truthfulness.",
+      "category_keys": ["interaction", "accessibility", "performance"]
+    },
+    {
+      "key": "expression",
+      "label": "Expression",
+      "purpose": "Judge visual hierarchy, identity, editorial quality, claim integrity, voice, and reader-facing content.",
+      "category_keys": ["visual", "copy"]
+    }
+  ],
+  "categories": [
+    {
+      "key": "product",
+      "public_label": "Product slop",
+      "score_label": "Product clarity",
+      "inspection_layer": "product",
+      "plain_meaning": "The app has no clear user, job, outcome, differentiator, or reason to return.",
+      "required_proof": "A missing or contradictory product decision blocks understanding, trust, or task success.",
+      "readme_detail": "The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent return value, and dead-end terminal states.",
+      "applicable_facets": ["trust_integrity", "agent_ai_behavior", "privacy_safety_ux"],
+      "principle_sections": ["PRINCIPLES §3", "PRINCIPLES §14", "PRINCIPLES §26", "PRINCIPLES §32"]
+    },
+    {
+      "key": "information_architecture",
+      "public_label": "Information-architecture slop",
+      "score_label": "Information architecture and routing",
+      "inspection_layer": "structure",
+      "plain_meaning": "People cannot find, understand, address, retrieve, or share the information or state they need.",
+      "required_proof": "Navigation, labeling, hierarchy, retrieval, URL, or state evidence shows a realistic task becoming materially harder.",
+      "readme_detail": "Navigation may expose the wrong structure, labels may conceal the reader's vocabulary, or meaningful application states may have no stable address. Information architecture is separate from backend shape: a poor route or content model can create both, but the user-facing retrieval failure remains independently visible.",
+      "applicable_facets": ["resilience_recovery", "localization_adaptability", "trust_integrity"],
+      "principle_sections": ["PRINCIPLES §1", "PRINCIPLES §3", "PRINCIPLES §14", "PRINCIPLES §28", "PRINCIPLES §31"]
+    },
+    {
+      "key": "interaction",
+      "public_label": "Interaction slop",
+      "score_label": "Interaction and state",
+      "inspection_layer": "experience",
+      "plain_meaning": "Controls, state, feedback, and recovery do not behave as promised.",
+      "required_proof": "Operating the real task exposes a wrong action, dead end, lost state, unusable path, or misleading transition.",
+      "readme_detail": "A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects require operation of the interface, not inference from appearance.",
+      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability"],
+      "principle_sections": ["PRINCIPLES §2", "PRINCIPLES §4", "PRINCIPLES §6", "PRINCIPLES §17", "PRINCIPLES §26", "PRINCIPLES §29", "PRINCIPLES §32"]
+    },
+    {
+      "key": "accessibility",
+      "public_label": "Accessibility slop",
+      "score_label": "Accessibility",
+      "inspection_layer": "experience",
+      "plain_meaning": "Semantics, focus, state, contrast, alternatives, or reflow excludes people from the task.",
+      "required_proof": "A named accessibility requirement or functional interaction contract fails with reproducible evidence.",
+      "readme_detail": "Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced state changes, absent alternatives, and layouts that fail under zoom are functional defects. Scruffy identifies specific barriers; it does not claim full conformance from a sample.",
+      "applicable_facets": ["localization_adaptability", "resilience_recovery", "agent_ai_behavior"],
+      "principle_sections": ["PRINCIPLES §17", "PRINCIPLES §27", "PRINCIPLES §29"]
+    },
+    {
+      "key": "visual",
+      "public_label": "Visual slop",
+      "score_label": "Visual hierarchy and identity",
+      "inspection_layer": "expression",
+      "plain_meaning": "Plausible decoration and interchangeable composition replace hierarchy, information, and product identity.",
+      "required_proof": "Rendered evidence shows scanning friction, weakened task priority, lost product character, or misleading visual state.",
+      "readme_detail": "Card soup, excessive type roles, decorative badges, arbitrary gradients, identical radii everywhere, synthetic proof, and interchangeable hero composition are candidate signals. They become findings only when rendered evidence shows weak hierarchy, task friction, misinformation, or lost identity.",
+      "applicable_facets": ["trust_integrity", "localization_adaptability", "privacy_safety_ux"],
+      "principle_sections": ["PRINCIPLES §§5–13", "PRINCIPLES §19", "PRINCIPLES §§23–25"]
+    },
+    {
+      "key": "copy",
+      "public_label": "Editorial slop",
+      "score_label": "Editorial and copy",
+      "inspection_layer": "expression",
+      "plain_meaning": "Words, claims, labels, information sequence, voice, or provenance are vague, repetitive, incoherent, unsupported, or useless at the moment of action.",
+      "required_proof": "Quoted reader-facing material plus surface or task context demonstrates a comprehension, choice, trust, recovery, differentiation, provenance, or voice consequence; sentence-pattern findings also require the sentence-review contract.",
+      "readme_detail": "Editorial review covers content strategy, terminology, microcopy, sentence and passage construction, conceptual coherence, claim support, provenance, information sequence, recovery language, and voice. Scruffy first verifies what readers actually see. Automated sentence signals remain leads; a human must test meaning, purpose, portability, voice, and consequences. Scruffy never classifies authorship.",
+      "applicable_facets": ["trust_integrity", "localization_adaptability", "agent_ai_behavior", "privacy_safety_ux", "resilience_recovery"],
+      "principle_sections": ["PRINCIPLES §14", "PRINCIPLES §21", "PRINCIPLES §26", "PRINCIPLES §§31–33"]
+    },
+    {
+      "key": "backend_shape",
+      "public_label": "Structure slop",
+      "score_label": "Implementation shape",
+      "inspection_layer": "structure",
+      "plain_meaning": "Routes, data, state, content, or components are shaped so badly that several features fail together.",
+      "required_proof": "Source and runtime evidence connect multiple symptoms or unsafe change cost to one shared implementation cause.",
+      "readme_detail": "Content may be fused to rendering, navigation state may have no address, styles may be copied instead of tokenized, or failures may disappear into empty exception handlers. When several visible problems share one verified structural cause, record that cause once and link its dependent symptoms.",
+      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability"],
+      "principle_sections": ["PRINCIPLES §§15–16", "PRINCIPLES §23", "PRINCIPLES §25", "PRINCIPLES §29"]
+    },
+    {
+      "key": "performance",
+      "public_label": "Performance slop",
+      "score_label": "Runtime performance",
+      "inspection_layer": "experience",
+      "plain_meaning": "Loading and interaction are slow, unstable, wasteful, or dishonest about waiting.",
+      "required_proof": "A runtime trace or repeatable measurement connects delay, instability, or waste to user-visible harm.",
+      "readme_detail": "Slow interaction, unstable layout, delayed primary content, blocking third parties, or dishonest wait states count only when measured at runtime. Source size alone can justify an investigation, not a performance finding.",
+      "applicable_facets": ["resilience_recovery", "agent_ai_behavior"],
+      "principle_sections": ["PRINCIPLES §22", "PRINCIPLES §32"]
+    }
+  ],
+  "facets": [
+    {
+      "key": "trust_integrity",
+      "label": "Trust and content integrity",
+      "description": "Claim support, provenance, freshness, synthetic proof, citations, disclosure, and fabricated precision."
+    },
+    {
+      "key": "resilience_recovery",
+      "label": "Resilience and recovery",
+      "description": "Partial failure, retry, reconnect, offline behavior, undo, duplicate submission, conflict, and retained state."
+    },
+    {
+      "key": "localization_adaptability",
+      "label": "Localization and adaptability",
+      "description": "Language support, translation expansion, locale formats, time zones, right-to-left layout, and unsupported-language abstention."
+    },
+    {
+      "key": "agent_ai_behavior",
+      "label": "Agent and AI behavior",
+      "description": "Uncertainty, source visibility, tool-action previews, confirmation, correction, reversibility, and user control."
+    },
+    {
+      "key": "privacy_safety_ux",
+      "label": "Privacy and safety UX",
+      "description": "Visible permission, consent, data-use, consequence, and safety communication; technical security remains out of scope."
+    }
+  ],
+  "legacy_category_aliases": {
+    "information-architecture": "information_architecture",
+    "implementation-shape": "backend_shape",
+    "product-clarity": "product",
+    "responsive": "visual"
+  }
+}

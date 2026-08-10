@@ -8,6 +8,16 @@ import json
 from pathlib import Path
 from typing import Any
 
+from report_contract import (
+    capability_rows,
+    checks_not_run,
+    evidence_summary,
+    product_rows,
+    public_category_label,
+    score_rows,
+    task_rows,
+)
+
 
 def load(path: Path) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -30,7 +40,7 @@ def table(headers: list[str], rows: list[list[Any]]) -> str:
     return "\n".join(output)
 
 
-def render_item(item: dict[str, Any], decision: dict[str, Any] | None) -> str:
+def render_item(item: dict[str, Any], decision: dict[str, Any] | None, context: dict[str, Any]) -> str:
     destination = f" -> {item['destination_id']}" if item.get("destination_id") else ""
     dependencies = ", ".join(item.get("depends_on", [])) or "none"
     decision_text = ""
@@ -40,10 +50,26 @@ def render_item(item: dict[str, Any], decision: dict[str, Any] | None) -> str:
             f"\n\n**Decision:** {clean(row.get('decision', 'pending'))}  "
             f"\n**Decision note:** {clean(row.get('note', '')) or 'None.'}"
         )
+    facets = ", ".join(item.get("facets", [])) or "none"
+    receipts = evidence_summary(item.get("evidence_refs"), context) or "Legacy untyped evidence"
+    editorial = item.get("editorial_review")
+    editorial_text = ""
+    if isinstance(editorial, dict):
+        families = ", ".join(editorial.get("independent_signal_families", [])) or "not applicable"
+        editorial_text = (
+            f"\n\n**Editorial review:** {clean(editorial.get('review_type', ''))} · "
+            f"sample {clean(editorial.get('sample_adequacy', ''))} · "
+            f"language {clean(editorial.get('analysis_language_scope', 'legacy'))} "
+            f"({clean(editorial.get('language_review_basis', 'unrecorded'))}) · signals {clean(families)} · "
+            f"authorship {clean(editorial.get('authorship_assessment', 'not_performed'))}"
+        )
     return f"""<!-- anti-slop-item:{item['id']} -->
 ### {item['id']} · {clean(item['title'])}
 
-**Kind:** {item['kind']} · **Category:** {clean(item['category'])} · **Severity/priority:** {item['severity']} · **Confidence:** {item['confidence']}  
+**Kind:** {item['kind']} · **Category:** {clean(public_category_label(item['category']))} (`{clean(item['category'])}`) · **Facets:** {clean(facets)}
+
+**Severity/priority:** {item['severity']} · **Confidence:** {item['confidence']}
+
 **Status:** {item['status']} · **Revision disposition:** {item['revision_disposition']}{destination}
 
 {clean(item['observation'])}
@@ -53,6 +79,8 @@ def render_item(item: dict[str, Any], decision: dict[str, Any] | None) -> str:
 **Evidence**
 
 {bullets(item.get('evidence', []))}
+
+**Evidence receipts:** {clean(receipts)}{editorial_text}
 
 **Cause:** {clean(item['cause'])}
 
@@ -92,13 +120,13 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     resolved = [item for item in items if item["status"] in {"fixed", "cleared", "merged", "superseded"}]
 
     def item_group(values: list[dict[str, Any]], empty: str) -> str:
-        return "\n\n".join(render_item(item, decisions.get(item["id"])) for item in values) if values else empty
+        return "\n\n".join(render_item(item, decisions.get(item["id"]), context) for item in values) if values else empty
 
     outcome = context.get("outcome", {})
-    product_rows = [[row.get("question", ""), row.get("answer", ""), row.get("basis", "")] for row in context.get("product_frame", [])]
-    task_rows = [[row.get("id", ""), row.get("goal", ""), row.get("result", ""), row.get("status", ""), row.get("evidence", "")] for row in context.get("tasks", [])]
-    capability_rows = [[row.get("capability", ""), row.get("status", ""), row.get("scope", "")] for row in context.get("capabilities", [])]
-    score_rows = [[row.get("category", ""), row.get("score", ""), row.get("evidence", "")] for row in context.get("scores", [])]
+    product_table_rows = product_rows(context)
+    task_table_rows = task_rows(context)
+    capability_table_rows = capability_rows(context)
+    score_table_rows = score_rows(context)
     reconciliation_rows = [
         [item["id"], item["status"], item["revision_disposition"], item.get("destination_id") or "-", item.get("disposition_reason") or "New in this revision."]
         for item in items
@@ -118,6 +146,7 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
 
 Target: {clean(registry.get('target', ''))}  
 Audit: `{registry['audit_id']}` · Revision: `{registry['revision_id']}` · Baseline: `{registry.get('baseline_revision_id') or 'none'}`
+{f"Mode: `{registry['run']['effective_mode']}` · Write authority: `{registry['run']['repository_write_authority']}` · Blindness: `{registry['run']['blind_status']}`" if isinstance(registry.get('run'), dict) else "Mode and authority: legacy schema did not record a machine-enforced run receipt."}
 
 <!-- anti-slop-section:outcome -->
 ## Outcome and evidence boundary
@@ -129,22 +158,22 @@ Confidence: {clean(outcome.get('confidence', 'unknown'))}
 <!-- anti-slop-section:product-frame -->
 ## Product framing
 
-{table(['Question', 'Answer', 'Basis'], product_rows)}
+{table(['Question', 'Answer', 'Basis'], product_table_rows)}
 
 <!-- anti-slop-section:task-ledger -->
 ## Representative tasks
 
-{table(['ID', 'Goal', 'Result', 'Status', 'Evidence'], task_rows)}
+{table(['ID', 'Goal', 'Result', 'Status', 'Evidence'], task_table_rows)}
 
 <!-- anti-slop-section:capability-ledger -->
 ## Capability and coverage ledger
 
-{table(['Capability', 'Status', 'Scope'], capability_rows)}
+{table(['Capability', 'Status', 'Scope'], capability_table_rows)}
 
 <!-- anti-slop-section:score -->
 ## Category scores and result
 
-{table(['Category', 'Score', 'Evidence'], score_rows)}
+{table(['Category', 'Score', 'Evidence'], score_table_rows)}
 
 <!-- anti-slop-section:findings -->
 ## Prioritized findings
@@ -187,7 +216,7 @@ Confidence: {clean(outcome.get('confidence', 'unknown'))}
 <!-- anti-slop-section:checks-not-run -->
 ## Checks not run
 
-{bullets(context.get('checks_not_run', []), 'No checks-not-run entries recorded.')}
+{bullets(checks_not_run(context), 'No checks-not-run entries recorded.')}
 """
 
 

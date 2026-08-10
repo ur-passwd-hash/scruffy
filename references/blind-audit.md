@@ -29,7 +29,7 @@ Only after the discovery digest is frozen:
 5. Create stable IDs for truly new findings only now.
 6. Publish a reconciliation table with: blind candidate, baseline match, disposition, evidence change, and decision carry-forward.
 
-## Cross-agent parity test
+## Cross-agent behavioral comparison
 
 For comparisons between agents:
 
@@ -38,6 +38,8 @@ For comparisons between agents:
 - Freeze each output before opening another agent’s result.
 - Compare observable coverage, evidence quality, false positives, cleared suspicions, and schema adherence. Raw finding-count agreement is not sufficient.
 - Report environmental differences such as browser access, source access, or model/runtime version. They are confounders, not agent quality.
+
+An identical skill-tree hash proves source parity only. Behavioral parity requires the frozen-output comparison above and should be reported as measured agreement, disagreement, false-positive rate, and schema adherence—not as a permanent property of the skill.
 
 ## Contamination rules
 

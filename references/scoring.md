@@ -27,16 +27,7 @@ Score only categories with adequate coverage. Use a 0–3 defect scale:
 - **3 — Blocking:** a high/critical issue blocks a core task or user group.
 - **N/A — Not tested:** capability or scope was insufficient.
 
-Recommended categories:
-
-1. Product clarity
-2. Information architecture and routing
-3. Interaction and state
-4. Accessibility
-5. Visual hierarchy and identity
-6. Content and copy
-7. Implementation shape
-8. Runtime performance
+Score every canonical category from [taxonomy.md](taxonomy.md) using its durable key and generated score label. Do not rename, merge, or omit a category. Use `N/A` when the evidence boundary is insufficient; explain why in the score row and the checks-not-run ledger.
 
 If a single structural cause creates several symptoms, score the affected categories but count the root cause once in the prioritized findings.
 
@@ -55,4 +46,3 @@ Use a verbal result rather than a pseudo-precise percentage:
 - **Insufficient evidence** — required capabilities or coverage are missing.
 
 Always show the category scores and their evidence boundary beside the result.
-

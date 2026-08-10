@@ -9,8 +9,8 @@
     {
       "name": "scruffy",
       "source": "./",
-      "description": "Find and fix AI slop in web apps with evidence, falsification, stable findings, and implementation-ready work orders.",
-      "version": "2.2.0"
+      "description": "Find and fix product, interaction, visual, editorial, accessibility, performance, and structural AI slop with evidence and durable work orders.",
+      "version": "2.3.0"
     }
   ]
 }

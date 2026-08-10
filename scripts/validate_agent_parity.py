@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that two agent installations expose the same Scruffy skill tree."""
+"""Verify Scruffy source parity across two installed skill trees; not behavior."""
 
 from __future__ import annotations
 

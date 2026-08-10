@@ -119,6 +119,8 @@ PROTECTED_CONTEXTS = {
     "safety",
     "accessibility-simple",
 }
+SUPPORTED_LANGUAGES = {"en"}
+LANGUAGE_CHOICES = {"en", "non_en", "unknown"}
 
 SIGNAL_FAMILIES = {
     "cadence_uniformity": "rhythm",
@@ -294,18 +296,19 @@ def specificity_markers(text: str, sentences: list[str]) -> dict[str, Any]:
     }
 
 
-def load_input(path: Path) -> tuple[str, list[dict[str, str]], str | None]:
+def load_input(path: Path) -> tuple[str, list[dict[str, str]], str | None, str | None]:
     raw = path.read_text(encoding="utf-8")
     if path.suffix.lower() != ".json":
-        return raw, [], None
+        return raw, [], None, None
     data = json.loads(raw)
     if isinstance(data, str):
-        return data, [], None
+        return data, [], None, None
     if not isinstance(data, dict):
         raise ValueError("JSON input must be a string or object")
     supplied_context = data.get("context") if isinstance(data.get("context"), str) else None
+    supplied_language = data.get("language") if isinstance(data.get("language"), str) else None
     if isinstance(data.get("text"), str):
-        return data["text"], [], supplied_context
+        return data["text"], [], supplied_context, supplied_language
     raw_items = data.get("items")
     if not isinstance(raw_items, list):
         raise ValueError("JSON object must contain text or items")
@@ -318,7 +321,7 @@ def load_input(path: Path) -> tuple[str, list[dict[str, str]], str | None]:
             items.append({"surface": str(surface or f"item-{index + 1}"), "text": item["text"]})
         else:
             raise ValueError(f"items[{index}] must be a string or an object with text")
-    return "\n".join(item["text"] for item in items), items, supplied_context
+    return "\n".join(item["text"] for item in items), items, supplied_context, supplied_language
 
 
 def passive_candidates(sentences: list[str]) -> list[dict[str, Any]]:
@@ -385,7 +388,16 @@ def add_lead(leads: list[dict[str, Any]], code: str, measurement: str, reason: s
     )
 
 
-def analyze(text: str, *, mode: str = "auto", context: str = "general", items: list[dict[str, str]] | None = None) -> dict[str, Any]:
+def analyze(
+    text: str,
+    *,
+    mode: str = "auto",
+    context: str = "general",
+    language: str = "unknown",
+    items: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    if language not in LANGUAGE_CHOICES:
+        raise ValueError(f"language must be one of {sorted(LANGUAGE_CHOICES)}")
     items = items or []
     resolved_mode = "ui_microcopy" if mode == "ui" or (mode == "auto" and items) else "prose"
     if resolved_mode == "prose":
@@ -569,6 +581,9 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "The surrounding surface may supply the missing cause and action; inspect each rendered state before promoting the lead.",
         )
 
+    language_supported = language in SUPPORTED_LANGUAGES
+    if not language_supported:
+        leads = []
     protected = context in PROTECTED_CONTEXTS
     independent_codes = {lead["code"] for lead in leads}
     independent_families = {lead["signal_family"] for lead in leads}
@@ -591,9 +606,14 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             dependency_collapses.append(
                 "repeated_openings reused the same question, scaffold, or transition evidence as the rhetorical-structure lead"
             )
-    compound_signal = adequacy != "insufficient" and len(independent_families) >= 2 and not protected
+    compound_signal = (
+        language_supported
+        and adequacy != "insufficient"
+        and len(independent_families) >= 2
+        and not protected
+    )
     manual_checks = []
-    if resolved_mode == "prose" and adequacy != "insufficient":
+    if resolved_mode == "prose" and (adequacy != "insufficient" or (not language_supported and bool(text.strip()))):
         manual_checks = [
             {
                 "code": "conceptual_coherence",
@@ -618,9 +638,11 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
         ]
 
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "mode": resolved_mode,
         "context": context,
+        "language": language,
+        "language_analysis_status": "supported" if language_supported else "abstained",
         "authorship_assessment": "not_performed",
         "normalization": normalization,
         "sample": {
@@ -658,9 +680,13 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "dependency_collapses": dependency_collapses,
             "finding_eligible": False,
             "reason": (
-                "Protected context supplied; judge clarity and task fit without cadence-based escalation."
-                if protected
-                else "Human review must still prove a product consequence and test a counterexample."
+                "English-specific surface analysis abstained; use a language-competent reviewer and do not promote these measurements."
+                if not language_supported
+                else (
+                    "Protected context supplied; judge clarity and task fit without cadence-based escalation."
+                    if protected
+                    else "Human review must still prove a product consequence and test a counterexample."
+                )
             ),
         },
         "guards": {
@@ -670,6 +696,7 @@ def analyze(text: str, *, mode: str = "auto", context: str = "general", items: l
             "markup_excluded_from_prose_statistics": resolved_mode == "prose",
             "single_surface_tell_is_not_a_finding": True,
             "semantic_coherence_requires_human_review": True,
+            "unsupported_language_abstention": not language_supported,
         },
     }
 
@@ -678,6 +705,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path, help="UTF-8 text file or JSON object with text/items")
     parser.add_argument("--mode", choices=("auto", "prose", "ui"), default="auto")
+    parser.add_argument(
+        "--language",
+        choices=sorted(LANGUAGE_CHOICES),
+        default=None,
+        help="Required scope for surface analysis: en, non_en, or unknown. Unknown and non_en abstain.",
+    )
     parser.add_argument(
         "--context",
         choices=("general", *sorted(PROTECTED_CONTEXTS)),
@@ -691,9 +724,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        text, items, supplied_context = load_input(args.input)
+        text, items, supplied_context, supplied_language = load_input(args.input)
         context = args.context or supplied_context or "general"
-        result = analyze(text, mode=args.mode, context=context, items=items)
+        language = args.language or supplied_language or "unknown"
+        result = analyze(text, mode=args.mode, context=context, language=language, items=items)
     except (OSError, ValueError, json.JSONDecodeError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 2

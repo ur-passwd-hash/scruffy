@@ -9,6 +9,7 @@ Sentence slop is an observable copy-quality failure: repeated rhetorical machine
 - A finding requires an adequate sample, at least two independent signal families, quoted examples, and a demonstrated product consequence. Count shared evidence once: four repetitions of one “not X, but Y” frame do not become independent because an opening counter and a scaffold counter both see them.
 - A single phrase, em dash, triad, short sentence, passive construction, rhetorical question, polished paragraph, or favorite word is not a finding. These are normal resources of human rhetoric and genre writing. [ORgKY9AlybA 4:06–8:32]
 - Never infer language background, disability, education, or writing assistance from prose. Apply special-context guards only when the user or product context supplies them.
+- The bundled surface analyzer is English-scoped. Supply `--language en` only when that scope is verified. `--language non_en` and `--language unknown` abstain from surface scoring and require a language-competent reviewer; do not translate prose merely to make English regexes run.
 
 ## Select the copy mode
 
@@ -95,7 +96,7 @@ When the sample is insufficient, report the check as limited or not run. Do not 
 
 ## Optional deterministic analyzer
 
-Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file>` when command execution is available. It uses only the Python standard library, strips common repository markup before prose measurement, groups leads by independent signal family, and emits the four required manual checks. The output deliberately contains no authorship score and never makes a finding. Inspect the normalized sample, perform the semantic checks, quote the text, and prove the product consequence before promotion.
+Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file> --language en` when command execution is available and English scope is verified. Use `--language non_en` or `--language unknown` to record an explicit abstention. The analyzer uses only the Python standard library, strips common repository markup before prose measurement, groups leads by independent signal family, and emits the four required manual checks. The output deliberately contains no authorship score and never makes a finding. Inspect the normalized sample, perform the semantic checks, quote the text, and prove the product consequence before promotion.
 
 ## Research basis
 

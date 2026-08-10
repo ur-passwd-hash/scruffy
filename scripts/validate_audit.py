@@ -10,9 +10,24 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+
+from audit_contract import load_contract, mode_map
+from taxonomy_contract import canonical_category_keys, canonical_facet_keys, load_taxonomy
 
 
-SCHEMA_VERSION = "2.0"
+AUDIT_CONTRACT = load_contract()
+TAXONOMY = load_taxonomy()
+CURRENT_SCHEMA_VERSION = AUDIT_CONTRACT["current_registry_schema"]
+LEGACY_SCHEMA_VERSIONS = set(AUDIT_CONTRACT["legacy_registry_schemas"])
+SUPPORTED_SCHEMA_VERSIONS = {CURRENT_SCHEMA_VERSION, *LEGACY_SCHEMA_VERSIONS}
+RUN_MODES = mode_map(AUDIT_CONTRACT)
+CANONICAL_CATEGORIES = set(canonical_category_keys(TAXONOMY))
+CANONICAL_FACETS = set(canonical_facet_keys(TAXONOMY))
+CATEGORY_FACETS = {row["key"]: set(row["applicable_facets"]) for row in TAXONOMY["categories"]}
+LEGACY_CATEGORY_ALIASES = TAXONOMY["legacy_category_aliases"]
+CONTEXT_CONTRACT = AUDIT_CONTRACT["context"]
+EDITORIAL_CONTRACT = AUDIT_CONTRACT["editorial_review"]
 KINDS = {"finding", "enhancement", "strength"}
 STATUSES = {"open", "fixed", "cleared", "needs-verification", "merged", "superseded"}
 DISPOSITIONS = {"new", "carried", "reopened", "fixed", "cleared", "merged", "superseded"}
@@ -23,6 +38,7 @@ NON_FINDING_SEVERITIES = {"high", "medium", "low", "none"}
 # Preserve legacy public IDs such as ENH-1; continuity outranks cosmetic padding.
 ITEM_ID = re.compile(r"^[A-Z][A-Z0-9]{1,5}-\d{1,4}$")
 IDENTITY_KEY = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+EVIDENCE_ID = re.compile(r"^EV-[A-Z0-9][A-Z0-9-]{0,31}$")
 REQUIRED_ITEM_FIELDS = {
     "id",
     "identity_key",
@@ -44,6 +60,20 @@ REQUIRED_ITEM_FIELDS = {
     "depends_on",
     "disposition_reason",
     "destination_id",
+}
+CURRENT_ITEM_FIELDS = {"facets", "evidence_refs", "editorial_review"}
+REQUIRED_RUN_FIELDS = {
+    "requested_mode",
+    "effective_mode",
+    "mode_selection_basis",
+    "repository_write_authority",
+    "authority_basis_type",
+    "authority_basis",
+    "repository_writes_performed",
+    "repository_write_paths",
+    "live_demonstration_performed",
+    "blind_status",
+    "blind_artifact_refs",
 }
 REQUIRED_DASHBOARD_SECTIONS = {
     "outcome",
@@ -81,9 +111,223 @@ def require_text(value: Any, label: str) -> str:
     return value
 
 
+def require_bool(value: Any, label: str) -> bool:
+    if not isinstance(value, bool):
+        fail(f"{label} must be a boolean")
+    return value
+
+
+def require_unique_text_list(value: Any, label: str, *, allow_empty: bool = True) -> list[str]:
+    if not isinstance(value, list) or any(not isinstance(row, str) or not row.strip() for row in value):
+        fail(f"{label} must be an array of non-empty strings")
+    if len(value) != len(set(value)):
+        fail(f"{label} must not contain duplicates")
+    if not allow_empty and not value:
+        fail(f"{label} cannot be empty")
+    return value
+
+
+def validate_evidence_id(value: Any, label: str) -> str:
+    evidence_id = require_text(value, label)
+    if not EVIDENCE_ID.fullmatch(evidence_id):
+        fail(f"{label} must match {EVIDENCE_ID.pattern}")
+    return evidence_id
+
+
+def validate_run(registry: dict[str, Any], source: str) -> dict[str, Any]:
+    run = registry.get("run")
+    if not isinstance(run, dict):
+        fail(f"{source}.run must be an object for schema {CURRENT_SCHEMA_VERSION}")
+    missing = sorted(REQUIRED_RUN_FIELDS - set(run))
+    if missing:
+        fail(f"{source}.run missing fields: {missing}")
+
+    requested = run.get("requested_mode")
+    effective = run.get("effective_mode")
+    if requested not in RUN_MODES:
+        fail(f"{source}.run.requested_mode is invalid")
+    if effective not in RUN_MODES:
+        fail(f"{source}.run.effective_mode is invalid")
+    if run.get("mode_selection_basis") not in AUDIT_CONTRACT["run"]["mode_selection_basis"]:
+        fail(f"{source}.run.mode_selection_basis is invalid")
+    authority = run.get("repository_write_authority")
+    if authority not in AUDIT_CONTRACT["run"]["authority_states"]:
+        fail(f"{source}.run.repository_write_authority is invalid")
+    authority_basis_type = run.get("authority_basis_type")
+    if authority_basis_type not in AUDIT_CONTRACT["run"]["authority_basis_types"]:
+        fail(f"{source}.run.authority_basis_type is invalid")
+    require_text(run.get("authority_basis"), f"{source}.run.authority_basis")
+    writes = require_bool(run.get("repository_writes_performed"), f"{source}.run.repository_writes_performed")
+    paths = require_unique_text_list(run.get("repository_write_paths"), f"{source}.run.repository_write_paths")
+    live_demo = require_bool(run.get("live_demonstration_performed"), f"{source}.run.live_demonstration_performed")
+    blind_status = run.get("blind_status")
+    if blind_status not in AUDIT_CONTRACT["run"]["blind_statuses"]:
+        fail(f"{source}.run.blind_status is invalid")
+    blind_refs = require_unique_text_list(run.get("blind_artifact_refs"), f"{source}.run.blind_artifact_refs")
+    for index, evidence_id in enumerate(blind_refs):
+        validate_evidence_id(evidence_id, f"{source}.run.blind_artifact_refs[{index}]")
+
+    mode = RUN_MODES[effective]
+    if requested != effective and not (
+        requested in {"redesign", "design"}
+        and effective == "audit"
+        and authority == "not_authorized"
+    ):
+        fail(f"{source}.run: requested and effective mode conflict without a valid no-authority downgrade")
+    if authority == "authorized" and authority_basis_type != "explicit_request":
+        fail(f"{source}.run: authorized writes require an explicit_request authority basis")
+    if authority == "not_authorized" and authority_basis_type != "not_granted":
+        fail(f"{source}.run: not_authorized must use a not_granted authority basis")
+    if effective in {"audit", "demonstrate_fix"} and authority != "not_authorized":
+        fail(f"{source}.run: mode {effective} cannot carry repository-write authority")
+    if writes and not mode["repository_writes_allowed"]:
+        fail(f"{source}.run: mode {effective} forbids repository writes")
+    if writes and authority != "authorized":
+        fail(f"{source}.run: repository writes occurred without authorization")
+    if writes != bool(paths):
+        fail(f"{source}.run: repository_write_paths must be present exactly when writes occurred")
+    if effective in {"redesign", "design"} and authority != "authorized":
+        fail(f"{source}.run: mode {effective} requires explicit repository-write authority")
+    if live_demo and not mode["live_demonstration_allowed"]:
+        fail(f"{source}.run: mode {effective} does not permit a live demonstration")
+    if blind_status == "verified" and len(blind_refs) < 3:
+        fail(f"{source}.run: verified blindness requires manifest, discovery, and freeze evidence")
+    if blind_status == "not_run" and blind_refs:
+        fail(f"{source}.run: blind_artifact_refs must be empty when blindness was not run")
+    return run
+
+
+def validate_editorial_review(review: Any, label: str, *, kind: str, status: str) -> set[str]:
+    if not isinstance(review, dict):
+        fail(f"{label} must be an object for copy findings and enhancements")
+    required = {
+        "review_type",
+        "sample_adequacy",
+        "analysis_language_scope",
+        "language_review_basis",
+        "analyzer_evidence_ref",
+        "independent_signal_families",
+        "manual_checks",
+        "consequence",
+        "counterexample_tested",
+        "authorship_assessment",
+    }
+    missing = sorted(required - set(review))
+    if missing:
+        fail(f"{label} missing fields: {missing}")
+    review_type = review.get("review_type")
+    if review_type not in EDITORIAL_CONTRACT["review_types"]:
+        fail(f"{label}.review_type is invalid")
+    adequacy = review.get("sample_adequacy")
+    if adequacy not in EDITORIAL_CONTRACT["sample_adequacy"]:
+        fail(f"{label}.sample_adequacy is invalid")
+    language_scope = review.get("analysis_language_scope")
+    if language_scope not in EDITORIAL_CONTRACT["analysis_language_scopes"]:
+        fail(f"{label}.analysis_language_scope is invalid")
+    language_basis = review.get("language_review_basis")
+    if language_basis not in EDITORIAL_CONTRACT["language_review_bases"]:
+        fail(f"{label}.language_review_basis is invalid")
+    if review.get("authorship_assessment") != EDITORIAL_CONTRACT["authorship_assessment"]:
+        fail(f"{label}.authorship_assessment must be not_performed")
+    require_text(review.get("consequence"), f"{label}.consequence")
+    require_text(review.get("counterexample_tested"), f"{label}.counterexample_tested")
+    families = require_unique_text_list(
+        review.get("independent_signal_families"),
+        f"{label}.independent_signal_families",
+    )
+    unknown_families = sorted(set(families) - set(EDITORIAL_CONTRACT["sentence_signal_families"]))
+    if unknown_families:
+        fail(f"{label}.independent_signal_families contains unknown values: {unknown_families}")
+    analyzer_ref = review.get("analyzer_evidence_ref")
+    evidence_refs: set[str] = set()
+    if analyzer_ref is not None:
+        evidence_refs.add(validate_evidence_id(analyzer_ref, f"{label}.analyzer_evidence_ref"))
+
+    checks = review.get("manual_checks")
+    if not isinstance(checks, list) or not checks:
+        fail(f"{label}.manual_checks must be a non-empty array")
+    by_code: dict[str, dict[str, Any]] = {}
+    allowed_codes = set(EDITORIAL_CONTRACT["sentence_manual_checks"]) | set(EDITORIAL_CONTRACT["editorial_manual_checks"])
+    for index, check in enumerate(checks):
+        check_label = f"{label}.manual_checks[{index}]"
+        if not isinstance(check, dict):
+            fail(f"{check_label} must be an object")
+        code = check.get("code")
+        if code not in allowed_codes:
+            fail(f"{check_label}.code is invalid")
+        if code in by_code:
+            fail(f"{label}.manual_checks repeats {code}")
+        result = check.get("result")
+        if result not in EDITORIAL_CONTRACT["manual_check_results"]:
+            fail(f"{check_label}.result is invalid")
+        require_text(check.get("evidence"), f"{check_label}.evidence")
+        evidence_ref = check.get("evidence_ref")
+        if evidence_ref is None:
+            fail(f"{check_label}.evidence_ref must link the manual conclusion to typed evidence")
+        evidence_refs.add(validate_evidence_id(evidence_ref, f"{check_label}.evidence_ref"))
+        by_code[code] = check
+
+    sentence_review = review_type in {"sentence_pattern", "mixed"}
+    if sentence_review:
+        if adequacy not in {"adequate", "limited"}:
+            fail(f"{label}: sentence-pattern review requires an adequate or limited sample")
+        if analyzer_ref is None:
+            fail(f"{label}: sentence-pattern review requires an analyzer evidence receipt")
+        expected_basis = {
+            "en": "verified_english_analyzer",
+            "non_en": "language_competent_human",
+        }.get(language_scope)
+        if expected_basis is None:
+            fail(f"{label}: sentence-pattern review requires verified en or non_en language scope")
+        if language_basis != expected_basis:
+            fail(f"{label}: {language_scope} sentence review requires {expected_basis}")
+        if len(families) < 2:
+            fail(f"{label}: sentence-pattern review requires two independent signal families")
+        missing_sentence_checks = sorted(set(EDITORIAL_CONTRACT["sentence_manual_checks"]) - set(by_code))
+        if missing_sentence_checks:
+            fail(f"{label}: sentence-pattern review is missing {missing_sentence_checks}")
+        incomplete = [
+            code
+            for code in EDITORIAL_CONTRACT["sentence_manual_checks"]
+            if by_code[code]["result"] in {"not_run", "not_applicable"}
+        ]
+        if incomplete:
+            fail(f"{label}: sentence manual checks are incomplete: {incomplete}")
+        if review_type == "mixed":
+            missing_editorial_checks = sorted(set(EDITORIAL_CONTRACT["editorial_manual_checks"]) - set(by_code))
+            if missing_editorial_checks:
+                fail(f"{label}: mixed editorial review is missing {missing_editorial_checks}")
+            incomplete_editorial = [
+                code
+                for code in EDITORIAL_CONTRACT["editorial_manual_checks"]
+                if by_code[code]["result"] == "not_run"
+            ]
+            if incomplete_editorial and kind == "finding" and status in {"open", "needs-verification"}:
+                fail(f"{label}: active mixed editorial finding has not-run checks: {incomplete_editorial}")
+    else:
+        if adequacy not in {"not_applicable", "insufficient"}:
+            fail(f"{label}: non-sentence editorial review must use not_applicable or insufficient sampling")
+        if language_scope != "not_applicable" or language_basis != "not_applicable":
+            fail(f"{label}: non-sentence editorial review must use not_applicable language fields")
+        if families:
+            fail(f"{label}: non-sentence editorial review cannot claim sentence signal families")
+        if analyzer_ref is not None:
+            fail(f"{label}: non-sentence editorial review cannot attach a sentence analyzer receipt")
+        missing_editorial_checks = sorted(set(EDITORIAL_CONTRACT["editorial_manual_checks"]) - set(by_code))
+        if missing_editorial_checks:
+            fail(f"{label}: editorial review is missing {missing_editorial_checks}")
+        incomplete = [code for code in EDITORIAL_CONTRACT["editorial_manual_checks"] if by_code[code]["result"] == "not_run"]
+        if incomplete and kind == "finding" and status in {"open", "needs-verification"}:
+            fail(f"{label}: active editorial finding has not-run checks: {incomplete}")
+    return evidence_refs
+
+
 def validate_registry(registry: dict[str, Any], source: str = "registry") -> dict[str, dict[str, Any]]:
-    if registry.get("schema_version") != SCHEMA_VERSION:
-        fail(f"{source}: schema_version must be {SCHEMA_VERSION}")
+    schema_version = registry.get("schema_version")
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+        fail(f"{source}: schema_version must be one of {sorted(SUPPORTED_SCHEMA_VERSIONS)}")
+    if schema_version == CURRENT_SCHEMA_VERSION:
+        validate_run(registry, source)
     audit_id = require_text(registry.get("audit_id"), f"{source}.audit_id")
     require_text(registry.get("target"), f"{source}.target")
     revision_id = require_text(registry.get("revision_id"), f"{source}.revision_id")
@@ -101,7 +345,8 @@ def validate_registry(registry: dict[str, Any], source: str = "registry") -> dic
         label = f"{source}.items[{index}]"
         if not isinstance(item, dict):
             fail(f"{label} must be an object")
-        missing = sorted(REQUIRED_ITEM_FIELDS - set(item))
+        required_fields = REQUIRED_ITEM_FIELDS | (CURRENT_ITEM_FIELDS if schema_version == CURRENT_SCHEMA_VERSION else set())
+        missing = sorted(required_fields - set(item))
         if missing:
             fail(f"{label} missing fields: {missing}")
         item_id = require_text(item["id"], f"{label}.id")
@@ -135,6 +380,35 @@ def validate_registry(registry: dict[str, Any], source: str = "registry") -> dic
             fail(f"{label}: strengths must use severity none")
         for field in ("title", "category", "first_seen_revision", "last_observed_revision"):
             require_text(item[field], f"{label}.{field}")
+        category = item["category"]
+        if schema_version == CURRENT_SCHEMA_VERSION:
+            if category not in CANONICAL_CATEGORIES:
+                legacy_target = LEGACY_CATEGORY_ALIASES.get(category)
+                suffix = f"; use canonical key {legacy_target}" if legacy_target else ""
+                fail(f"{label}.category is not canonical{suffix}")
+            facets = require_unique_text_list(item["facets"], f"{label}.facets")
+            unknown_facets = sorted(set(facets) - CANONICAL_FACETS)
+            if unknown_facets:
+                fail(f"{label}.facets contains unknown values: {unknown_facets}")
+            incompatible_facets = sorted(set(facets) - CATEGORY_FACETS[category])
+            if incompatible_facets:
+                fail(f"{label}.facets are not applicable to {category}: {incompatible_facets}")
+            evidence_refs = require_unique_text_list(
+                item["evidence_refs"],
+                f"{label}.evidence_refs",
+                allow_empty=False,
+            )
+            for evidence_index, evidence_id in enumerate(evidence_refs):
+                validate_evidence_id(evidence_id, f"{label}.evidence_refs[{evidence_index}]")
+            if category == "copy" and kind in {"finding", "enhancement"}:
+                validate_editorial_review(
+                    item["editorial_review"],
+                    f"{label}.editorial_review",
+                    kind=kind,
+                    status=status,
+                )
+            elif item["editorial_review"] is not None:
+                fail(f"{label}.editorial_review must be null outside copy findings and enhancements")
         for field in ("evidence", "acceptance_checks", "depends_on"):
             if not isinstance(item[field], list):
                 fail(f"{label}.{field} must be an array")
@@ -237,8 +511,8 @@ def validate_baseline(current: dict[str, Any], baseline: dict[str, Any]) -> None
 
 def validate_decisions(decisions: dict[str, Any], registry: dict[str, Any], baseline_decisions: dict[str, Any] | None = None) -> None:
     items = validate_registry(registry, "registry")
-    if decisions.get("schema_version") != SCHEMA_VERSION:
-        fail("decisions.schema_version must be 2.0")
+    if decisions.get("schema_version") != registry.get("schema_version"):
+        fail("decisions.schema_version must match the registry schema_version")
     for field in ("audit_id", "revision_id", "baseline_revision_id"):
         if decisions.get(field) != registry.get(field):
             fail(f"decisions.{field} does not match registry")
@@ -283,6 +557,234 @@ def validate_decisions(decisions: dict[str, Any], registry: dict[str, Any], base
             if prior.get("decision") != "pending" and now.get("decision_source") == "migrated":
                 if now.get("decision") != prior.get("decision"):
                     fail(f"migrated decision changed for {item_id}")
+
+
+def validate_context(
+    context: dict[str, Any],
+    registry: dict[str, Any],
+    *,
+    base_path: Path,
+) -> dict[str, dict[str, Any]]:
+    if registry.get("schema_version") != CURRENT_SCHEMA_VERSION:
+        return {}
+    required = {
+        "schema_version",
+        "audit_id",
+        "revision_id",
+        "title",
+        "outcome",
+        "product_frame",
+        "tasks",
+        "capabilities",
+        "scores",
+        "work_orders",
+        "checks_not_run",
+        "evidence_assets",
+    }
+    missing = sorted(required - set(context))
+    if missing:
+        fail(f"context missing fields: {missing}")
+    if context.get("schema_version") != CONTEXT_CONTRACT["schema_version"]:
+        fail(f"context.schema_version must be {CONTEXT_CONTRACT['schema_version']}")
+    for field in ("audit_id", "revision_id"):
+        if context.get(field) != registry.get(field):
+            fail(f"context.{field} does not match registry")
+    require_text(context.get("title"), "context.title")
+
+    outcome = context.get("outcome")
+    if not isinstance(outcome, dict):
+        fail("context.outcome must be an object")
+    for field in ("label", "summary", "confidence"):
+        require_text(outcome.get(field), f"context.outcome.{field}")
+
+    assets = context.get("evidence_assets")
+    if not isinstance(assets, list):
+        fail("context.evidence_assets must be an array")
+    by_evidence: dict[str, dict[str, Any]] = {}
+    for index, asset in enumerate(assets):
+        label = f"context.evidence_assets[{index}]"
+        if not isinstance(asset, dict):
+            fail(f"{label} must be an object")
+        evidence_id = validate_evidence_id(asset.get("id"), f"{label}.id")
+        if evidence_id in by_evidence:
+            fail(f"context.evidence_assets repeats {evidence_id}")
+        kind = asset.get("kind")
+        if kind not in CONTEXT_CONTRACT["evidence_kinds"]:
+            fail(f"{label}.kind is invalid")
+        locator = require_text(asset.get("locator"), f"{label}.locator")
+        require_text(asset.get("description"), f"{label}.description")
+        verification = asset.get("verification")
+        if verification not in CONTEXT_CONTRACT["evidence_verification"]:
+            fail(f"{label}.verification is invalid")
+        parsed = urlparse(locator)
+        explicit_uri = re.match(r"^[A-Za-z][A-Za-z0-9+.-]*://", locator)
+        if explicit_uri and parsed.scheme not in {"http", "https"}:
+            fail(f"{label}.locator uses an unsupported URI scheme")
+        if kind in {"screenshot", "source", "runtime_trace", "copy_sample", "analysis_receipt"} and not explicit_uri and verification == "captured":
+            candidate_text = re.sub(r":\d+$", "", locator.split("#", 1)[0])
+            candidate = Path(candidate_text)
+            if not candidate.is_absolute():
+                candidate = base_path / candidate
+            if not candidate.exists():
+                fail(f"{label}.locator does not exist: {locator}")
+        by_evidence[evidence_id] = asset
+
+    def check_refs(value: Any, label: str, *, allow_empty: bool = False) -> list[str]:
+        refs = require_unique_text_list(value, label, allow_empty=allow_empty)
+        for ref_index, evidence_id in enumerate(refs):
+            validate_evidence_id(evidence_id, f"{label}[{ref_index}]")
+            if evidence_id not in by_evidence:
+                fail(f"{label} references missing evidence {evidence_id}")
+        return refs
+
+    questions = context.get("product_frame")
+    if not isinstance(questions, list):
+        fail("context.product_frame must be an array")
+    expected_questions = {row["key"] for row in CONTEXT_CONTRACT["product_frame_questions"]}
+    by_question: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(questions):
+        label = f"context.product_frame[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        key = row.get("key")
+        if key not in expected_questions:
+            fail(f"{label}.key is invalid")
+        if key in by_question:
+            fail(f"context.product_frame repeats {key}")
+        require_text(row.get("answer"), f"{label}.answer")
+        if row.get("basis") not in CONTEXT_CONTRACT["product_frame_bases"]:
+            fail(f"{label}.basis is invalid")
+        by_question[key] = row
+    if set(by_question) != expected_questions:
+        fail(f"context.product_frame must cover exactly {sorted(expected_questions)}")
+
+    tasks = context.get("tasks")
+    if not isinstance(tasks, list) or not 3 <= len(tasks) <= 5:
+        fail("context.tasks must contain three to five representative tasks")
+    task_ids: set[str] = set()
+    for index, task in enumerate(tasks):
+        label = f"context.tasks[{index}]"
+        if not isinstance(task, dict):
+            fail(f"{label} must be an object")
+        task_id = require_text(task.get("id"), f"{label}.id")
+        if task_id in task_ids:
+            fail(f"context.tasks repeats {task_id}")
+        task_ids.add(task_id)
+        for field in ("goal", "result"):
+            require_text(task.get(field), f"{label}.{field}")
+        if task.get("status") not in CONTEXT_CONTRACT["task_statuses"]:
+            fail(f"{label}.status is invalid")
+        check_refs(task.get("evidence_refs"), f"{label}.evidence_refs")
+
+    capability_rows = context.get("capabilities")
+    if not isinstance(capability_rows, list):
+        fail("context.capabilities must be an array")
+    expected_capabilities = {row["key"] for row in CONTEXT_CONTRACT["capabilities"]}
+    by_capability: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(capability_rows):
+        label = f"context.capabilities[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        key = row.get("key")
+        if key not in expected_capabilities:
+            fail(f"{label}.key is invalid")
+        if key in by_capability:
+            fail(f"context.capabilities repeats {key}")
+        if row.get("status") not in CONTEXT_CONTRACT["capability_statuses"]:
+            fail(f"{label}.status is invalid")
+        require_text(row.get("scope"), f"{label}.scope")
+        by_capability[key] = row
+    if set(by_capability) != expected_capabilities:
+        fail(f"context.capabilities must cover exactly {sorted(expected_capabilities)}")
+    source_write_status = by_capability["source_write"]["status"]
+    run = registry["run"]
+    if run["repository_write_authority"] == "not_authorized" and source_write_status != "not_authorized":
+        fail("context.capabilities source_write must be not_authorized when the run has no write authority")
+    if run["repository_write_authority"] == "authorized" and source_write_status == "not_authorized":
+        fail("context.capabilities source_write contradicts the run's write authority")
+    if run["repository_writes_performed"] and source_write_status not in {"available", "partial"}:
+        fail("context.capabilities source_write must be available or partial when repository writes occurred")
+
+    scores = context.get("scores")
+    if not isinstance(scores, list):
+        fail("context.scores must be an array")
+    by_score: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(scores):
+        label = f"context.scores[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        category = row.get("category")
+        if category not in CANONICAL_CATEGORIES:
+            fail(f"{label}.category is not canonical")
+        if category in by_score:
+            fail(f"context.scores repeats {category}")
+        if row.get("score") not in CONTEXT_CONTRACT["score_values"]:
+            fail(f"{label}.score is invalid")
+        require_text(row.get("evidence"), f"{label}.evidence")
+        check_refs(row.get("evidence_refs"), f"{label}.evidence_refs")
+        by_score[category] = row
+    if set(by_score) != CANONICAL_CATEGORIES:
+        fail(f"context.scores must cover exactly {sorted(CANONICAL_CATEGORIES)}")
+
+    checks_not_run = context.get("checks_not_run")
+    if not isinstance(checks_not_run, list):
+        fail("context.checks_not_run must be an array")
+    for index, row in enumerate(checks_not_run):
+        label = f"context.checks_not_run[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        for field in ("check", "reason", "impact"):
+            require_text(row.get(field), f"{label}.{field}")
+
+    work_orders = context.get("work_orders")
+    if not isinstance(work_orders, list):
+        fail("context.work_orders must be an array")
+    registry_ids = {item["id"] for item in registry["items"]}
+    work_ids: set[str] = set()
+    for index, row in enumerate(work_orders):
+        label = f"context.work_orders[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        work_id = require_text(row.get("id"), f"{label}.id")
+        if work_id in work_ids:
+            fail(f"context.work_orders repeats {work_id}")
+        work_ids.add(work_id)
+        for field in ("title", "summary", "verification"):
+            require_text(row.get(field), f"{label}.{field}")
+        item_ids = require_unique_text_list(row.get("item_ids"), f"{label}.item_ids", allow_empty=False)
+        unknown_items = sorted(set(item_ids) - registry_ids)
+        if unknown_items:
+            fail(f"{label}.item_ids contains unknown items: {unknown_items}")
+        require_unique_text_list(row.get("acceptance_checks"), f"{label}.acceptance_checks", allow_empty=False)
+
+    items = validate_registry(registry, "registry")
+    for item_id, item in items.items():
+        for evidence_id in item["evidence_refs"]:
+            if evidence_id not in by_evidence:
+                fail(f"registry item {item_id} references missing evidence {evidence_id}")
+            if item["confidence"] == "high" and by_evidence[evidence_id]["verification"] == "not_verified":
+                fail(f"registry item {item_id} claims high confidence from unverified evidence {evidence_id}")
+        if item["category"] == "copy" and item["kind"] in {"finding", "enhancement"}:
+            editorial_refs = validate_editorial_review(
+                item["editorial_review"],
+                f"registry item {item_id}.editorial_review",
+                kind=item["kind"],
+                status=item["status"],
+            )
+            missing_editorial = sorted(editorial_refs - set(by_evidence))
+            if missing_editorial:
+                fail(f"registry item {item_id} editorial review references missing evidence: {missing_editorial}")
+            unattached_editorial = sorted(editorial_refs - set(item["evidence_refs"]))
+            if unattached_editorial:
+                fail(f"registry item {item_id} editorial review evidence is absent from item evidence_refs: {unattached_editorial}")
+            analyzer_ref = item["editorial_review"].get("analyzer_evidence_ref")
+            if analyzer_ref is not None and by_evidence[analyzer_ref]["kind"] != "analysis_receipt":
+                fail(f"registry item {item_id} analyzer evidence must use kind analysis_receipt")
+
+    missing_blind = sorted(set(run["blind_artifact_refs"]) - set(by_evidence))
+    if missing_blind:
+        fail(f"registry.run.blind_artifact_refs references missing evidence: {missing_blind}")
+    return by_evidence
 
 
 class DashboardParser(HTMLParser):
@@ -359,6 +861,7 @@ def validate_markdown(path: Path, registry: dict[str, Any]) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("registry", type=Path)
+    parser.add_argument("--context", type=Path)
     parser.add_argument("--baseline", type=Path)
     parser.add_argument("--decisions", type=Path)
     parser.add_argument("--baseline-decisions", type=Path)
@@ -371,6 +874,10 @@ def main() -> int:
     args = parse_args()
     registry = load_json(args.registry)
     validate_registry(registry)
+    if registry.get("schema_version") == CURRENT_SCHEMA_VERSION and not args.context:
+        fail(f"schema {CURRENT_SCHEMA_VERSION} registries require --context")
+    if args.context:
+        validate_context(load_json(args.context), registry, base_path=args.context.parent)
     if args.baseline:
         validate_baseline(registry, load_json(args.baseline))
     if args.decisions:
@@ -381,6 +888,8 @@ def main() -> int:
     if args.markdown:
         validate_markdown(args.markdown, registry)
     checks = ["registry"]
+    if args.context:
+        checks.append("context and evidence")
     if args.baseline:
         checks.append("baseline continuity")
     if args.decisions:

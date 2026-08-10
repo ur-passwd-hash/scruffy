@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
   <img src="https://img.shields.io/badge/Agent%20Skills-compatible-13543e" alt="Agent Skills compatible">
-  <img src="https://img.shields.io/badge/Codex%20%2B%20Claude-parity-c69b3f" alt="Codex and Claude parity">
+  <img src="https://img.shields.io/badge/Codex%20%2B%20Claude-compatible-c69b3f" alt="Codex and Claude compatible">
   <img src="https://img.shields.io/badge/license-MIT-7a4f8f" alt="MIT license">
 </p>
 
@@ -17,7 +17,7 @@
 
 **Scruffy finds AI slop in web apps—and shows its work.** Give Claude or Codex a URL, screenshot, prototype, or source repository. Scruffy operates the real interface, inspects the available code and copy, captures evidence, and returns a prioritized report with practical fixes.
 
-**What “AI slop” means here:** low-quality app output that looks finished because the generator, template, or builder supplied a plausible surface while important product decisions were skipped. Scruffy checks seven places where that shortcut becomes visible: product, interaction, structure, visual design, writing, accessibility, and performance.
+**What “AI slop” means here:** low-quality app output that looks finished because the generator, template, or builder supplied a plausible surface while important product decisions were skipped. Scruffy checks eight evidence categories, including first-class Editorial slop across content strategy, microcopy, claims, provenance, voice, and sentence construction.
 
 **What it does not mean:** Scruffy does not guess whether AI wrote the app. It judges the result, not the author. The same failures can appear in hand-written, template-derived, outsourced, and AI-generated work.
 
@@ -27,7 +27,7 @@
 - Live task walkthroughs instead of screenshot astrology
 - Findings with evidence, user impact, confidence, falsification attempts, and acceptance checks
 - Cleared suspicions published beside confirmed defects
-- Sentence-quality analysis that excludes markup and code, measures recurring patterns, requires a human semantic-coherence pass, and returns **no authorship score**
+- Editorial review that covers content strategy, claims, provenance, voice, microcopy, and sentence construction while returning **no authorship score**
 - Stable finding IDs that cannot quietly disappear in a repeat audit
 - Complete JSON, Markdown, and self-contained decision-dashboard outputs
 - Dependency-ordered work orders when implementation is authorized
@@ -59,67 +59,63 @@ ln -s "$(pwd)/scruffy" ~/.agents/skills/scruffy
 ```
 
 ```text
-$scruffy audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test sentence quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
+$scruffy audit https://example.com end to end. Operate the real tasks, capture desktop and mobile evidence, test editorial quality without guessing authorship, publish the full findings registry, and generate the decision dashboard.
 ```
-
-## What it improves
-
-| Layer | What the skill tests | Typical improvement |
-|---|---|---|
-| Product | Audience, job, primary action, repeat-use reason, success signal | A clearer product and fewer ornamental features |
-| Information architecture | Routes, state addressability, content structure, navigation | Shareable states, better retrieval, and scalable navigation |
-| Interaction | Real tasks, feedback, errors, persistence, keyboard and mobile behavior | Controls that behave as promised and recover cleanly |
-| Accessibility | Semantics, names, focus, states, contrast, reflow | Broader access and more robust interaction contracts |
-| Visual identity | Hierarchy, composition, typography, color, density, imagery | A distinctive interface without card soup or decoration theater |
-| Copy | Specificity, terminology, conceptual coherence, passage structure, cadence, responsibility, errors, recovery language | Concrete, coherent, product-specific language instead of filler, without guessing authorship |
-| Implementation shape | State ownership, routing, shared primitives, tokens, silent failures | Cheaper changes and fewer repeated defects |
-| Performance | Runtime traces and interaction measurements | Faster, more truthful loading and response behavior |
 
 The method is deliberately evidence-first. It operates representative tasks, challenges its own suspicions, distinguishes defects from enhancements, and publishes cleared suspicions alongside findings. Repeated audits use an immutable registry: every earlier item must be carried, reopened, fixed, cleared, merged, or superseded. A shortlist may change; the historical record cannot silently shrink.
 
-## The seven slop categories
+<!-- scruffy-taxonomy:start -->
+## The eight slop categories
 
-Scruffy does not compress an app into one “vibe” score. Every finding belongs to a specific failure class and must carry the matching proof.
+Scruffy uses four inspection layers to produce findings in eight canonical categories. The layers control review order; the categories classify evidence. Cross-cutting facets prevent category sprawl.
 
-| Category | Plain meaning | What turns a suspicion into a finding |
-|---|---|---|
-| **Product slop** | The app has no clear user, job, outcome, or reason to return. | A missing or contradictory product decision blocks understanding or task success. |
-| **Interaction slop** | Controls, state, feedback, and recovery do not behave as promised. | Operating the real task exposes a wrong action, dead end, lost state, or unusable path. |
-| **Structure slop** (`backend_shape`) | Routes, data, state, content, or components are shaped so badly that several features fail together. | Source and runtime evidence connect multiple symptoms to one shared implementation cause. |
-| **Visual slop** | The interface defaults to card soup, decoration, and interchangeable composition instead of hierarchy and identity. | Rendered evidence shows scanning friction, weakened task priority, or lost product character. |
-| **Writing slop** (`copy`) | The words are vague, repetitive, conceptually incoherent, or useless at the moment of action. | Quoted copy plus an adequate sample shows at least two independent signal families and a clarity, choice, trust, recovery, differentiation, or voice consequence. |
-| **Accessibility slop** | Semantics, focus, state, contrast, or reflow excludes people from the task. | A named requirement or interaction contract fails with reproducible evidence. |
-| **Performance slop** | Loading and interaction are slow, unstable, or dishonest about waiting. | A runtime trace or measurement connects the delay or shift to user-visible harm. |
+| Category | Durable key | Plain meaning | What turns a suspicion into a finding |
+|---|---|---|---|
+| **Product slop** | `product` | The app has no clear user, job, outcome, differentiator, or reason to return. | A missing or contradictory product decision blocks understanding, trust, or task success. |
+| **Information-architecture slop** | `information_architecture` | People cannot find, understand, address, retrieve, or share the information or state they need. | Navigation, labeling, hierarchy, retrieval, URL, or state evidence shows a realistic task becoming materially harder. |
+| **Interaction slop** | `interaction` | Controls, state, feedback, and recovery do not behave as promised. | Operating the real task exposes a wrong action, dead end, lost state, unusable path, or misleading transition. |
+| **Accessibility slop** | `accessibility` | Semantics, focus, state, contrast, alternatives, or reflow excludes people from the task. | A named accessibility requirement or functional interaction contract fails with reproducible evidence. |
+| **Visual slop** | `visual` | Plausible decoration and interchangeable composition replace hierarchy, information, and product identity. | Rendered evidence shows scanning friction, weakened task priority, lost product character, or misleading visual state. |
+| **Editorial slop** | `copy` | Words, claims, labels, information sequence, voice, or provenance are vague, repetitive, incoherent, unsupported, or useless at the moment of action. | Quoted reader-facing material plus surface or task context demonstrates a comprehension, choice, trust, recovery, differentiation, provenance, or voice consequence; sentence-pattern findings also require the sentence-review contract. |
+| **Structure slop** | `backend_shape` | Routes, data, state, content, or components are shaped so badly that several features fail together. | Source and runtime evidence connect multiple symptoms or unsafe change cost to one shared implementation cause. |
+| **Performance slop** | `performance` | Loading and interaction are slow, unstable, wasteful, or dishonest about waiting. | A runtime trace or repeatable measurement connects delay, instability, or waste to user-visible harm. |
 
-### Product slop — the app has no clear job
+### Product slop
 
-The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent resume behavior, and dead-end terminal states.
+The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent return value, and dead-end terminal states.
 
-### Interaction slop — controls do not keep their promise
+### Information-architecture slop
 
-A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects can be found only by operating the interface.
+Navigation may expose the wrong structure, labels may conceal the reader's vocabulary, or meaningful application states may have no stable address. Information architecture is separate from backend shape: a poor route or content model can create both, but the user-facing retrieval failure remains independently visible.
 
-### Structure slop — one implementation shortcut breaks several features
+### Interaction slop
 
-Content is fused to rendering, navigation state has no address, styles are copied instead of tokenized, or failures disappear into empty exception handlers. Reports retain the stable category key `backend_shape`. When several wanted features are expensive for the same structural reason, that shared cause is the finding.
+A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects require operation of the interface, not inference from appearance.
 
-### Visual slop — plausible decoration replaces hierarchy and identity
+### Accessibility slop
 
-Card soup, excessive type roles, decorative badges, arbitrary gradients, identical radii everywhere, synthetic proof, and interchangeable hero composition are candidate signals. They become findings only when rendered evidence shows weak hierarchy, task friction, or lost identity.
+Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced state changes, absent alternatives, and layouts that fail under zoom are functional defects. Scruffy identifies specific barriers; it does not claim full conformance from a sample.
 
-### Writing slop — the sentences do not earn their space
+### Visual slop
 
-Generalized verbs, unexplained “Oops” messages, inconsistent terminology, claims presented as evidence, conceptual collisions, recycled paragraph choreography, repeated rhetorical scaffolds, monotonous cadence, and responsibility-obscuring passives can make an interface vague or interchangeable. Reports retain the stable category key `copy`.
+Card soup, excessive type roles, decorative badges, arbitrary gradients, identical radii everywhere, synthetic proof, and interchangeable hero composition are candidate signals. They become findings only when rendered evidence shows weak hierarchy, task friction, misinformation, or lost identity.
 
-Scruffy first removes repository markup, tables, URLs, and code from prose measurements. Its analyzer groups recurring leads into independent signal families, then requires a human to test conceptual coherence, sentence portability, paragraph purpose, and voice fit. An em dash, triad, favorite word, passive construction, rhetorical question, fragment, emoji, or polished sentence is never an automatic defect. Scruffy reports what the words fail to do and deliberately refuses to classify who wrote them.
+### Editorial slop
 
-### Accessibility slop — people cannot perceive or operate the state
+Editorial review covers content strategy, terminology, microcopy, sentence and passage construction, conceptual coherence, claim support, provenance, information sequence, recovery language, and voice. Scruffy first verifies what readers actually see. Automated sentence signals remain leads; a human must test meaning, purpose, portability, voice, and consequences. Scruffy never classifies authorship.
 
-Missing landmarks, unnamed controls, invisible focus, low contrast, unannounced state changes, and layouts that fail under zoom are functional defects. The skill identifies specific barriers; it does not claim full conformance from a sample.
+### Structure slop
 
-### Performance slop — the app misses the speed and truthfulness floor
+Content may be fused to rendering, navigation state may have no address, styles may be copied instead of tokenized, or failures may disappear into empty exception handlers. When several visible problems share one verified structural cause, record that cause once and link its dependent symptoms.
 
-Slow interaction, unstable layout, delayed primary content, blocking third parties, or dishonest wait states count only when measured at runtime. Source size alone is not a performance finding.
+### Performance slop
+
+Slow interaction, unstable layout, delayed primary content, blocking third parties, or dishonest wait states count only when measured at runtime. Source size alone can justify an investigation, not a performance finding.
+
+### Cross-cutting facets
+
+Apply these only where the product exposes the concern: **Trust and content integrity**, **Resilience and recovery**, **Localization and adaptability**, **Agent and AI behavior**, **Privacy and safety UX**. They refine a category; they do not replace it.
+<!-- scruffy-taxonomy:end -->
 
 ## Why the method is harder to fool
 
@@ -128,7 +124,7 @@ Slow interaction, unstable layout, delayed primary content, blocking third parti
 - Representative task walkthroughs replace screenshot-only judgment.
 - Findings require evidence and a falsification attempt.
 - Blind audits quarantine prior reports and expected answers, freeze discovery by hash, and reveal the baseline only during reconciliation.
-- Sentence-level measurements require adequate samples, multiple independent signals, and a demonstrated product consequence.
+- Editorial findings require typed evidence and a demonstrated consequence; sentence-pattern findings additionally require adequate samples, multiple independent signals, and manual semantic review.
 - Stable IDs and identity keys prevent a later report from reusing or dropping earlier findings.
 - Application-archetype probes adapt the task walkthrough to courses, SaaS tools, transactions, forms, analytics, collaboration, editors, marketing sites, and hybrids.
 - Structural blockers are fixed before cosmetic symptoms.
@@ -136,14 +132,18 @@ Slow interaction, unstable layout, delayed primary content, blocking third parti
 - Retractions receive the same prominence as findings.
 - An interactive decision report is supported, but Markdown and JSON fallbacks keep the skill portable.
 
+<!-- scruffy-modes:start -->
 ## Modes
 
-| Mode | Use it for | Result |
+| Mode | Use it for | Repository authority |
 |---|---|---|
-| **AUDIT** | Existing URL, app, source tree, prototype, or screenshot | Evidence-backed report; no source changes unless requested |
-| **REDESIGN** | Existing experience that should also be improved | Audit, coherent direction, authorized implementation, and regression checks |
-| **DESIGN** | Blank or weakly defined interface | Product frame plus structurally different design directions before convergence |
-| **DEMONSTRATE-FIX** | Live page without source access | Reversible demonstration labeled separately from repository changes |
+| **AUDIT** | Inspect and report on an existing target without changing its source. | Repository writes forbidden |
+| **REDESIGN** | Audit, establish a coherent direction, implement authorized source changes, and verify them. | Explicit source-write authority required |
+| **DESIGN** | Create an authorized new interface after establishing the product frame and exploring structural directions. | Explicit source-write authority required |
+| **DEMONSTRATE-FIX** | Demonstrate reversible live-page changes without representing them as repository changes. | Repository writes forbidden |
+
+New schema-2.1 reports record requested mode, effective mode, selection basis, explicit-request write authority, performed mutations, live demonstrations, and blind status. Validation fails closed when those facts conflict.
+<!-- scruffy-modes:end -->
 
 ## Install
 
@@ -218,7 +218,7 @@ $scruffy audit https://example.com and prioritize the structural fixes
 
 Codex may also invoke the skill implicitly when a request matches the `SKILL.md` description.
 
-Codex and Claude load the same root `SKILL.md`; there is no duplicated runtime copy to drift. `agents/openai.yaml` provides Codex UI metadata, while `.claude-plugin/` provides Claude Code distribution metadata.
+Codex and Claude load the same root `SKILL.md`; there is no duplicated runtime copy to drift. `agents/openai.yaml` provides Codex UI metadata, while `.claude-plugin/` provides Claude Code distribution metadata. Claude's generated `skills/scruffy/SKILL.md` exists only for plugin discovery and immediately delegates to the canonical root file. This proves source compatibility, not identical agent behavior.
 
 | Runtime | Native entrypoint | Explicit invocation |
 |---|---|---|
@@ -237,13 +237,20 @@ scruffy/
 ├── .claude-plugin/
 │   ├── plugin.json               # Claude Code plugin manifest
 │   └── marketplace.json          # installable one-plugin marketplace
+├── skills/scruffy/
+│   └── SKILL.md                   # generated Claude discovery adapter; points to canonical root skill
 ├── assets/
 │   ├── scruffy-hero.png          # Transparent README action banner
 │   └── scruffy-character.png     # Transparent reusable character model
 ├── SKILL.md                      # shared Agent Skills runtime instructions
 ├── agents/
 │   └── openai.yaml               # Codex UI metadata
+├── schema/
+│   ├── taxonomy.json             # canonical layers, categories, facets, labels, and proof rules
+│   └── audit-contract.json       # canonical modes, authority, capabilities, evidence, and editorial receipts
 ├── references/
+│   ├── taxonomy.md              # generated human projection of the category contract
+│   ├── audit-contract.md        # generated human projection of execution contracts
 │   ├── verification.md          # live-operation and falsification protocol
 │   ├── scoring.md               # calibrated severity, confidence, and scores
 │   ├── durability.md            # immutable identity and revision reconciliation
@@ -265,6 +272,10 @@ scruffy/
 │   ├── intake.py                # caption intake for corpus research
 │   ├── validate_corpus.py        # citation and corpus validation
 │   ├── validate_skill.py         # package, reference, and portability validation
+│   ├── claude_adapter.py         # generate/check the DRY Claude plugin adapter
+│   ├── taxonomy_contract.py      # synchronize and validate category projections
+│   ├── audit_contract.py         # synchronize and validate execution-contract projections
+│   ├── report_contract.py        # shared renderer labels and evidence projections
 │   ├── analyze_sentence_slop.py  # deterministic measurements; never an authorship score
 │   ├── blind_protocol.py         # blind manifest, freeze, and integrity verification
 │   ├── evaluate_blind_outputs.py # hidden-key scoring with no authorship labels
@@ -274,6 +285,7 @@ scruffy/
 │   ├── render_dashboard.py       # complete self-contained decision dashboard
 │   ├── render_markdown.py        # complete human-readable report
 │   ├── test_durability.py        # continuity and rendering regression tests
+│   ├── test_audit_contract.py    # category, authority, evidence, and editorial-contract tests
 │   ├── test_sentence_slop.py     # sentence-signal and guard regression tests
 │   ├── test_blind_protocol.py    # contamination and post-freeze mutation tests
 │   ├── test_blind_evaluator.py   # coverage, temporary-ID, and no-authorship tests
@@ -292,15 +304,17 @@ The validators use only the Python standard library:
 
 ```sh
 python3 scripts/validate_skill.py
+python3 scripts/claude_adapter.py --check
 python3 scripts/validate_corpus.py
 python3 scripts/test_durability.py
+python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py
 python3 scripts/test_blind_protocol.py
 python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py
 ```
 
-The first checks metadata, progressive-disclosure budgets, referenced files, durability and blind-audit terms, sentence and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, sentence false-positive guards, blind-output immutability, and contamination rejection.
+The first checks metadata, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.
 
 Compatibility note: durable report markers and browser-storage keys retain the internal `anti-slop-*` namespace so existing registries, dashboards, and decisions remain readable after the rename. This does not affect `$scruffy` or `/scruffy` invocation.
 
@@ -314,6 +328,7 @@ python3 scripts/migrate_decisions.py previous-decisions.json findings.json decis
 python3 scripts/render_dashboard.py findings.json context.json decisions.json audit-report.html
 python3 scripts/render_markdown.py findings.json context.json decisions.json audit-report.md
 python3 scripts/validate_audit.py findings.json \
+  --context context.json \
   --baseline previous-findings.json \
   --decisions decisions.json \
   --baseline-decisions previous-decisions.json \
@@ -321,7 +336,7 @@ python3 scripts/validate_audit.py findings.json \
   --markdown audit-report.md
 ```
 
-The validator rejects silent disappearance, ID reuse, broken revision lineage, orphaned decisions, missing report sections, duplicated report items, and dashboards that omit registry entries. The “top eight findings” and “top five enhancements” remain presentation limits only; additional and resolved items are still rendered.
+For schema 2.1, the validator also rejects improvised category names, inapplicable facets, contradictory run modes, unauthorized writes, incomplete capability or score ledgers, unresolved evidence IDs, missing captured files, and Editorial slop findings without the required review receipt. The “top eight findings” and “top five enhancements” remain presentation limits only; additional and resolved items are still rendered.
 
 ## Grow the research corpus
 

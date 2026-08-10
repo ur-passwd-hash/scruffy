@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "current_registry_schema": "2.1",
+  "legacy_registry_schemas": ["2.0"],
+  "run": {
+    "modes": [
+      {
+        "key": "audit",
+        "label": "AUDIT",
+        "repository_writes_allowed": false,
+        "live_demonstration_allowed": false,
+        "description": "Inspect and report on an existing target without changing its source."
+      },
+      {
+        "key": "redesign",
+        "label": "REDESIGN",
+        "repository_writes_allowed": true,
+        "live_demonstration_allowed": true,
+        "description": "Audit, establish a coherent direction, implement authorized source changes, and verify them."
+      },
+      {
+        "key": "design",
+        "label": "DESIGN",
+        "repository_writes_allowed": true,
+        "live_demonstration_allowed": true,
+        "description": "Create an authorized new interface after establishing the product frame and exploring structural directions."
+      },
+      {
+        "key": "demonstrate_fix",
+        "label": "DEMONSTRATE-FIX",
+        "repository_writes_allowed": false,
+        "live_demonstration_allowed": true,
+        "description": "Demonstrate reversible live-page changes without representing them as repository changes."
+      }
+    ],
+    "mode_selection_basis": ["explicit", "inferred"],
+    "blind_statuses": ["not_run", "verified", "contaminated"],
+    "authority_states": ["authorized", "not_authorized"],
+    "authority_basis_types": ["explicit_request", "not_granted"]
+  },
+  "context": {
+    "schema_version": "1.0",
+    "product_frame_questions": [
+      {"key": "audience", "label": "Who is it for?"},
+      {"key": "job", "label": "What job does it perform?"},
+      {"key": "primary_action", "label": "What is the primary action?"},
+      {"key": "differentiator", "label": "What makes it meaningfully different?"},
+      {"key": "return_reason", "label": "Why would someone return?"},
+      {"key": "success_signal", "label": "What observable result means it succeeded?"}
+    ],
+    "product_frame_bases": ["observed", "supplied", "inferred", "mixed", "unknown"],
+    "task_statuses": ["pass", "fail", "partial", "needs_verification", "not_run"],
+    "capabilities": [
+      {"key": "source_read", "label": "Source read access"},
+      {"key": "rendered_page", "label": "Rendered-page access"},
+      {"key": "interaction_keyboard", "label": "Interaction and keyboard operation"},
+      {"key": "screenshots", "label": "Screenshots or equivalent visual evidence"},
+      {"key": "console_network_accessibility_performance", "label": "Console, network, accessibility-tree, and performance inspection"},
+      {"key": "source_write", "label": "File write and implementation access"},
+      {"key": "prior_audit_data", "label": "Prior audit registry, reports, and decision data"},
+      {"key": "copy_context", "label": "Copy samples, audience, voice, and regulated-language constraints"}
+    ],
+    "capability_statuses": ["available", "partial", "unavailable", "not_needed", "not_run", "not_authorized"],
+    "score_values": [0, 1, 2, 3, "N/A"],
+    "evidence_kinds": [
+      "task_observation",
+      "screenshot",
+      "source",
+      "measurement",
+      "analysis_receipt",
+      "runtime_trace",
+      "accessibility_observation",
+      "copy_sample",
+      "supplied"
+    ],
+    "evidence_verification": ["captured", "observed", "supplied", "not_verified"]
+  },
+  "editorial_review": {
+    "review_types": ["sentence_pattern", "microcopy", "claims_provenance", "content_strategy", "mixed"],
+    "sample_adequacy": ["adequate", "limited", "insufficient", "not_applicable"],
+    "analysis_language_scopes": ["en", "non_en", "unknown", "not_applicable"],
+    "language_review_bases": ["verified_english_analyzer", "language_competent_human", "not_run", "not_applicable"],
+    "sentence_signal_families": [
+      "rhythm",
+      "rhetorical_structure",
+      "discourse_structure",
+      "lexical_repetition",
+      "specificity",
+      "responsibility"
+    ],
+    "manual_check_results": ["clear", "candidate", "not_run", "not_applicable"],
+    "sentence_manual_checks": [
+      "conceptual_coherence",
+      "sentence_portability",
+      "discourse_purpose",
+      "voice_and_subtext"
+    ],
+    "editorial_manual_checks": [
+      "terminology_and_information_sequence",
+      "claim_support_and_provenance",
+      "action_and_recovery_clarity",
+      "voice_and_audience_fit"
+    ],
+    "authorship_assessment": "not_performed"
+  }
+}

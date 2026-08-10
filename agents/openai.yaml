@@ -1,6 +1,6 @@
 interface:
   display_name: "Scruffy"
   short_description: "Find and fix AI slop in web apps"
-  default_prompt: "Use $scruffy to find AI slop in this web app, operate its critical flows, and return prioritized fixes with evidence."
+  default_prompt: "Use $scruffy to find AI slop in this web app, including editorial slop in its content strategy, claims, microcopy, voice, and sentence construction; operate critical flows and return prioritized fixes with evidence."
 policy:
   allow_implicit_invocation: true

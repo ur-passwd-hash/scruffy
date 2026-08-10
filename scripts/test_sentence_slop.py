@@ -21,13 +21,19 @@ def fail(message: str) -> None:
 def main() -> int:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     cases = data.get("cases")
-    if not isinstance(cases, list) or len(cases) < 11:
-        fail("fixture must contain at least eleven cases")
+    if not isinstance(cases, list) or len(cases) < 12:
+        fail("fixture must contain at least twelve cases")
 
     for case in cases:
         items = case.get("items", [])
         text = case.get("text") or "\n".join(item["text"] for item in items)
-        result = analyze(text, mode=case["mode"], context=case["context"], items=items)
+        result = analyze(
+            text,
+            mode=case["mode"],
+            context=case["context"],
+            language=case.get("language", data.get("language", "unknown")),
+            items=items,
+        )
         codes = {lead["code"] for lead in result["leads"]}
         missing = set(case.get("expected_leads", [])) - codes
         forbidden = set(case.get("forbidden_leads", [])) & codes
@@ -46,7 +52,7 @@ def main() -> int:
             fail(f"{case['id']} made an authorship assessment")
         if not result["guards"]["no_authorship_inference"]:
             fail(f"{case['id']} lacks the authorship guard")
-        if result["schema_version"] != "1.1":
+        if result["schema_version"] != "1.2":
             fail(f"{case['id']} returned an unexpected schema version")
         if any("signal_family" not in lead for lead in result["leads"]):
             fail(f"{case['id']} returned a lead without a signal family")
@@ -86,6 +92,17 @@ def main() -> int:
         if case["mode"] == "prose" and result["sample"]["adequacy"] != "insufficient":
             if not result["manual_review"]["required"]:
                 fail(f"{case['id']} did not require the semantic/manual pass")
+        expected_language_status = case.get("expected_language_status", "supported")
+        if result["language_analysis_status"] != expected_language_status:
+            fail(
+                f"{case['id']} language status was {result['language_analysis_status']}; "
+                f"expected {expected_language_status}"
+            )
+        if expected_language_status == "abstained":
+            if result["leads"] or result["compound_signal"]["review_needed"]:
+                fail(f"{case['id']} did not abstain from English-specific leads")
+            if not result["guards"]["unsupported_language_abstention"]:
+                fail(f"{case['id']} lacks the unsupported-language guard")
 
     print(
         f"PASS: {len(cases)} sentence-slop cases, markup normalization, independent-family predicate, "

@@ -11,6 +11,7 @@
     {"prompt": "Find accessibility, interaction, copy, and visual-slop issues in my landing page.", "mode": "audit"},
     {"prompt": "Turn this UI review into dependency-ordered implementation work orders.", "mode": "audit"},
     {"prompt": "Audit the sentence construction across this web app for repetitive cadence, rhetorical filler, vague abstraction, and obscured responsibility.", "mode": "audit"},
+    {"prompt": "Review this app for editorial slop across content strategy, unsupported claims, provenance, terminology, microcopy, recovery language, voice, and sentence construction.", "mode": "audit"},
     {"prompt": "Run a blind fresh-eyes audit of this product, freeze the independent findings, and only then reconcile the previous report.", "mode": "audit"}
   ],
   "should_not_trigger": [

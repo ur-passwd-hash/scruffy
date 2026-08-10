@@ -4,9 +4,14 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import sys
 from pathlib import Path
+
+from audit_contract import check as check_audit_contract, load_contract
+from claude_adapter import check as check_claude_adapter
+from taxonomy_contract import check as check_taxonomy, load_taxonomy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,6 +83,10 @@ def validate_required_files() -> None:
         ".claude-plugin/marketplace.json",
         "agents/openai.yaml",
         "assets/scruffy-hero.png",
+        "schema/taxonomy.json",
+        "schema/audit-contract.json",
+        "references/taxonomy.md",
+        "references/audit-contract.md",
         "references/verification.md",
         "references/scoring.md",
         "references/output-schema.md",
@@ -89,12 +98,17 @@ def validate_required_files() -> None:
         "principles/SOURCES.md",
         "principles/INSPIRATIONS.md",
         "scripts/intake.py",
+        "scripts/claude_adapter.py",
         "scripts/validate_corpus.py",
         "scripts/validate_audit.py",
+        "scripts/taxonomy_contract.py",
+        "scripts/audit_contract.py",
+        "scripts/report_contract.py",
         "scripts/migrate_decisions.py",
         "scripts/render_dashboard.py",
         "scripts/render_markdown.py",
         "scripts/test_durability.py",
+        "scripts/test_audit_contract.py",
         "scripts/analyze_sentence_slop.py",
         "scripts/blind_protocol.py",
         "scripts/evaluate_blind_outputs.py",
@@ -106,8 +120,10 @@ def validate_required_files() -> None:
         "scripts/test_sentence_blind_runner.py",
         "scripts/annotate.html",
         "evals/triggers.json",
+        "skills/scruffy/SKILL.md",
         "evals/archetypes.json",
         "evals/sentence-slop/cases.json",
+        "evals/sentence-slop/readme-dogfood-2026-08-10.md",
         "evals/durability/baseline.json",
         "evals/durability/revision-valid.json",
         "evals/durability/revision-invalid-missing.json",
@@ -127,6 +143,33 @@ def validate_required_files() -> None:
     missing = [path for path in required if not (ROOT / path).is_file()]
     if missing:
         fail(f"required files are missing: {missing}")
+
+
+def validate_generated_contracts() -> None:
+    try:
+        taxonomy = load_taxonomy()
+        audit_contract = load_contract()
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        fail(f"canonical contract is invalid: {error}")
+    failures = check_taxonomy(taxonomy) + check_audit_contract(audit_contract) + check_claude_adapter()
+    if failures:
+        fail("generated contract projections are stale: " + "; ".join(failures))
+    categories = {row["key"]: row for row in taxonomy["categories"]}
+    if categories.get("copy", {}).get("public_label") != "Editorial slop":
+        fail("canonical copy category must be publicly labeled Editorial slop")
+    if set(categories) != {
+        "product",
+        "information_architecture",
+        "interaction",
+        "accessibility",
+        "visual",
+        "copy",
+        "backend_shape",
+        "performance",
+    }:
+        fail("canonical taxonomy must expose the eight durable category keys")
+    if audit_contract.get("current_registry_schema") != "2.1":
+        fail("canonical audit contract must require registry schema 2.1")
 
 
 def validate_durability_contract(text: str) -> None:
@@ -184,6 +227,7 @@ def validate_sentence_contract(text: str) -> None:
         '"markup_excluded_from_prose_statistics"',
         '"dependency_collapses"',
         '"authorship_assessment": "not_performed"',
+        '"unsupported_language_abstention"',
     )
     missing_analyzer = [fragment for fragment in required_analyzer_fragments if fragment not in analyzer]
     if missing_analyzer:
@@ -208,7 +252,8 @@ def validate_blind_contract(text: str) -> None:
         "blind-discovery.json",
         "blind-freeze.json",
         "freeze before reveal",
-        "Cross-agent parity test",
+        "Cross-agent behavioral comparison",
+        "source parity only",
     )
     missing_reference = [fragment for fragment in required_reference_fragments if fragment not in reference]
     if missing_reference:
@@ -372,10 +417,12 @@ def validate_sentence_evals() -> None:
     except (OSError, json.JSONDecodeError) as error:
         fail(f"sentence-slop fixture is unreadable: {error}")
     cases = data.get("cases")
-    if data.get("schema_version") != "1.1":
-        fail("sentence-slop fixture schema version must be 1.1")
-    if not isinstance(cases, list) or len(cases) < 11:
-        fail("sentence-slop fixture needs at least eleven cases")
+    if data.get("schema_version") != "1.2":
+        fail("sentence-slop fixture schema version must be 1.2")
+    if data.get("language") != "en":
+        fail("sentence-slop fixture must declare its default English analysis scope")
+    if not isinstance(cases, list) or len(cases) < 12:
+        fail("sentence-slop fixture needs at least twelve cases")
     identifiers: list[str] = []
     contexts: set[str] = set()
     for index, case in enumerate(cases):
@@ -399,6 +446,34 @@ def validate_sentence_evals() -> None:
         fail("sentence-slop case IDs must be unique")
     if not {"general", "technical", "nonnative"}.issubset(contexts):
         fail("sentence-slop fixtures must cover general, technical, and supplied nonnative contexts")
+    if not any(case.get("expected_language_status") == "abstained" for case in cases):
+        fail("sentence-slop fixtures must cover unsupported-language abstention")
+
+
+def validate_readme_dogfood() -> None:
+    path = ROOT / "evals" / "sentence-slop" / "readme-dogfood-2026-08-10.md"
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"Target SHA-256: `([a-f0-9]{64})`", text)
+    if not match:
+        fail("README dogfood receipt is missing its target hash")
+    current_hash = hashlib.sha256((ROOT / "README.md").read_bytes()).hexdigest()
+    if match.group(1) != current_hash:
+        fail("README changed after its editorial dogfood receipt; rerun and reconcile the review")
+    required = (
+        "### Conceptual coherence",
+        "### Sentence portability",
+        "### Discourse purpose",
+        "### Voice and subtext",
+        "### Terminology and information sequence",
+        "### Claim support and provenance",
+        "### Action and recovery clarity",
+        "### Voice and audience fit",
+        "makes no authorship assessment",
+        "fixed editorial defect",
+    )
+    missing = [fragment for fragment in required if fragment not in text]
+    if missing:
+        fail(f"README editorial dogfood receipt is incomplete: {missing}")
 
 
 def validate_portability() -> None:
@@ -426,6 +501,7 @@ def main() -> int:
     validate_budget(text)
     validate_links(text)
     validate_required_files()
+    validate_generated_contracts()
     validate_durability_contract(text)
     validate_sentence_contract(text)
     validate_blind_contract(text)
@@ -435,10 +511,11 @@ def main() -> int:
     validate_trigger_evals()
     validate_archetype_evals()
     validate_sentence_evals()
+    validate_readme_dogfood()
     validate_portability()
     print(
         "PASS: metadata, trigger coverage, progressive-disclosure budget, local references, "
-        "durability, sentence, and blind contracts, Scruffy public brand, Claude/Codex metadata, trigger/archetype/sentence evals, "
+        "canonical taxonomy, audit, durability, sentence, and blind contracts, Scruffy public brand, Claude/Codex metadata, trigger/archetype/sentence evals, "
         "required files, and portability"
     )
     return 0

@@ -1,6 +1,6 @@
 ---
 name: scruffy
-description: Find, audit, and fix AI slop in web apps, including generic layouts, broken or fake interactions, vague, formulaic, or conceptually incoherent copy, accessibility failures, performance problems, and vibe-coded implementation shortcuts. Use for first, repeat, fresh-eyes, or blind audits of a web app, URL, screenshot, prototype, repository, or blank interface; requests to roast, de-vibe-code, redesign, improve, reconcile, or regression-test a UI; questions about generic or AI-like interface writing; and evidence-backed findings, design directions, implementation work orders, or decision reports. Do not use for AI-authorship classification, security-only reviews, or non-interface code work.
+description: Find, audit, and fix AI slop in web apps, including generic layouts, broken or fake interactions, editorial slop in copy, claims, provenance, voice, or sentence construction, accessibility failures, performance problems, and vibe-coded implementation shortcuts. Use for first, repeat, fresh-eyes, or blind audits of a web app, URL, screenshot, prototype, repository, or blank interface; requests to roast, de-vibe-code, redesign, improve, reconcile, or regression-test a UI; questions about generic or AI-like interface writing; and evidence-backed findings, design directions, implementation work orders, or decision reports. Do not use for AI-authorship classification, security-only reviews, or non-interface code work.
 ---
 
 # Scruffy
@@ -9,38 +9,21 @@ Find and fix observable AI slop in web interfaces. Operate the product, inspect 
 
 This skill is agent-, vendor-, framework-, browser-, and operating-system-agnostic. Use the capabilities available in the current environment and disclose what could not be tested.
 
-## Select a mode
+## Select and record a mode
 
-- **AUDIT** — default for an existing URL, app, screenshot, or repository. Inspect and report; modify only when the user also asks for changes.
-- **REDESIGN** — audit, propose a coherent direction, implement authorized changes, and verify them.
-- **DESIGN** — create a new interface from a blank or weakly specified starting point. Establish product framing before visual direction.
-- **DEMONSTRATE-FIX** — when source access is absent but live DOM/style injection is possible, demonstrate reversible improvements. Label them as demonstrations, not repository changes.
+Read [references/audit-contract.md](references/audit-contract.md), select the applicable canonical mode, and create the run receipt before discovery. Default an existing target to `audit`. Use `redesign` or `design` only with explicit repository-write authority. Use `demonstrate_fix` only for reversible live-page changes without repository writes. A user does not need to know the mode name; record whether selection was explicit or inferred and fail closed when authority is absent.
 
 ## Capability preflight
 
-Before making findings, record each capability as available, unavailable, or not needed:
-
-1. Source read access
-2. Rendered-page access
-3. Interaction and keyboard operation
-4. Screenshots or equivalent visual evidence
-5. Console, network, accessibility-tree, and performance inspection
-6. File write and implementation access
-7. Prior audit registry, reports, and decision data
-8. Copy samples, intended audience, and any supplied voice or regulated-language constraints
+Before making findings, record all eight canonical capabilities from [references/audit-contract.md](references/audit-contract.md) as available, partial, unavailable, not needed, not run, or not authorized. Use the exact capability keys in durable context data.
 
 Missing capability is not evidence of a defect. Reduce confidence, omit unsupported scores, and label the check **not run**. Never inspect passwords, cookies, authentication tokens, browser storage contents, or unrelated private data. Test persistence behavior by changing visible state, reloading or reopening the app, and observing the result.
 
-Read [references/verification.md](references/verification.md) before operating a live interface. Read [references/archetypes.md](references/archetypes.md) after framing the product to select the applicable coverage modules. Read [references/sentence-slop.md](references/sentence-slop.md) whenever sentence construction, cadence, passive voice, rhetorical scaffolding, or synthetic-sounding copy is in scope. For a requested blind or independent run, read [references/blind-audit.md](references/blind-audit.md) before searching for prior artifacts. For implementation or a decision deliverable, read [references/output-schema.md](references/output-schema.md). For every repeat audit or any durable report, read [references/durability.md](references/durability.md). Read [references/scoring.md](references/scoring.md) before assigning severity, confidence, or scores.
+Read [references/taxonomy.md](references/taxonomy.md) before classifying findings. Read [references/verification.md](references/verification.md) before operating a live interface. Read [references/archetypes.md](references/archetypes.md) after framing the product to select the applicable coverage modules. Read [references/sentence-slop.md](references/sentence-slop.md) whenever sentence construction, cadence, passive voice, rhetorical scaffolding, or synthetic-sounding copy is in scope. For a requested blind or independent run, read [references/blind-audit.md](references/blind-audit.md) before searching for prior artifacts. For implementation or a decision deliverable, read [references/output-schema.md](references/output-schema.md). For every repeat audit or any durable report, read [references/durability.md](references/durability.md). Read [references/scoring.md](references/scoring.md) before assigning severity, confidence, or scores.
 
 ## Required order of work
 
-Do not start with color, typography, or screenshots. Work in this order:
-
-1. **Product** — audience, purpose, primary job, differentiator, repeat-use reason, success signal.
-2. **Backend shape** — data model, state ownership, content structure, routing, shared primitives, API boundaries, and maintainability constraints.
-3. **Interaction** — task completion, navigation, state transitions, forms, feedback, errors, persistence, keyboard operation, responsive behavior, and accessibility semantics.
-4. **Visual and copy** — hierarchy, composition, typography, color, density, motion, imagery, empty states, and generic or synthetic language.
+Do not start with color, typography, or screenshots. Follow the generated inspection-layer order in [references/taxonomy.md](references/taxonomy.md): product, structure, experience, then expression. Classify the resulting evidence using exactly one of the eight canonical category keys. Apply cross-cutting facets only where relevant; never create an improvised ninth category.
 
 When one structural cause creates several visible symptoms, identify that cause once and link the dependent findings to it. Do not prescribe cosmetic changes that leave the blocker intact.
 
@@ -87,9 +70,9 @@ Run each representative task. Exercise every unique interaction pattern at least
 
 Collect the smallest evidence that can prove or disprove each candidate finding: task outcome and elapsed time, state transition, URL change, computed contrast, DOM semantics, accessibility state, console/network result, source location, or screenshot. Actively try to falsify the suspicion. Record cleared suspicions and retract disproven claims with the same prominence as findings.
 
-Use [principles/PRINCIPLES.md](principles/PRINCIPLES.md) as the detailed pattern library. Use [principles/SOURCES.md](principles/SOURCES.md) and [principles/INSPIRATIONS.md](principles/INSPIRATIONS.md) for provenance and further study. For sentence-copy candidates, apply the compound predicate in [references/sentence-slop.md](references/sentence-slop.md): verified reader-facing extraction, adequate sample, at least two independent signal families, quoted evidence, a task or voice consequence, and a tested counterexample. Count shared evidence once.
+Use [principles/PRINCIPLES.md](principles/PRINCIPLES.md) as the detailed pattern library. Use [principles/SOURCES.md](principles/SOURCES.md) and [principles/INSPIRATIONS.md](principles/INSPIRATIONS.md) for provenance and further study. Treat Editorial slop (`copy`) as more than sentence style: inspect content strategy, terminology, microcopy, information sequence, claims and provenance, recovery language, audience fit, and voice. For sentence-pattern candidates, additionally apply the compound predicate in [references/sentence-slop.md](references/sentence-slop.md): verified reader-facing extraction, adequate sample, at least two independent signal families, quoted evidence, a task or voice consequence, and a tested counterexample. Count shared evidence once.
 
-For every adequate prose sample, the sentence check has two required passes. First, use deterministic measurements when available. Second, manually test conceptual coherence, sentence portability, paragraph purpose, and fit with any supplied voice. The analyzer deliberately does not score those properties. A no-leads result clears only the automated surface measurements; it does not clear sentence slop until the manual pass is recorded. Measurements remain leads; never infer authorship.
+For every adequate prose sample, the sentence check has two required passes. First, verify the language scope and use deterministic measurements when available. The bundled analyzer is English-specific: pass verified English explicitly; for non-English or unknown language, record its abstention and use a language-competent reviewer instead. Second, manually test conceptual coherence, sentence portability, paragraph purpose, and fit with any supplied voice. The analyzer deliberately does not score those properties. A no-leads result clears only the automated surface measurements; it does not clear sentence slop until the manual pass is recorded. Measurements remain leads; never infer authorship.
 
 ### 6. Synthesize
 
@@ -102,7 +85,7 @@ The complete registry is lossless and has no item-count cap. The executive prese
 
 Items outside the shortlist remain visible in the full registry and dashboard under additional, resolved, merged, superseded, or enhancement sections. Never drop an item to satisfy a presentation limit.
 
-Each finding needs a stable ID, immutable `identity_key`, category, severity, confidence, lifecycle status, revision disposition, user impact, evidence, structural cause, recommended change, acceptance check, and dependencies. Separate observed fact from inference. A clarified title may change; the ID and identity key may not.
+Each finding needs a stable ID, immutable `identity_key`, canonical category, applicable facets, severity, confidence, lifecycle status, revision disposition, user impact, typed evidence receipts, structural cause, recommended change, acceptance check, and dependencies. Editorial findings also need the applicable editorial-review receipt. Separate observed fact from inference. A clarified title may change; the ID and identity key may not.
 
 ### 7. Implement only within authority
 
@@ -146,6 +129,7 @@ When files and an interactive viewer are available, also produce:
 
 - A self-contained HTML decision report
 - `findings.json` containing the complete durable registry and presentation lists
+- `context.json` containing the run-linked product frame, task ledger, capabilities, category scores, typed evidence receipts, work orders, and checks not run
 - `decisions.json` using stable item IDs, revision lineage, approve/defer/reject states, and history
 - `tokens.json` when token changes are proposed
 
@@ -160,9 +144,13 @@ Follow the exact schema and fallback behavior in [references/output-schema.md](r
 The work is complete only when:
 
 - Product framing and representative tasks are explicit.
+- The schema-2.1 run receipt records mode, authority, mutations, and blind status without contradiction.
 - Available capabilities and checks not run are disclosed.
 - Findings are evidence-backed and falsification has been attempted.
-- Sentence-copy findings use verified reader-facing extraction, complete the automated and manual passage checks, meet the independent-family compound predicate, and make no authorship claim.
+- Every finding uses a canonical category key and only applicable cross-cutting facets.
+- Every evidence reference resolves to a typed receipt; captured local evidence exists.
+- Every Editorial slop finding carries a completed editorial-review receipt.
+- Sentence-copy findings use verified reader-facing extraction, record supported language scope or abstention, complete the applicable automated and manual passage checks, meet the independent-family compound predicate, and make no authorship claim.
 - A requested blind run was frozen before baseline reveal, or contamination was disclosed.
 - Structural causes precede cosmetic prescriptions.
 - Severity, confidence, and any scores follow the calibrated rubric.

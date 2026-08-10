@@ -35,45 +35,15 @@ Do not renumber a legacy ID merely to normalize padding or prefixes. Preserve `E
 8. Validate registry continuity, decision coverage, presentation lists, and dashboard completeness.
 9. Publish a reconciliation table showing every prior ID, new status, disposition reason, and destination when applicable.
 
-## Complete registry shape
+## Registry contract
 
-Use `schema_version: "2.0"`:
-
-```json
-{
-  "schema_version": "2.0",
-  "audit_id": "stable-product-id",
-  "target": "canonical URL or product path",
-  "revision_id": "unique revision id",
-  "baseline_revision_id": null,
-  "items": [],
-  "presentation": {
-    "prioritized_finding_ids": [],
-    "prioritized_enhancement_ids": [],
-    "strength_ids": [],
-    "cleared_ids": []
-  }
-}
-```
-
-Each item contains:
-
-- `id`: stable public ID.
-- `identity_key`: immutable descriptive slug.
-- `kind`: `finding`, `enhancement`, or `strength`.
-- `title`, `category`, `severity`, `confidence`.
-- `status`: `open`, `fixed`, `cleared`, `needs-verification`, `merged`, or `superseded`.
-- `revision_disposition`: `new`, `carried`, `reopened`, `fixed`, `cleared`, `merged`, or `superseded`.
-- `first_seen_revision`, `last_observed_revision`.
-- `observation`, `user_impact`, `evidence`, `cause`, `recommendation`, `acceptance_checks`, `depends_on`.
-- `disposition_reason`: required for every non-`new` item.
-- `destination_id`: required only for `merged` or `superseded`.
+New audits use the current registry schema from [audit-contract.md](audit-contract.md) and the exact artifact shape in [output-schema.md](output-schema.md). This file owns revision invariants only; it does not duplicate category, evidence, mode, authority, or editorial-review definitions. Schema 2.0 registries remain readable as baselines, while new and revised output is emitted in schema 2.1.
 
 Strengths use severity `none`, status `open`, and recommendations describing what to preserve. Enhancements use severity as priority (`low`, `medium`, or `high`) rather than defect impact.
 
 ## Decisions
 
-Use `schema_version: "2.0"`, the same `audit_id` and `revision_id`, and one record for every finding or enhancement. Each decision has `item_id`, `decision`, `note`, `updated_at`, and append-only `history`.
+Use the registry's schema version, the same `audit_id` and `revision_id`, and one record for every finding or enhancement. The current decision shape comes from [output-schema.md](output-schema.md); history remains append-only.
 
 When migrating:
 
@@ -101,7 +71,7 @@ Collapsed presentation is allowed; absent registry items are not.
 Run:
 
 ```text
-python3 scripts/validate_audit.py findings.json --baseline previous-findings.json --decisions decisions.json --dashboard audit-report.html --markdown audit-report.md
+python3 scripts/validate_audit.py findings.json --context context.json --baseline previous-findings.json --decisions decisions.json --dashboard audit-report.html --markdown audit-report.md
 ```
 
 Treat any missing baseline ID, reused identity, invalid destination, orphan decision, absent dashboard item, or missing dashboard section as a hard failure.

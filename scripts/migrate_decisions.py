@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Migrate Scruffy decisions to a schema-v2 durable registry."""
+"""Migrate Scruffy decisions into the supplied durable registry version."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from audit_contract import load_contract
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -31,20 +33,25 @@ def main() -> int:
 
     prior = load(args.prior_decisions)
     registry = load(args.registry)
-    if registry.get("schema_version") != "2.0":
-        raise SystemExit("FAIL: registry must use schema 2.0")
+    contract = load_contract()
+    supported_registry_versions = {
+        contract["current_registry_schema"],
+        *contract["legacy_registry_schemas"],
+    }
+    if registry.get("schema_version") not in supported_registry_versions:
+        raise SystemExit(f"FAIL: registry must use one of {sorted(supported_registry_versions)}")
 
     prior_registry: dict[str, Any] | None = None
     if args.prior_registry:
         prior_registry = load(args.prior_registry)
-        if prior_registry.get("schema_version") != "2.0":
-            raise SystemExit("FAIL: prior registry must use schema 2.0")
+        if prior_registry.get("schema_version") not in supported_registry_versions:
+            raise SystemExit(f"FAIL: prior registry must use one of {sorted(supported_registry_versions)}")
         if prior_registry.get("audit_id") != registry.get("audit_id"):
             raise SystemExit("FAIL: prior and current registries have different audit_id values")
         if registry.get("baseline_revision_id") != prior_registry.get("revision_id"):
             raise SystemExit("FAIL: current baseline_revision_id does not match the prior registry revision_id")
 
-    if prior.get("schema_version") != "2.0" and prior_registry is None:
+    if prior.get("schema_version") not in supported_registry_versions and prior_registry is None:
         raise SystemExit(
             "FAIL: legacy decisions lack immutable identity keys; provide --prior-registry so IDs can be bound to a trusted baseline"
         )
@@ -105,7 +112,7 @@ def main() -> int:
         rows.append(row)
 
     result = {
-        "schema_version": "2.0",
+        "schema_version": registry["schema_version"],
         "audit_id": registry["audit_id"],
         "revision_id": registry["revision_id"],
         "baseline_revision_id": registry.get("baseline_revision_id"),

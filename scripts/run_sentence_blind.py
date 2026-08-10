@@ -65,9 +65,19 @@ def run_packet(samples: list[dict[str, Any]], agent: str) -> dict[str, Any]:
             text,
             mode=sample.get("mode", "auto"),
             context=sample.get("context", "general"),
+            language=sample.get("language", "unknown"),
             items=items,
         )
         codes = [lead["code"] for lead in result["leads"]]
+        if result["language_analysis_status"] == "abstained":
+            checks_not_run.append(
+                {
+                    "sample_id": sample["id"],
+                    "check": "English-specific sentence surface analysis",
+                    "reason": "Language was non-English or unknown; use a language-competent reviewer instead of English regexes.",
+                }
+            )
+            continue
         if result["compound_signal"]["review_needed"]:
             consequences = [CONSEQUENCES[code] for code in codes if code in CONSEQUENCES]
             candidates.append(

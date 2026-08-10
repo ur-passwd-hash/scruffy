@@ -11,6 +11,17 @@ import mimetypes
 from pathlib import Path
 from typing import Any
 
+from report_contract import (
+    capability_rows,
+    checks_not_run,
+    evidence_by_id,
+    evidence_summary,
+    product_rows,
+    public_category_label,
+    score_rows,
+    task_rows,
+)
+
 
 def load(path: Path) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -63,18 +74,25 @@ def decision_control(item: dict[str, Any], decision: dict[str, Any] | None) -> s
       </div>"""
 
 
-def evidence_html(item_id: str, context: dict[str, Any], base: Path) -> str:
-    assets = context.get("evidence_assets", {}).get(item_id, [])
+def evidence_html(item: dict[str, Any], context: dict[str, Any], base: Path) -> str:
+    raw_assets = context.get("evidence_assets", {})
+    if isinstance(raw_assets, dict):
+        assets = raw_assets.get(item["id"], [])
+    else:
+        lookup = evidence_by_id(context)
+        assets = [lookup[evidence_id] for evidence_id in item.get("evidence_refs", []) if evidence_id in lookup]
     rendered: list[str] = []
     for asset in assets:
         if not isinstance(asset, dict):
             continue
-        source = embed_asset(str(asset.get("src", "")), base)
+        if asset.get("kind") not in {None, "screenshot"}:
+            continue
+        source = embed_asset(str(asset.get("src") or asset.get("locator") or ""), base)
         if not source:
             continue
         rendered.append(
-            f'<figure><img src="{source}" alt="{esc(asset.get("alt", "Evidence image"))}">'
-            f'<figcaption>{esc(asset.get("caption", ""))}</figcaption></figure>'
+            f'<figure><img src="{source}" alt="{esc(asset.get("alt") or asset.get("description") or "Evidence image")}">'
+            f'<figcaption>{esc(asset.get("caption") or asset.get("description") or "")}</figcaption></figure>'
         )
     return '<div class="evidence-grid">' + "".join(rendered) + "</div>" if rendered else ""
 
@@ -83,6 +101,19 @@ def item_html(item: dict[str, Any], decision: dict[str, Any] | None, context: di
     destination = f' → {esc(item["destination_id"])}' if item.get("destination_id") else ""
     dependencies = ", ".join(item.get("depends_on", [])) or "none"
     item_id = esc(item["id"])
+    facets = ", ".join(item.get("facets", [])) or "none"
+    receipts = evidence_summary(item.get("evidence_refs"), context) or "Legacy untyped evidence"
+    editorial = item.get("editorial_review")
+    editorial_html = ""
+    if isinstance(editorial, dict):
+        families = ", ".join(editorial.get("independent_signal_families", [])) or "not applicable"
+        editorial_html = (
+            f'<h4>Editorial review</h4><p>{esc(editorial.get("review_type", ""))} · '
+            f'sample {esc(editorial.get("sample_adequacy", ""))} · '
+            f'language {esc(editorial.get("analysis_language_scope", "legacy"))} '
+            f'({esc(editorial.get("language_review_basis", "unrecorded"))}) · signals {esc(families)} · '
+            f'authorship {esc(editorial.get("authorship_assessment", "not_performed"))}</p>'
+        )
     return f"""
     <article class="registry-item" data-item-id="{item_id}" data-kind="{esc(item['kind'])}" data-status="{esc(item['status'])}" data-severity="{esc(item['severity'])}">
       <div class="item-rail">
@@ -92,14 +123,16 @@ def item_html(item: dict[str, Any], decision: dict[str, Any] | None, context: di
       </div>
       <div class="item-body">
         <h3>{esc(item['title'])}</h3>
-        <p class="meta">{esc(item['category'])} · {esc(item['confidence'])} confidence · {esc(item['revision_disposition'])}{destination}</p>
+        <p class="meta">{esc(public_category_label(item['category']))} ({esc(item['category'])}) · facets {esc(facets)} · {esc(item['confidence'])} confidence · {esc(item['revision_disposition'])}{destination}</p>
         <p>{esc(item['observation'])}</p>
-        {evidence_html(item['id'], context, base)}
+        {evidence_html(item, context, base)}
         <div class="item-columns">
           <div><h4>User impact</h4><p>{esc(item['user_impact'])}</p></div>
           <div><h4>Cause</h4><p>{esc(item['cause'])}</p></div>
         </div>
         <h4>Evidence</h4>{list_html(item.get('evidence', []))}
+        <p class="meta"><strong>Receipts:</strong> {esc(receipts)}</p>
+        {editorial_html}
         <h4>Recommended change or preservation rule</h4><p>{esc(item['recommendation'])}</p>
         <h4>Acceptance</h4>{list_html(item.get('acceptance_checks', []))}
         <p class="dependency"><strong>Depends on:</strong> {esc(dependencies)} · <strong>Revision:</strong> {esc(item['disposition_reason'] or 'New in this revision.')}</p>
@@ -131,10 +164,10 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     resolved = [item for item in items if item["status"] in {"fixed", "cleared", "merged", "superseded"}]
 
     outcome = context.get("outcome", {})
-    product_rows = [[row.get("question", ""), row.get("answer", ""), row.get("basis", "")] for row in context.get("product_frame", [])]
-    task_rows = [[row.get("id", ""), row.get("goal", ""), row.get("result", ""), row.get("status", ""), row.get("evidence", "")] for row in context.get("tasks", [])]
-    capability_rows = [[row.get("capability", ""), row.get("status", ""), row.get("scope", "")] for row in context.get("capabilities", [])]
-    score_rows = [[row.get("category", ""), row.get("score", ""), row.get("evidence", "")] for row in context.get("scores", [])]
+    product_table_rows = product_rows(context)
+    task_table_rows = task_rows(context)
+    capability_table_rows = capability_rows(context)
+    score_table_rows = score_rows(context)
     reconciliation_rows = [[item["id"], item["title"], item["status"], item["revision_disposition"], item.get("destination_id") or "—", item["disposition_reason"] or "New in this revision."] for item in items]
     work_rows = []
     for order in context.get("work_orders", []):
@@ -179,17 +212,17 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
   <header class="mast"><div class="wrap"><div><p class="eyebrow">Scruffy durable audit · {esc(registry['revision_id'])}</p><h1>{esc(title)}</h1><p class="target">{esc(target)}</p></div><div class="verdict">Overall result<strong>{esc(outcome.get('label','Insufficient evidence'))}</strong></div></div></header>
   <main class="wrap">
     <section id="outcome"><h2>Outcome</h2><p class="lede">{esc(outcome.get('summary',''))}</p><p class="section-note"><strong>Confidence:</strong> {esc(outcome.get('confidence','unknown'))} · <strong>Audit:</strong> {esc(registry['audit_id'])} · <strong>Baseline:</strong> {esc(registry.get('baseline_revision_id') or 'none')}</p></section>
-    <section id="product-frame"><h2>Product frame</h2>{table_html(['Question','Answer','Basis'],product_rows)}</section>
-    <section id="task-ledger"><h2>Representative tasks</h2>{table_html(['ID','Goal','Result','Status','Evidence'],task_rows)}</section>
-    <section id="capability-ledger"><h2>Capability and coverage ledger</h2>{table_html(['Capability','Status','Scope'],capability_rows)}</section>
-    <section id="score"><h2>Evidence-calibrated score</h2>{table_html(['Category','Score','Evidence'],score_rows)}</section>
+    <section id="product-frame"><h2>Product frame</h2>{table_html(['Question','Answer','Basis'],product_table_rows)}</section>
+    <section id="task-ledger"><h2>Representative tasks</h2>{table_html(['ID','Goal','Result','Status','Evidence'],task_table_rows)}</section>
+    <section id="capability-ledger"><h2>Capability and coverage ledger</h2>{table_html(['Capability','Status','Scope'],capability_table_rows)}</section>
+    <section id="score"><h2>Evidence-calibrated score</h2>{table_html(['Category','Score','Evidence'],score_table_rows)}</section>
     <section id="findings"><h2>Findings</h2><div class="toolbar" aria-label="Registry controls"><button data-filter="all" class="primary">All active</button><button data-filter="open">Open</button><button data-filter="needs-verification">Needs verification</button><button id="download-findings">Download findings</button><button id="download-decisions">Download decisions</button><button id="copy-decisions">Copy decisions</button><label>Import decisions<input id="import-decisions" type="file" accept="application/json"></label></div><p id="ui-status" class="status" aria-live="polite"></p>{section_items('Prioritized','Maximum eight for executive attention; the registry remains complete.',prioritized_findings,decision_map,context,context_path.parent)}{section_items('Additional active findings','Verified and needs-verification findings outside the executive shortlist.',additional_findings,decision_map,context,context_path.parent)}</section>
     <section id="enhancements"><h2>Enhancements</h2>{section_items('Prioritized enhancements','Maximum five for executive attention.',enhancement_priority,decision_map,context,context_path.parent)}{section_items('Additional enhancements','Retained even when outside the shortlist.',additional_enhancements,decision_map,context,context_path.parent)}</section>
     <section id="strengths"><h2>Strengths to preserve</h2>{section_items('Preserve','Positive evidence is part of the contract, not decoration.',strengths,decision_map,context,context_path.parent)}</section>
     <section id="resolved"><h2>Fixed, cleared, merged, and superseded</h2>{section_items('Resolved registry','Every prior item remains visible with evidence and disposition.',resolved,decision_map,context,context_path.parent)}</section>
     <section id="reconciliation"><h2>Revision reconciliation</h2>{table_html(['ID','Current title','Status','Disposition','Destination','Reason'],reconciliation_rows,'reconciliation')}</section>
     <section id="work-orders"><h2>Dependency-ordered work</h2><ol class="work-list">{''.join(work_rows) or '<li><div>No work orders recorded.</div></li>'}</ol></section>
-    <section id="checks-not-run"><h2>Checks not run</h2>{list_html(context.get('checks_not_run',[]),'No checks-not-run entries recorded.')}</section>
+    <section id="checks-not-run"><h2>Checks not run</h2>{list_html(checks_not_run(context),'No checks-not-run entries recorded.')}</section>
   </main>
   <footer><div class="wrap">Complete registry: {len(items)} items · Prioritized findings: {len(prioritized_findings)} · Prioritized enhancements: {len(enhancement_priority)} · Generated from schema-v2 source data.</div></footer>
   <script>
@@ -215,7 +248,7 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     document.getElementById('download-findings').addEventListener('click',()=>download(`${{registry.audit_id}}-findings.json`,registry));
     document.getElementById('download-decisions').addEventListener('click',()=>download(`${{registry.audit_id}}-decisions.json`,state));
     document.getElementById('copy-decisions').addEventListener('click',async()=>{{try{{await navigator.clipboard.writeText(JSON.stringify(state,null,2));document.getElementById('ui-status').textContent='Decisions copied.'}}catch{{document.getElementById('ui-status').textContent='Clipboard unavailable; use Download decisions.'}}}});
-    document.getElementById('import-decisions').addEventListener('change',async event=>{{const file=event.target.files[0];if(!file)return;try{{const incoming=JSON.parse(await file.text());if(incoming.schema_version!=='2.0'||incoming.audit_id!==registry.audit_id)throw new Error('schema or audit mismatch');state=incoming;hydrate();document.getElementById('ui-status').textContent='Decisions imported and reconciled by item ID.'}}catch(error){{document.getElementById('ui-status').textContent=`Import rejected: ${{error.message}}`}}event.target.value=''}});
+    document.getElementById('import-decisions').addEventListener('change',async event=>{{const file=event.target.files[0];if(!file)return;try{{const incoming=JSON.parse(await file.text());if(incoming.schema_version!==registry.schema_version||incoming.audit_id!==registry.audit_id)throw new Error('schema or audit mismatch');state=incoming;hydrate();document.getElementById('ui-status').textContent='Decisions imported and reconciled by item ID.'}}catch(error){{document.getElementById('ui-status').textContent=`Import rejected: ${{error.message}}`}}event.target.value=''}});
     document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{{const filter=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(candidate=>candidate.classList.toggle('primary',candidate===button));itemRows.forEach(row=>{{const active=['open','needs-verification'].includes(row.dataset.status);row.hidden=filter==='all'?!active:row.dataset.status!==filter}})}}));
     hydrate();
   </script>

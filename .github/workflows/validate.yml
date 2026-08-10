@@ -18,10 +18,14 @@ jobs:
           python-version: "3.12"
       - name: Validate Agent Skill package
         run: python3 scripts/validate_skill.py
+      - name: Validate generated Claude adapter
+        run: python3 scripts/claude_adapter.py --check
       - name: Validate research corpus
         run: python3 scripts/validate_corpus.py
       - name: Test durable audit revisions
         run: python3 scripts/test_durability.py
+      - name: Test canonical audit and editorial contracts
+        run: python3 scripts/test_audit_contract.py
       - name: Test sentence-slop signals and guards
         run: python3 scripts/test_sentence_slop.py
       - name: Test blind-audit integrity
