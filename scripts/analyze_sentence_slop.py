@@ -134,6 +134,9 @@ SIGNAL_FAMILIES = {
     "detail_sparsity": "specificity",
     "passive_candidates": "responsibility",
     "missing_recovery_information": "responsibility",
+    "overlong_sentence": "cognitive_load",
+    "clause_pileup": "cognitive_load",
+    "parenthetical_stacking": "cognitive_load",
 }
 
 
@@ -416,6 +419,36 @@ def analyze(
     sentences = split_sentences(analysis_text)
     word_list = tokens(analysis_text)
     lengths = [len(tokens(sentence)) for sentence in sentences if tokens(sentence)]
+
+    overlong = [s for s in sentences if len(tokens(s)) > 35]
+    if overlong:
+        add_lead(
+            leads_load := [], "overlong_sentence",
+            f"{len(overlong)} of {len(sentences)} sentences exceed 35 words",
+            "Sentences past roughly 35 words ask the reader to hold too many clauses at once.",
+            [s[:110] for s in overlong],
+            "A long sentence that is one parallel enumerated list reads fine; check structure before flagging.",
+        )
+    else:
+        leads_load = []
+    pileups = [s for s in sentences if s.count(";") >= 2 or s.count(",") >= 5]
+    if pileups:
+        add_lead(
+            leads_load, "clause_pileup",
+            f"{len(pileups)} sentences with semicolon chains or five-plus commas",
+            "Stacked clauses in one breath bury the main point.",
+            [s[:110] for s in pileups],
+            "Citation strings legitimately carry punctuation density.",
+        )
+    stacked = [s for s in sentences if s.count("(") >= 2]
+    if stacked:
+        add_lead(
+            leads_load, "parenthetical_stacking",
+            f"{len(stacked)} sentences with two or more parentheticals",
+            "Multiple parentheticals per sentence bury the main clause.",
+            [s[:110] for s in stacked],
+            "A single clarifying parenthetical is normal prose.",
+        )
     word_count = len(word_list)
     sentence_count = len(lengths)
     surface_count = len(items) if items else (1 if text.strip() else 0)
@@ -472,6 +505,7 @@ def analyze(
     ]
 
     leads: list[dict[str, Any]] = []
+    leads.extend(leads_load)
     prose_stats_allowed = resolved_mode == "prose" and adequacy in {"adequate", "limited"}
     if prose_stats_allowed and sentence_count >= 6 and coefficient <= 0.28:
         add_lead(

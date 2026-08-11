@@ -19,6 +19,42 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 - Score tables now name the canonical slop category beside the score framing
   (for example "Structure slop · Implementation shape"), with a regression, an
   unknown-key fallback guard, and a legacy display-string passthrough guard.
+- Added the operated_check rule class: checklist rules with no static executor
+  that the engine queues for the task walkthrough (8 starter checks from NN/g and
+  Baymard distillations), plus a session_feedback block in engine output — a
+  summary and per-rule next actions printed back to the invoking session so the
+  lead-to-fix loop closes without opening the JSON. Dogfooded on Scruffy's own
+  rendered dashboard: 20 static leads, all cleared by their own recorded guards
+  (self-contained reports inline payloads and size figures by CSS by design).
+- Added four source-backed baseline packs (30 rules total across 6 packs) and six
+  new engine predicate types. Performance statics distilled from web.dev/Lighthouse
+  (unsized images, head-blocking scripts, missing viewport, inline megapayloads);
+  accessibility statics mapped from axe-core/WCAG with named criteria (missing alt,
+  missing lang, empty controls, positive tabindex, duplicate ids); plain-language
+  patterns from the public-domain US Federal Plain Language Guidelines and GOV.UK
+  style guide; and generator-residue detection of unmodified builder defaults
+  (scaffold titles, generator metas, built-with badges, TODO residue, silent empty
+  catch blocks) informed by the public tell-catalogs of kill-ai-slop, SlopCop, and
+  Slopdar — framed strictly as skipped decisions, never authorship claims. Every
+  rule cites a corpus section and carries a false-positive guard; synthetic
+  regressions cover each predicate, and all six packs stay silent on the
+  known-answer fixture guards.
+- Added the cognitive_load sentence-signal family with a cited pack listing
+  (schema/sentence-slop-pack.json) covering all fifteen deterministic signals, a
+  pack-parity regression so no analyzer code can ship uncited or unguarded, three
+  new analyzer detectors (overlong_sentence, clause_pileup, parenthetical_stacking),
+  and scripts/lint_report_prose.py, which turns the detector on our own audit
+  artifacts. Dashboards gained plain-language section titles and explainers, task
+  outcomes moved to the second column, scores sort worst-first, and every registry
+  item carries a category chip in its rail.
+- Redesigned the dashboard renderer around a docket architecture selected through
+  a five-paradigm, five-material design round against real audit data: the masthead
+  now leads with the top prioritized finding and a decision count, a stats strip
+  carries open/enhancement/strength/cleared/carried counts with the worst category,
+  severity chips gain a non-color lamp indicator, evidence figures take framed
+  captions, print output becomes a broadsheet with red reserved for high severity,
+  and text-containment rules (min-width:0, overflow-wrap:anywhere) prevent long
+  hashes and URLs from painting over adjacent content, with a rendering regression.
 - Added a deterministic rule engine (`scripts/rule_engine.py`) with rules as data
   in `schema/rules/*.json`. Every rule carries a canonical category, a severity on
   the suggestion/warning/error ratchet, a citation into the reconciled principles

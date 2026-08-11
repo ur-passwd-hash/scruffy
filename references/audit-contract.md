@@ -38,7 +38,7 @@ Every active `copy` finding carries an `editorial_review` receipt. Editorial rev
 
 Sentence-pattern findings require an adequate or limited reader-facing sample, a recorded language scope, an analyzer evidence receipt, all four sentence manual checks, a demonstrated consequence, a tested counterexample, and `authorship_assessment: not_performed`. English findings use `verified_english_analyzer`; non-English findings require `language_competent_human` and retain the analyzer's abstention receipt. Unknown language cannot produce a sentence-pattern finding. Other editorial findings use `not_applicable` for sentence sampling and language analysis but must complete the applicable editorial checks and prove their consequence.
 
-Allowed independent sentence-signal families are: `rhythm`, `rhetorical_structure`, `discourse_structure`, `lexical_repetition`, `specificity`, `responsibility`. A receipt cannot invent new family names to satisfy the two-family threshold.
+Allowed independent sentence-signal families are: `rhythm`, `rhetorical_structure`, `discourse_structure`, `lexical_repetition`, `specificity`, `responsibility`, `cognitive_load`. A receipt cannot invent new family names to satisfy the two-family threshold.
 
 ## Backward compatibility
 

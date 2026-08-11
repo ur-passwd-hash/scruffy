@@ -130,3 +130,13 @@ the `rhythm` family. One signal family does not meet the independent-family pred
 so no sentence-pattern finding is raised. The manual passes below were re-read against
 the edited section and their conclusions are unchanged. This receipt makes no
 authorship assessment.
+
+## Cognitive-load family addition (same day)
+
+The analyzer gained the `cognitive_load` family (overlong_sentence, clause_pileup,
+parenthetical_stacking; wall_paragraph in the report-prose linter). Rerunning on the
+unchanged README now reports overlong_sentence and clause_pileup leads alongside the
+original repeated_openings lead. These are leads on our own prose and are expected:
+the README's install and validation sections carry long enumerated sentences whose
+guard ("a single parallel enumerated list reads fine") applies to several but not all.
+Manual pass conclusion: tighten opportunistically; no finding. No authorship assessment.

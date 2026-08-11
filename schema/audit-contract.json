@@ -1,7 +1,9 @@
 {
   "schema_version": "1.0",
   "current_registry_schema": "2.1",
-  "legacy_registry_schemas": ["2.0"],
+  "legacy_registry_schemas": [
+    "2.0"
+  ],
   "run": {
     "modes": [
       {
@@ -33,35 +35,115 @@
         "description": "Demonstrate reversible live-page changes without representing them as repository changes."
       }
     ],
-    "mode_selection_basis": ["explicit", "inferred"],
-    "blind_statuses": ["not_run", "verified", "contaminated"],
-    "authority_states": ["authorized", "not_authorized"],
-    "authority_basis_types": ["explicit_request", "not_granted"]
+    "mode_selection_basis": [
+      "explicit",
+      "inferred"
+    ],
+    "blind_statuses": [
+      "not_run",
+      "verified",
+      "contaminated"
+    ],
+    "authority_states": [
+      "authorized",
+      "not_authorized"
+    ],
+    "authority_basis_types": [
+      "explicit_request",
+      "not_granted"
+    ]
   },
   "context": {
     "schema_version": "1.0",
     "product_frame_questions": [
-      {"key": "audience", "label": "Who is it for?"},
-      {"key": "job", "label": "What job does it perform?"},
-      {"key": "primary_action", "label": "What is the primary action?"},
-      {"key": "differentiator", "label": "What makes it meaningfully different?"},
-      {"key": "return_reason", "label": "Why would someone return?"},
-      {"key": "success_signal", "label": "What observable result means it succeeded?"}
+      {
+        "key": "audience",
+        "label": "Who is it for?"
+      },
+      {
+        "key": "job",
+        "label": "What job does it perform?"
+      },
+      {
+        "key": "primary_action",
+        "label": "What is the primary action?"
+      },
+      {
+        "key": "differentiator",
+        "label": "What makes it meaningfully different?"
+      },
+      {
+        "key": "return_reason",
+        "label": "Why would someone return?"
+      },
+      {
+        "key": "success_signal",
+        "label": "What observable result means it succeeded?"
+      }
     ],
-    "product_frame_bases": ["observed", "supplied", "inferred", "mixed", "unknown"],
-    "task_statuses": ["pass", "fail", "partial", "needs_verification", "not_run"],
+    "product_frame_bases": [
+      "observed",
+      "supplied",
+      "inferred",
+      "mixed",
+      "unknown"
+    ],
+    "task_statuses": [
+      "pass",
+      "fail",
+      "partial",
+      "needs_verification",
+      "not_run"
+    ],
     "capabilities": [
-      {"key": "source_read", "label": "Source read access"},
-      {"key": "rendered_page", "label": "Rendered-page access"},
-      {"key": "interaction_keyboard", "label": "Interaction and keyboard operation"},
-      {"key": "screenshots", "label": "Screenshots or equivalent visual evidence"},
-      {"key": "console_network_accessibility_performance", "label": "Console, network, accessibility-tree, and performance inspection"},
-      {"key": "source_write", "label": "File write and implementation access"},
-      {"key": "prior_audit_data", "label": "Prior audit registry, reports, and decision data"},
-      {"key": "copy_context", "label": "Copy samples, audience, voice, and regulated-language constraints"}
+      {
+        "key": "source_read",
+        "label": "Source read access"
+      },
+      {
+        "key": "rendered_page",
+        "label": "Rendered-page access"
+      },
+      {
+        "key": "interaction_keyboard",
+        "label": "Interaction and keyboard operation"
+      },
+      {
+        "key": "screenshots",
+        "label": "Screenshots or equivalent visual evidence"
+      },
+      {
+        "key": "console_network_accessibility_performance",
+        "label": "Console, network, accessibility-tree, and performance inspection"
+      },
+      {
+        "key": "source_write",
+        "label": "File write and implementation access"
+      },
+      {
+        "key": "prior_audit_data",
+        "label": "Prior audit registry, reports, and decision data"
+      },
+      {
+        "key": "copy_context",
+        "label": "Copy samples, audience, voice, and regulated-language constraints"
+      }
     ],
-    "capability_statuses": ["available", "partial", "unavailable", "not_needed", "not_run", "not_authorized"],
-    "score_values": [0, 1, 2, 3, "N/A"],
+    "capability_statuses": [
+      "available",
+      "partial",
+      "unavailable",
+      "not_needed",
+      "not_run",
+      "not_authorized"
+    ],
+    "score_values": [
+      0,
+      1,
+      2,
+      3,
+      "N/A"
+    ],
     "evidence_kinds": [
       "task_observation",
       "screenshot",
@@ -73,22 +155,54 @@
       "copy_sample",
       "supplied"
     ],
-    "evidence_verification": ["captured", "observed", "supplied", "not_verified"]
+    "evidence_verification": [
+      "captured",
+      "observed",
+      "supplied",
+      "not_verified"
+    ]
   },
   "editorial_review": {
-    "review_types": ["sentence_pattern", "microcopy", "claims_provenance", "content_strategy", "mixed"],
-    "sample_adequacy": ["adequate", "limited", "insufficient", "not_applicable"],
-    "analysis_language_scopes": ["en", "non_en", "unknown", "not_applicable"],
-    "language_review_bases": ["verified_english_analyzer", "language_competent_human", "not_run", "not_applicable"],
+    "review_types": [
+      "sentence_pattern",
+      "microcopy",
+      "claims_provenance",
+      "content_strategy",
+      "mixed"
+    ],
+    "sample_adequacy": [
+      "adequate",
+      "limited",
+      "insufficient",
+      "not_applicable"
+    ],
+    "analysis_language_scopes": [
+      "en",
+      "non_en",
+      "unknown",
+      "not_applicable"
+    ],
+    "language_review_bases": [
+      "verified_english_analyzer",
+      "language_competent_human",
+      "not_run",
+      "not_applicable"
+    ],
     "sentence_signal_families": [
       "rhythm",
       "rhetorical_structure",
       "discourse_structure",
       "lexical_repetition",
       "specificity",
-      "responsibility"
+      "responsibility",
+      "cognitive_load"
     ],
-    "manual_check_results": ["clear", "candidate", "not_run", "not_applicable"],
+    "manual_check_results": [
+      "clear",
+      "candidate",
+      "not_run",
+      "not_applicable"
+    ],
     "sentence_manual_checks": [
       "conceptual_coherence",
       "sentence_portability",

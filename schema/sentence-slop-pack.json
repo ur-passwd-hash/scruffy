@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pack": "sentence-slop-signals",
+  "purpose": "Cited source listing for every deterministic sentence-slop signal. The analyzer and the report-prose linter must not emit a code that is absent here. Signals are leads, never verdicts, and never authorship claims.",
+  "authorship_labels_used": false,
+  "signals": [
+    {"code": "cadence_uniformity", "family": "rhythm", "citation": "principles/PRINCIPLES.md §33", "meaning": "Sentence lengths cluster so tightly the prose acquires a metronome.", "false_positive_guard": "Uniform cadence is legitimate in reference tables, stepwise instructions, and legal boilerplate."},
+    {"code": "repeated_openings", "family": "rhythm", "citation": "principles/PRINCIPLES.md §33", "meaning": "Consecutive sentences reuse the same opening frame.", "false_positive_guard": "Parallel structure that clarifies a comparison or teaching sequence is legitimate."},
+    {"code": "short_sentence_burst", "family": "rhythm", "citation": "principles/PRINCIPLES.md §33", "meaning": "Staccato runs of very short sentences used as emphasis filler.", "false_positive_guard": "Alerts, warnings, and recovery steps legitimately use short imperative sentences."},
+    {"code": "rhetorical_question_density", "family": "rhetorical_structure", "citation": "principles/PRINCIPLES.md §21", "meaning": "Questions posed and answered as scaffolding rather than information.", "false_positive_guard": "FAQ surfaces are question-native."},
+    {"code": "formulaic_scaffolds", "family": "rhetorical_structure", "citation": "principles/PRINCIPLES.md §21", "meaning": "Stock frames (not just X but Y; whether A or B) carrying no product specifics.", "false_positive_guard": "A frame instantiated with concrete, checkable content is legitimate."},
+    {"code": "transition_concentration", "family": "rhetorical_structure", "citation": "principles/PRINCIPLES.md §33", "meaning": "Connective tissue (moreover, furthermore, additionally) outweighs content.", "false_positive_guard": "Legal and academic registers legitimately carry more connectives."},
+    {"code": "paragraph_pattern_reuse", "family": "discourse_structure", "citation": "principles/PRINCIPLES.md §33", "meaning": "Paragraphs repeat one internal shape regardless of content.", "false_positive_guard": "Changelogs and release notes legitimately repeat a shape."},
+    {"code": "phrase_repetition", "family": "lexical_repetition", "citation": "principles/PRINCIPLES.md §33", "meaning": "Favorite phrases recur beyond what the subject requires.", "false_positive_guard": "Defined terms must repeat; do not flag terminology discipline as slop."},
+    {"code": "detail_sparsity", "family": "specificity", "citation": "principles/PRINCIPLES.md §21", "meaning": "Prose survives transplant to any product because nothing anchors it.", "false_positive_guard": "Intentionally generic template text labeled as such is exempt."},
+    {"code": "passive_candidates", "family": "responsibility", "citation": "principles/PRINCIPLES.md §21", "meaning": "Actors vanish where the reader needs to know who does what.", "false_positive_guard": "Passive voice is legitimate where the actor is unknown or irrelevant."},
+    {"code": "missing_recovery_information", "family": "responsibility", "citation": "principles/PRINCIPLES.md §21", "meaning": "Failure text names the failure but not the way out.", "false_positive_guard": "Terminal errors with no user remedy cannot offer one."},
+    {"code": "overlong_sentence", "family": "cognitive_load", "citation": "principles/PRINCIPLES.md §21", "meaning": "A sentence exceeding roughly 35 words asks the reader to hold too many clauses at once.", "false_positive_guard": "A long sentence that is a single enumerated list with parallel items reads fine; check structure before flagging."},
+    {"code": "clause_pileup", "family": "cognitive_load", "citation": "principles/PRINCIPLES.md §21", "meaning": "Semicolon chains or five-plus commas stack clauses into one breath.", "false_positive_guard": "Citation strings and inline references legitimately carry punctuation density."},
+    {"code": "parenthetical_stacking", "family": "cognitive_load", "citation": "principles/PRINCIPLES.md §33", "meaning": "Multiple parentheticals per sentence bury the main clause.", "false_positive_guard": "A single clarifying parenthetical is normal prose."},
+    {"code": "wall_paragraph", "family": "cognitive_load", "citation": "principles/PRINCIPLES.md §21", "meaning": "A paragraph beyond roughly 90 words with no list structure becomes a wall.", "false_positive_guard": "Narrative long-form intentionally sustains longer paragraphs; this signal targets operational surfaces."}
+  ]
+}

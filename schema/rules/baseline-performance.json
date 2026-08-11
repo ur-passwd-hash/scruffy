@@ -1,0 +1,71 @@
+{
+ "schema_version": "1.0",
+ "pack": "baseline-performance",
+ "origin": "baseline",
+ "description": "Static performance leads distilled from web.dev and Lighthouse documentation (CC-BY, Google). Leads only: a performance finding still requires a runtime receipt under the audit contract.",
+ "source_attribution": null,
+ "rules": [
+  {
+   "id": "PERF-IMG-NO-DIMENSIONS",
+   "category": "performance",
+   "severity": "suggestion",
+   "message": "Image without width and height reserves no space and shifts layout when it loads.",
+   "citation": "principles/PRINCIPLES.md \u00a722",
+   "false_positive_guard": "Images sized by CSS aspect-ratio or fixed containers are fine; confirm shift by operating before reporting.",
+   "predicate": {
+    "type": "element_missing_attrs",
+    "tags": [
+     "img"
+    ],
+    "require_attr": "src",
+    "absent_attrs": [
+     "width",
+     "height"
+    ]
+   }
+  },
+  {
+   "id": "PERF-BLOCKING-SCRIPT",
+   "category": "performance",
+   "severity": "suggestion",
+   "message": "Script in head without defer/async/module blocks first paint.",
+   "citation": "principles/PRINCIPLES.md \u00a722",
+   "false_positive_guard": "Tiny inline-critical loaders are sometimes deliberate; confirm with a trace before reporting.",
+   "predicate": {
+    "type": "blocking_script"
+   }
+  },
+  {
+   "id": "PERF-NO-VIEWPORT",
+   "category": "performance",
+   "severity": "warning",
+   "message": "No viewport meta: mobile renders a scaled desktop layout.",
+   "citation": "principles/PRINCIPLES.md \u00a722",
+   "false_positive_guard": "Intranet desktop-only tools may omit it deliberately; confirm the audience first.",
+   "predicate": {
+    "type": "document_missing",
+    "tag": "meta",
+    "where_attr": "name",
+    "where_pattern": "viewport",
+    "attr": "content"
+   }
+  },
+  {
+   "id": "PERF-INLINE-MEGAPAYLOAD",
+   "category": "performance",
+   "severity": "suggestion",
+   "message": "A very large base64 payload is inlined into the document.",
+   "citation": "principles/PRINCIPLES.md \u00a722",
+   "false_positive_guard": "Self-contained single-file deliverables inline payloads by design; confirm the surface is a served page.",
+   "predicate": {
+    "type": "element_pattern",
+    "tags": [
+     "img",
+     "source"
+    ],
+    "attr": "src",
+    "value_pattern": "data:.{20000,}"
+   }
+  }
+ ]
+}

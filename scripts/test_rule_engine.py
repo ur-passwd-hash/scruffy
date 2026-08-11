@@ -111,6 +111,42 @@ def main() -> int:
         if fired.count("OP-DIV-BUTTON") != 1:
             raise AssertionError("role/tabindex div must be exempt; bare onclick div must fire")
 
+        # New predicate types: one synthetic page exercises each.
+        residue = base / "residue.html"
+        residue.write_text(
+            "<html><head><title>Vite + React</title>"
+            '<script src="app.js"></script></head><body>'
+            '<img src="x.jpg"><img src="y.jpg" width="10" height="10" alt="named">'
+            '<button></button><button aria-label="close"></button>'
+            '<p id="dup">a</p><p id="dup">b</p>'
+            '<a href="/x" tabindex="3">order</a>'
+            "<p>Please note that you must simply click continue in order to proceed.</p>"
+            "<script>try{go()}catch(e){}</script>"
+            "</body></html>",
+            encoding="utf-8",
+        )
+        residue_leads = sorted(l["rule_id"] for l in evaluate_page(residue, packs))
+        for expected in ("GEN-DEFAULT-TITLE", "PERF-BLOCKING-SCRIPT", "PERF-IMG-NO-DIMENSIONS",
+                         "A11Y-IMG-NO-ALT", "A11Y-EMPTY-CONTROL", "A11Y-DUPLICATE-ID",
+                         "A11Y-POSITIVE-TABINDEX", "A11Y-HTML-NO-LANG", "PERF-NO-VIEWPORT",
+                         "PL-PLEASE-NOTE", "PL-SIMPLY-JUST", "PL-IN-ORDER-TO", "GEN-SILENT-CATCH"):
+            if expected not in residue_leads:
+                raise AssertionError(f"{expected} did not fire on the synthetic residue page: {residue_leads}")
+        if residue_leads.count("A11Y-IMG-NO-ALT") != 1 or residue_leads.count("A11Y-EMPTY-CONTROL") != 1:
+            raise AssertionError("guarded twins must stay silent (named image, aria-label button)")
+        for fixture_lead in leads:
+            if fixture_lead["pack"] not in {"baseline-interaction", "baseline-editorial"}:
+                raise AssertionError(f"new packs false-positived on fixtures: {fixture_lead['rule_id']}")
+
+        # Operated checks queue for the walkthrough and never fire statically.
+        operated_ids = {r["id"] for pk in packs for r in pk["rules"] if r["predicate"]["type"] == "operated_check"}
+        if not operated_ids:
+            raise AssertionError("baseline-operated pack missing")
+        for page_name in ("checkout-flow.html", "pricing-page.html", "settings-form.html"):
+            for lead in evaluate_page(FIXTURES / page_name, packs):
+                if lead["rule_id"] in operated_ids:
+                    raise AssertionError(f"operated check {lead['rule_id']} fired statically")
+
         # User packs load, attribute, and fire.
         user_pack = {
             "schema_version": "1.0",

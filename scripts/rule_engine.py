@@ -27,6 +27,13 @@ PREDICATE_TYPES = {
     "unlabeled_input",
     "interactive_non_semantic",
     "state_group_without_address",
+    "element_missing_attrs",
+    "document_missing",
+    "blocking_script",
+    "empty_interactive",
+    "duplicate_id",
+    "script_pattern",
+    "operated_check",
 }
 TEXT_BLOCK_TAGS = {
     "p", "li", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -90,6 +97,16 @@ def validate_packs(packs: list[dict[str, Any]]) -> None:
             predicate = rule.get("predicate")
             if not isinstance(predicate, dict) or predicate.get("type") not in PREDICATE_TYPES:
                 raise PackError(f"{rule_id}: predicate.type must be one of {sorted(PREDICATE_TYPES)}")
+            if predicate["type"] == "element_missing_attrs" and not predicate.get("absent_attrs"):
+                raise PackError(f"{rule_id}: element_missing_attrs needs absent_attrs")
+            if predicate["type"] == "document_missing" and not predicate.get("tag"):
+                raise PackError(f"{rule_id}: document_missing needs a tag")
+            if predicate["type"] == "operated_check" and not predicate.get("instruction"):
+                raise PackError(f"{rule_id}: operated_check needs an instruction")
+            if predicate["type"] == "script_pattern":
+                re.compile(predicate.get("pattern") or "")
+                if not predicate.get("pattern"):
+                    raise PackError(f"{rule_id}: script_pattern needs a pattern")
             if predicate["type"] in {"element_pattern", "text_pattern"}:
                 pattern = predicate.get("value_pattern" if predicate["type"] == "element_pattern" else "pattern")
                 if pattern is None:
@@ -171,6 +188,40 @@ class PageIndex(HTMLParser):
         return False
 
 
+
+def collect_subtree_text(page: PageIndex, root_index: int) -> str:
+    parts: list[str] = []
+    for element in page.elements[root_index:]:
+        current: int | None = element["index"]
+        inside = False
+        while current is not None:
+            if current == root_index:
+                inside = True
+                break
+            current = page.elements[current]["parent"]
+        if inside:
+            parts.extend(element["text"])
+        elif element["index"] > root_index and element["parent"] is not None and element["parent"] < root_index:
+            break
+    return " ".join(parts)
+
+
+def subtree_has_named_image(page: PageIndex, root_index: int) -> bool:
+    for element in page.elements[root_index + 1 :]:
+        current: int | None = element["parent"]
+        inside = False
+        while current is not None:
+            if current == root_index:
+                inside = True
+                break
+            current = page.elements[current]["parent"]
+        if not inside:
+            continue
+        if element["tag"] in {"img", "svg"} and (element["attrs"].get("alt") or element["attrs"].get("aria-label")):
+            return True
+    return False
+
+
 def evaluate_page(path: Path, packs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     page = PageIndex()
     page.feed(path.read_text(encoding="utf-8"))
@@ -210,8 +261,9 @@ def evaluate_page(path: Path, packs: list[dict[str, Any]]) -> list[dict[str, Any
                         emit(rule, pack, element, f'<{element["tag"]} {predicate["attr"]}="{value}">')
             elif kind == "text_pattern":
                 pattern = re.compile(predicate["pattern"], re.IGNORECASE)
+                scope_tags = set(predicate.get("scope_tags", TEXT_BLOCK_TAGS))
                 for element in page.elements:
-                    if element["tag"] not in TEXT_BLOCK_TAGS or not element["text"]:
+                    if element["tag"] not in scope_tags or not element["text"]:
                         continue
                     text = " ".join(element["text"])
                     match = pattern.search(text)
@@ -248,6 +300,58 @@ def evaluate_page(path: Path, packs: list[dict[str, Any]]) -> list[dict[str, Any
                         ))
                     if wired:
                         emit(rule, pack, element, f'<{element["tag"]} id="{identifier or ""}"> wired as a click control')
+            elif kind == "element_missing_attrs":
+                for element in page.elements:
+                    if element["tag"] not in predicate["tags"]:
+                        continue
+                    required_present = predicate.get("require_attr")
+                    if required_present and required_present not in element["attrs"]:
+                        continue
+                    if any(attr in element["attrs"] for attr in predicate["absent_attrs"]):
+                        continue
+                    emit(rule, pack, element, f'<{element["tag"]}> missing {"/".join(predicate["absent_attrs"])}')
+            elif kind == "document_missing":
+                matches = [e for e in page.elements if e["tag"] == predicate["tag"]
+                           and (not predicate.get("where_attr")
+                                or re.fullmatch(predicate.get("where_pattern", ".*"),
+                                                e["attrs"].get(predicate["where_attr"], "") or ""))
+                           and (not predicate.get("attr") or e["attrs"].get(predicate["attr"]))]
+                if not matches:
+                    emit(rule, pack, None, f'no <{predicate["tag"]}' + (f' {predicate["attr"]}=…>' if predicate.get("attr") else ">"))
+            elif kind == "blocking_script":
+                for element in page.elements:
+                    if element["tag"] != "script" or "src" not in element["attrs"]:
+                        continue
+                    attrs = element["attrs"]
+                    if "defer" in attrs or "async" in attrs or attrs.get("type") == "module":
+                        continue
+                    if page.has_ancestor(element["index"], "head"):
+                        emit(rule, pack, element, f'blocking <script src="{attrs["src"][:60]}"> in head')
+            elif kind == "empty_interactive":
+                for element in page.elements:
+                    if element["tag"] not in {"button", "a"}:
+                        continue
+                    attrs = element["attrs"]
+                    if attrs.get("aria-label") or attrs.get("aria-labelledby") or attrs.get("title"):
+                        continue
+                    subtree = collect_subtree_text(page, element["index"])
+                    if subtree.strip():
+                        continue
+                    if subtree_has_named_image(page, element["index"]):
+                        continue
+                    emit(rule, pack, element, f'<{element["tag"]}> with no accessible text')
+            elif kind == "duplicate_id":
+                seen_ids: dict[str, int] = {}
+                for element in page.elements:
+                    identifier = element["attrs"].get("id")
+                    if not identifier:
+                        continue
+                    seen_ids[identifier] = seen_ids.get(identifier, 0) + 1
+                    if seen_ids[identifier] == 2:
+                        emit(rule, pack, element, f'id="{identifier}" appears more than once')
+            elif kind == "script_pattern":
+                if re.search(predicate["pattern"], script_text):
+                    emit(rule, pack, None, f'page scripts match /{predicate["pattern"][:60]}/')
             elif kind == "state_group_without_address":
                 group_attr = predicate.get("group_attr", "data-view")
                 members = [e for e in page.elements if e["tag"] == "button" and group_attr in e["attrs"]]
@@ -281,17 +385,38 @@ def main(argv: list[str] | None = None) -> int:
         print("FAIL: no input files (or use --check)", file=sys.stderr)
         return 2
 
+    checklist = [
+        {"rule_id": r["id"], "category": r["category"], "pack": p["pack"],
+         "instruction": r["predicate"].get("instruction", r["message"]),
+         "citation": r["citation"], "false_positive_guard": r["false_positive_guard"]}
+        for p in packs for r in p["rules"] if r["predicate"]["type"] == "operated_check"
+    ]
     floor = SEVERITIES.index(args.min_level)
     leads: list[dict[str, Any]] = []
     for path in args.files:
         leads.extend(evaluate_page(path, packs))
+    leads = [l for l in leads if l["rule_id"] not in {c["rule_id"] for c in checklist}]
     leads = [lead for lead in leads if SEVERITIES.index(lead["severity"]) >= floor]
+    by_rule: dict[str, int] = {}
+    for lead in leads:
+        by_rule[lead["rule_id"]] = by_rule.get(lead["rule_id"], 0) + 1
+    feedback = {
+        "next_actions": [
+            (f"Confirm or clear {count}× {rule_id} by operating the surface; "
+             f"guard: {next(l['false_positive_guard'] for l in leads if l['rule_id'] == rule_id)}")
+            for rule_id, count in sorted(by_rule.items())
+        ] + ([f"Run the {len(checklist)}-item operated walkthrough checklist during the task pass."] if checklist else []),
+        "summary": f"{len(leads)} static leads across {len(set(l['file'] for l in leads))} file(s); "
+                   f"{len(checklist)} operated checks queued for the walkthrough.",
+    }
     payload = {
         "schema_version": "1.0",
         "tool": "rule_engine",
         "min_alert_level": args.min_level,
         "packs": [{"pack": p["pack"], "origin": p["origin"], "rules": len(p["rules"])} for p in packs],
         "lead_count": len(leads),
+        "walkthrough_checklist": checklist,
+        "session_feedback": feedback,
         "leads": leads,
         "authorship_assessment": "not_performed",
         "note": "Leads are not findings. Confirm or clear each lead by operating the interface before reporting.",
@@ -300,6 +425,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.output:
         args.output.write_text(rendered, encoding="utf-8")
         print(f"PASS: {len(leads)} leads written to {args.output}")
+        print(f"FEEDBACK: {feedback['summary']}")
+        for action in feedback["next_actions"][:8]:
+            print(f"  -> {action[:150]}")
     else:
         print(rendered, end="")
     return 0

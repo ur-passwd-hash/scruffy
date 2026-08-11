@@ -180,6 +180,16 @@ def main() -> int:
             contains="baseline continuity",
         )
 
+        # Regression: rendered dashboards must contain long unbreakable strings
+        # (hashes, URLs, identity keys) inside their own cells. The stylesheet
+        # must ship the containment contract; without it grid children default
+        # to min-width:auto and captions paint over their neighbors.
+        dashboard_text = continuity_dashboard.read_text(encoding="utf-8")
+        for fragment in ("overflow-wrap:anywhere", "min-width:0"):
+            if fragment not in dashboard_text:
+                print(f"FAIL: dashboard stylesheet lost the text-containment rule {fragment!r}")
+                return 1
+
         from report_contract import score_row_label
 
         # Regression: a canonical category key names the public slop category first,

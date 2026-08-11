@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pathlib
+
 import json
 import sys
 from pathlib import Path
@@ -111,8 +113,36 @@ def main() -> int:
     return 0
 
 
+def test_pack_parity() -> None:
+    import json
+    from analyze_sentence_slop import SIGNAL_FAMILIES
+    pack = json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "sentence-slop-pack.json").read_text())
+    listed = {row["code"]: row for row in pack["signals"]}
+    for code, family in SIGNAL_FAMILIES.items():
+        assert code in listed, f"analyzer signal {code} missing from sentence-slop pack"
+        assert listed[code]["family"] == family, f"{code}: family mismatch between analyzer and pack"
+        assert listed[code]["citation"].startswith("principles/PRINCIPLES.md §"), f"{code}: uncited"
+        assert listed[code]["false_positive_guard"], f"{code}: no guard"
+    contract_families = set(json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "audit-contract.json").read_text())["editorial_review"]["sentence_signal_families"])
+    assert {row["family"] for row in pack["signals"]} <= contract_families, "pack family outside canonical enum"
+
+def test_cognitive_load_detectors() -> None:
+    from analyze_sentence_slop import analyze
+    soup = ("The system, which was designed, in most cases, to handle, among other things, uploads, retries, and errors, "
+            "does many things; it also does more; and it continues at length beyond any reasonable clause budget for a reader. ") * 3
+    result = analyze(soup, mode="prose", context="general", language="en")
+    codes = {lead["code"] for lead in result["leads"]}
+    assert "clause_pileup" in codes and "overlong_sentence" in codes, codes
+    clean = "The filter sorts items. Choose a photo first. The couple approves undated photos. Uploads retry once."
+    result_clean = analyze(clean, mode="prose", context="general", language="en")
+    load = {l["code"] for l in result_clean["leads"] if l["signal_family"] == "cognitive_load"}
+    assert not load, f"clean prose false-positived: {load}"
+
+
 if __name__ == "__main__":
     try:
+        test_pack_parity()
+        test_cognitive_load_detectors()
         sys.exit(main())
     except AssertionError as error:
         print(f"FAIL: {error}", file=sys.stderr)

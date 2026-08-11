@@ -46,13 +46,17 @@ def product_rows(context: dict[str, Any]) -> list[list[Any]]:
     ]
 
 
+TASK_STATUS_LABELS = {"pass": "Pass", "fail": "Fail", "partial": "Partial",
+                      "needs_verification": "Needs verification", "not_run": "Not run"}
+
+
 def task_rows(context: dict[str, Any]) -> list[list[Any]]:
     return [
         [
             row.get("id", ""),
+            TASK_STATUS_LABELS.get(row.get("status", ""), row.get("status", "")),
             row.get("goal", ""),
             row.get("result", ""),
-            row.get("status", ""),
             row.get("evidence", "") or evidence_summary(row.get("evidence_refs"), context),
         ]
         for row in context.get("tasks", [])

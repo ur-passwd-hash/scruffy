@@ -53,3 +53,32 @@ YouTube captions). Distill it into rules — never reproduce source text:
 
 Rule packs measure repeatable surface signals. They never assess authorship, and
 the engine records `authorship_assessment: not_performed` in every output.
+
+## Scaffold — start from a passing pack
+
+Copy, rename, and fill. Every field shown is required; `--check` is the referee.
+
+```json
+{
+  "schema_version": "1.0",
+  "pack": "my-pack-name",
+  "origin": "user",
+  "description": "One sentence: what surface and what slop this pack covers.",
+  "source_attribution": {"title": "Source work", "creator": "Author", "locator": "URL or intake date"},
+  "rules": [
+    {
+      "id": "MY-RULE-ID",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "What the reader should check, in one sentence.",
+      "citation": "principles/PRINCIPLES.md §21",
+      "false_positive_guard": "When this pattern is legitimate; confirm before reporting.",
+      "predicate": {"type": "text_pattern", "pattern": "example pattern"}
+    }
+  ]
+}
+```
+
+Baseline packs set `origin: "baseline"`, drop `source_attribution`, and must
+cite a real corpus section. New rules ship at `suggestion` and are promoted
+only on fixture evidence.

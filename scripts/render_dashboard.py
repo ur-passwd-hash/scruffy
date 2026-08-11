@@ -119,7 +119,8 @@ def item_html(item: dict[str, Any], decision: dict[str, Any] | None, context: di
       <div class="item-rail">
         <span class="item-id">{item_id}</span>
         <span class="badge {esc(item['status'])}">{esc(item['status'])}</span>
-        <span class="severity">{esc(item['severity'])}</span>
+        <span class="severity {esc(item['severity'])}">{esc(item['severity'])}</span>
+        <span class="cat-chip">{esc(public_category_label(item['category']).replace(' slop',''))}</span>
       </div>
       <div class="item-body">
         <h3>{esc(item['title'])}</h3>
@@ -183,6 +184,51 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     target = registry.get("target", "")
     storage_key = f"anti-slop:{registry['audit_id']}:decisions:v2"
 
+    severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3, "none": 4}
+    additional_findings.sort(key=lambda i: (i["category"], severity_rank.get(i["severity"], 9)))
+    additional_enhancements.sort(key=lambda i: (i["category"], severity_rank.get(i["severity"], 9)))
+    score_table_rows.sort(key=lambda row: (0, -row[1]) if isinstance(row[1], int) else (1, 0))
+    capability_counts: dict[str, int] = {}
+    for row in context.get("capabilities", []):
+        capability_counts[row.get("status", "?")] = capability_counts.get(row.get("status", "?"), 0) + 1
+    capability_summary = " · ".join(f"{k.replace('_', ' ')} ×{v}" for k, v in sorted(capability_counts.items()))
+    open_findings = sum(1 for i in items if i["kind"] == "finding" and i["status"] in {"open", "needs-verification"})
+    open_enhancements = sum(1 for i in items if i["kind"] == "enhancement" and i["status"] in {"open", "needs-verification"})
+    strength_count = sum(1 for i in items if i["kind"] == "strength")
+    cleared_count = sum(1 for i in items if i["status"] in {"cleared", "fixed"})
+    carried_count = sum(1 for i in items if i.get("revision_disposition") == "carried")
+    short_category = {"information_architecture": "IA", "backend_shape": "Structure", "interaction": "Interaction",
+                      "accessibility": "Accessibility", "visual": "Visual", "copy": "Editorial",
+                      "product": "Product", "performance": "Performance"}
+    numeric_scores = [(row.get("category"), row.get("score")) for row in context.get("scores", [])
+                      if isinstance(row.get("score"), int)]
+    worst = max(numeric_scores, key=lambda pair: pair[1], default=None)
+    worst_label = f"{short_category.get(worst[0], worst[0])} · {worst[1]}" if worst else "—"
+    hero = next((i for i in prioritized_findings if i["status"] in {"open", "needs-verification"}), None)
+    if hero:
+        hero_html = (
+            f'<p class="eyebrow">Scruffy durable audit · {esc(registry["revision_id"])} · '
+            f'{open_findings + open_enhancements} items awaiting decision</p>'
+            f'<h1>{esc(hero["title"])}</h1>'
+            f'<p class="target">{esc(hero["id"])} · {esc(public_category_label(hero["category"]))} · severity {esc(hero["severity"])} · '
+            f'{esc(hero["revision_disposition"])} · decide this first, then <a href="#findings">the queue below</a>.</p>'
+        )
+    else:
+        hero_html = (
+            f'<p class="eyebrow">Scruffy durable audit · {esc(registry["revision_id"])}</p>'
+            f'<h1>{esc(title)}</h1>'
+        )
+    strip_html = (
+        f'<div class="strip num" aria-label="Registry counts">'
+        f'<div><span>Open findings</span><b>{open_findings}</b></div>'
+        f'<div><span>Enhancements</span><b>{open_enhancements}</b></div>'
+        f'<div><span>Strengths</span><b>{strength_count}</b></div>'
+        f'<div><span>Cleared</span><b>{cleared_count}</b></div>'
+        f'<div><span>Carried</span><b>{carried_count}</b></div>'
+        f'<div><span>Worst category</span><b>{esc(worst_label)}</b></div>'
+        f'<div class="strip-target"><span>Target</span><b class="tgt">{esc(target)}</b></div></div>'
+    )
+
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -190,32 +236,100 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{esc(title)}</title>
   <style>
-    :root{{--ink:#24211c;--muted:#645d51;--paper:#f5efe2;--paper2:#e9dfcc;--green:#13543e;--green2:#0a3829;--gold:#e4c56a;--rule:#cfc2aa;--blue:#0669c6;--bad:#8a2a20;--warn:#7a4b00;--ok:#225d46;font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--paper)}}
-    *{{box-sizing:border-box}} body{{margin:0;min-height:100vh;background:var(--paper)}} a{{color:var(--green);text-underline-offset:3px}} button,select,input{{font:inherit}} :focus-visible{{outline:3px solid var(--blue);outline-offset:3px}}
-    .mast{{color:var(--paper);background:var(--green);border-bottom:6px solid var(--gold)}} .wrap{{width:min(1180px,calc(100% - 32px));margin:0 auto}} .mast .wrap{{padding:34px 0 30px;display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end}}
-    .eyebrow{{margin:0 0 8px;color:var(--gold);font:700 .78rem/1.2 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}} h1{{margin:0;font-size:clamp(2rem,5vw,4.7rem);line-height:.96;font-weight:500}} .target{{margin:17px 0 0;color:var(--paper2);font:.9rem/1.5 Arial,sans-serif;word-break:break-word}}
-    .verdict{{max-width:290px;padding:17px 19px;color:var(--ink);background:var(--gold);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);font:.9rem/1.3 Arial,sans-serif}} .verdict strong{{display:block;margin-top:5px;font:600 1.3rem/1.15 Georgia,serif}}
-    main.wrap{{padding:38px 0 72px}} section{{padding:0 0 10px}} section+section{{border-top:1px solid var(--rule);margin-top:38px}} h2{{margin:38px 0 15px;color:var(--green2);font-size:clamp(1.6rem,3vw,2.45rem);font-weight:500}} .subhead{{margin:26px 0 5px;color:var(--green2);font-size:1.25rem}} .section-note,.quiet,.meta{{color:var(--muted);font:.9rem/1.55 Arial,sans-serif}} .lede{{font-size:clamp(1.12rem,2vw,1.45rem);line-height:1.55;max-width:900px}}
-    .table-wrap{{overflow:auto;border:1px solid var(--rule)}} table{{width:100%;border-collapse:collapse;font:.88rem/1.45 Arial,sans-serif}} th{{color:var(--paper);background:var(--green);text-align:left}} th,td{{padding:10px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);vertical-align:top}} tr:last-child td{{border-bottom:0}}
-    .toolbar{{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}} .toolbar button,.toolbar label{{border:2px solid var(--green2);background:transparent;color:var(--green2);padding:8px 12px;cursor:pointer;font:700 .82rem/1 Arial,sans-serif}} .toolbar button.primary{{background:var(--green);color:var(--paper)}} .toolbar input{{position:absolute;inline-size:1px;block-size:1px;opacity:.01}}
-    .registry-item{{display:grid;grid-template-columns:125px minmax(0,1fr);gap:24px;padding:27px 0;border-top:1px solid var(--rule)}} .item-rail{{display:flex;flex-direction:column;align-items:flex-start;gap:8px}} .item-id{{color:var(--green);font:800 1.15rem/1 Arial,sans-serif}} .badge,.severity{{padding:4px 7px;border:1px solid currentColor;font:800 .68rem/1 Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}} .badge.open{{color:var(--warn)}} .badge.needs-verification{{color:#59498b}} .badge.fixed,.badge.cleared{{color:var(--ok)}} .badge.merged,.badge.superseded{{color:var(--muted)}}
-    .item-body h3{{margin:0 0 6px;font-size:1.4rem}} .item-body p,.item-body li{{line-height:1.55}} .item-body h4{{margin:18px 0 4px;color:var(--green2);font:800 .73rem/1.2 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}} .item-body ul{{margin:5px 0;padding-left:21px}} .item-columns{{display:grid;grid-template-columns:1fr 1fr;gap:24px}} .dependency{{font:.82rem/1.5 Arial,sans-serif;color:var(--muted)}}
-    .decision-row{{display:grid;grid-template-columns:170px 1fr;gap:11px;margin-top:19px;padding-top:17px;border-top:1px dashed var(--rule)}} .decision-row label{{color:var(--muted);font:700 .75rem/1.2 Arial,sans-serif}} .decision-row select,.decision-row input{{width:100%;margin-top:5px;padding:9px;color:var(--ink);background:#fffaf0;border:1px solid var(--muted)}}
-    .evidence-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}} figure{{margin:0}} figure img{{display:block;width:100%;border:1px solid var(--rule)}} figcaption{{padding-top:6px;color:var(--muted);font:.78rem/1.45 Arial,sans-serif}} .status{{min-height:1.3em;color:var(--green2);font:700 .82rem/1.4 Arial,sans-serif}}
-    .work-list{{counter-reset:work;list-style:none;margin:0;padding:0}} .work-list>li{{counter-increment:work;display:grid;grid-template-columns:42px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--rule)}} .work-list>li:before{{content:counter(work,decimal-leading-zero);color:var(--green);font:800 1rem/1.5 Arial,sans-serif}}
-    footer{{color:var(--paper2);background:var(--green2)}} footer .wrap{{padding:23px 0;font:.8rem/1.5 Arial,sans-serif}}
-    [hidden]{{display:none!important}} @media(max-width:760px){{.mast .wrap,.registry-item,.item-columns,.decision-row{{grid-template-columns:1fr}} .verdict{{max-width:none}} .registry-item{{gap:11px}} .item-rail{{flex-direction:row;align-items:center;flex-wrap:wrap}}}}
-    @media print{{.toolbar,.decision-row{{display:none}} .mast{{color:#000;background:#fff;border-bottom:3px solid #000}} .eyebrow,.target{{color:#000}} .verdict{{box-shadow:none}} .registry-item{{break-inside:avoid}}}}
+    :root{{--ink:#0c1210;--panel:#101b16;--panel2:#0f1a15;--paper:#f2f4f1;--mut:#8fa39a;--line:#24352e;--gold:#e4c56a;--warn:#ff9d45;--bad:#ff6a55;--ok:#59d19a;--blue:#6db3ff;--violet:#a99bd6;
+      font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;color:var(--paper);background:var(--ink)}}
+    *{{box-sizing:border-box}} body{{margin:0;min-height:100vh;background:var(--ink)}} a{{color:var(--gold);text-underline-offset:3px}}
+    button,select,input{{font:inherit}} :focus-visible{{outline:3px solid var(--blue);outline-offset:3px}}
+    .num,.item-id,.strip b{{font-variant-numeric:tabular-nums}}
+    .wrap{{width:min(1220px,calc(100% - 40px));margin:0 auto}}
+    .mast{{background:linear-gradient(160deg,#16281f,#0c1210 72%);border-bottom:1px solid var(--line)}}
+    .mast .wrap{{padding:36px 0 30px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end}}
+    .eyebrow{{margin:0 0 10px;color:var(--mut);font:700 11px/1.4 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase}}
+    h1{{margin:0;font:500 clamp(1.7rem,3.2vw,2.8rem)/1.1 Georgia,"Times New Roman",serif;max-width:920px}}
+    .target{{margin:12px 0 0;color:var(--mut);font:.88rem/1.55 Arial,sans-serif;overflow-wrap:anywhere;max-width:820px}}
+    .verdict{{max-width:300px;padding:16px 19px;color:#171303;background:var(--gold);border-radius:10px;font:.82rem/1.35 Arial,sans-serif;box-shadow:0 18px 40px -20px rgba(0,0,0,.9)}}
+    .verdict strong{{display:block;margin-top:5px;font:600 1.25rem/1.2 Georgia,serif}}
+    .strip{{display:flex;gap:30px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--line);background:var(--panel2)}}
+    .strip>div>span{{display:block;color:var(--mut);font:700 10.5px/1.4 Arial,sans-serif;letter-spacing:.11em;text-transform:uppercase}}
+    .strip b{{font:600 1.7rem/1.15 "Helvetica Neue",Arial,sans-serif}}
+    .strip .strip-target{{margin-left:auto;max-width:360px;min-width:0}} .strip .tgt{{font:400 .78rem/1.45 Arial,sans-serif;color:var(--mut);overflow-wrap:anywhere}}
+    .strip-holder{{background:var(--panel2)}}
+    main.wrap{{padding:34px 0 72px}}
+    section{{padding:0 0 8px}} section+section{{border-top:1px solid var(--line);margin-top:36px}}
+    h2{{margin:34px 0 12px;color:var(--paper);font:700 12px/1.4 Arial,sans-serif;letter-spacing:.15em;text-transform:uppercase}}
+    h2:after{{content:"";display:block;margin-top:10px;width:44px;border-top:2px solid var(--gold)}}
+    .subhead{{margin:24px 0 4px;color:var(--paper);font:500 1.15rem/1.3 Georgia,serif}}
+    .section-note,.quiet,.meta{{color:var(--mut);font:.88rem/1.55 Arial,sans-serif}}
+    .lede{{font:400 clamp(1.05rem,1.8vw,1.3rem)/1.6 Georgia,serif;max-width:920px;color:var(--paper)}}
+    .table-wrap{{overflow:auto;border:1px solid var(--line);border-radius:10px}}
+    table{{width:100%;border-collapse:collapse;font:.86rem/1.5 Arial,sans-serif}}
+    th{{color:var(--mut);background:var(--panel);text-align:left;font:700 10.5px/1.4 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase}}
+    th,td{{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}} td{{overflow-wrap:anywhere}} tr:last-child td{{border-bottom:0}}
+    .toolbar{{position:sticky;top:0;z-index:9;display:flex;flex-wrap:wrap;gap:9px;margin:20px 0;padding:12px 14px;background:rgba(12,18,16,.94);border:1px solid var(--line);border-radius:12px}}
+    .toolbar button,.toolbar label{{border:1px solid var(--line);background:#16241e;color:var(--paper);padding:9px 13px;cursor:pointer;font:700 .78rem/1 Arial,sans-serif;border-radius:8px}}
+    .toolbar button.primary{{background:var(--gold);border-color:var(--gold);color:#171303}}
+    .toolbar input{{position:absolute;inline-size:1px;block-size:1px;opacity:.01}}
+    .registry-item{{display:grid;grid-template-columns:118px minmax(0,1fr);gap:24px;padding:26px 0;border-top:1px solid var(--line)}}
+    .registry-item>*{{min-width:0}}
+    .item-rail{{display:flex;flex-direction:column;align-items:flex-start;gap:9px}}
+    .item-id{{color:var(--gold);font:800 1.05rem/1 "Helvetica Neue",Arial,sans-serif}}
+    .badge,.severity{{padding:5px 9px;border-radius:6px;font:800 .64rem/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}}
+    .severity:before,.badge:before{{content:"●";margin-right:6px;font-size:.7em;vertical-align:1px}}
+    .severity.critical,.severity.high{{background:#3a1712;color:var(--bad)}}
+    .severity.medium{{background:#33230d;color:var(--warn)}}
+    .severity.low{{background:#122b21;color:var(--ok)}} .severity.none{{background:#132433;color:var(--blue)}}
+    .badge.open{{background:#33230d;color:var(--warn)}} .badge.needs-verification{{background:#231d3a;color:var(--violet)}}
+    .badge.fixed,.badge.cleared{{background:#122b21;color:var(--ok)}} .badge.merged,.badge.superseded{{background:#1c2420;color:var(--mut)}}
+    .item-body h3{{margin:0 0 6px;font:500 1.3rem/1.3 Georgia,serif}}
+    .item-body p,.item-body li{{line-height:1.6;overflow-wrap:anywhere}}
+    .item-body h4{{margin:18px 0 4px;color:var(--mut);font:800 .68rem/1.4 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase}}
+    .item-body ul{{margin:5px 0;padding-left:21px}}
+    .item-columns{{display:grid;grid-template-columns:1fr 1fr;gap:24px}} .item-columns>*{{min-width:0}}
+    .dependency{{font:.82rem/1.5 Arial,sans-serif;color:var(--mut);overflow-wrap:anywhere}}
+    .cat-chip{{padding:5px 9px;border-radius:6px;border:1px solid var(--line);color:var(--mut);font:800 .64rem/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}}
+    .decision-row{{display:grid;grid-template-columns:170px 1fr;gap:11px;margin-top:19px;padding:15px 16px;background:#15221c;border:1px solid var(--line);border-radius:12px}}
+    .decision-row>*{{min-width:0}}
+    .decision-row label{{color:var(--mut);font:700 .72rem/1.3 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase}}
+    .decision-row select,.decision-row input{{width:100%;margin-top:5px;padding:9px;color:var(--paper);background:#101b16;border:1px solid var(--line);border-radius:8px}}
+    .evidence-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}}
+    .evidence-grid>*{{min-width:0}}
+    figure{{margin:0;min-width:0;background:#f6f3ea;border-radius:6px;padding:8px 8px 10px;box-shadow:0 16px 34px -18px rgba(0,0,0,.75)}}
+    figure img{{display:block;width:100%;border:1px solid #d8d2c2}}
+    figcaption{{padding-top:7px;color:#3c463f;font:600 .74rem/1.5 Georgia,serif;overflow-wrap:anywhere}}
+    .status{{min-height:1.3em;color:var(--ok);font:700 .82rem/1.4 Arial,sans-serif}}
+    .work-list{{counter-reset:work;list-style:none;margin:0;padding:0}}
+    .work-list>li{{counter-increment:work;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}}
+    .work-list>li>*{{min-width:0}}
+    .work-list>li:before{{content:counter(work,decimal-leading-zero);color:var(--gold);font:800 1rem/1.5 "Helvetica Neue",Arial,sans-serif}}
+    footer{{color:var(--mut);background:var(--panel2);border-top:1px solid var(--line)}} footer .wrap{{padding:22px 0;font:.8rem/1.5 Arial,sans-serif}}
+    [hidden]{{display:none!important}}
+    @media(max-width:760px){{.mast .wrap,.registry-item,.item-columns,.decision-row{{grid-template-columns:1fr}} .verdict{{max-width:none}} .registry-item{{gap:11px}} .item-rail{{flex-direction:row;align-items:center;flex-wrap:wrap}} .strip{{gap:18px}} .strip .strip-target{{margin-left:0}}}}
+    @media print{{
+      :root{{color:#141414;background:#fff;font-family:Georgia,"Times New Roman",serif}}
+      body,.mast,.strip,.strip-holder,footer{{background:#fff!important;color:#141414}}
+      .toolbar,.decision-row{{display:none}}
+      .mast{{border-bottom:3px double #141414}} .eyebrow,.target,.strip>div>span,.section-note,.meta,.quiet{{color:#5c5c56}}
+      h1,.item-body h3,.subhead{{color:#141414}} h2{{color:#141414}} h2:after{{border-color:#141414}}
+      .verdict{{background:#fff;border:1.5px solid #141414;box-shadow:none;color:#141414;border-radius:0}}
+      .strip{{border-bottom:1px solid #141414}} .strip b{{color:#141414}}
+      .registry-item{{break-inside:avoid;border-top:1px solid #d9d9d2}}
+      .item-id{{color:#c8102e}}
+      .badge,.severity{{border:1.5px solid #141414;background:#fff!important;color:#141414!important;border-radius:0}}
+      .severity.critical,.severity.high{{background:#c8102e!important;border-color:#c8102e;color:#fff!important}}
+      table,th,td{{color:#141414}} th{{background:#fff;border-bottom:1.5px solid #141414}}
+      figure{{box-shadow:none;border:1px solid #d9d9d2}} a{{color:#141414}}
+    }}
   </style>
 </head>
 <body>
-  <header class="mast"><div class="wrap"><div><p class="eyebrow">Scruffy durable audit · {esc(registry['revision_id'])}</p><h1>{esc(title)}</h1><p class="target">{esc(target)}</p></div><div class="verdict">Overall result<strong>{esc(outcome.get('label','Insufficient evidence'))}</strong></div></div></header>
+  <header class="mast"><div class="wrap"><div>{hero_html}</div><div class="verdict">Overall result<strong>{esc(outcome.get('label','Insufficient evidence'))}</strong></div></div></header>
+  <div class="strip-holder"><div class="wrap">{strip_html}</div></div>
   <main class="wrap">
     <section id="outcome"><h2>Outcome</h2><p class="lede">{esc(outcome.get('summary',''))}</p><p class="section-note"><strong>Confidence:</strong> {esc(outcome.get('confidence','unknown'))} · <strong>Audit:</strong> {esc(registry['audit_id'])} · <strong>Baseline:</strong> {esc(registry.get('baseline_revision_id') or 'none')}</p></section>
     <section id="product-frame"><h2>Product frame</h2>{table_html(['Question','Answer','Basis'],product_table_rows)}</section>
-    <section id="task-ledger"><h2>Representative tasks</h2>{table_html(['ID','Goal','Result','Status','Evidence'],task_table_rows)}</section>
-    <section id="capability-ledger"><h2>Capability and coverage ledger</h2>{table_html(['Capability','Status','Scope'],capability_table_rows)}</section>
-    <section id="score"><h2>Evidence-calibrated score</h2>{table_html(['Category','Score','Evidence'],score_table_rows)}</section>
+    <section id="task-ledger"><h2>Did real journeys work?</h2><p class="section-note">Each row is a user task we operated, its outcome, and the receipt behind it.</p>{table_html(['ID','Outcome','Goal','What happened','Receipts'],task_table_rows)}</section>
+    <section id="capability-ledger"><h2>What we could and could not test</h2><p class="section-note">{esc(capability_summary)}. Anything not run carries its reason and the shortest way to unblock it.</p>{table_html(['Capability','Status','Scope'],capability_table_rows)}</section>
+    <section id="score"><h2>The eight slop categories, worst first</h2><p class="section-note">0 is clear, 3 is a material problem, N/A means we did not earn the right to score it. Every score cites its evidence.</p>{table_html(['Category','Score','Evidence'],score_table_rows)}</section>
     <section id="findings"><h2>Findings</h2><div class="toolbar" aria-label="Registry controls"><button data-filter="all" class="primary">All active</button><button data-filter="open">Open</button><button data-filter="needs-verification">Needs verification</button><button id="download-findings">Download findings</button><button id="download-decisions">Download decisions</button><button id="copy-decisions">Copy decisions</button><label>Import decisions<input id="import-decisions" type="file" accept="application/json"></label></div><p id="ui-status" class="status" aria-live="polite"></p>{section_items('Prioritized','Maximum eight for executive attention; the registry remains complete.',prioritized_findings,decision_map,context,context_path.parent)}{section_items('Additional active findings','Verified and needs-verification findings outside the executive shortlist.',additional_findings,decision_map,context,context_path.parent)}</section>
     <section id="enhancements"><h2>Enhancements</h2>{section_items('Prioritized enhancements','Maximum five for executive attention.',enhancement_priority,decision_map,context,context_path.parent)}{section_items('Additional enhancements','Retained even when outside the shortlist.',additional_enhancements,decision_map,context,context_path.parent)}</section>
     <section id="strengths"><h2>Strengths to preserve</h2>{section_items('Preserve','Positive evidence is part of the contract, not decoration.',strengths,decision_map,context,context_path.parent)}</section>
