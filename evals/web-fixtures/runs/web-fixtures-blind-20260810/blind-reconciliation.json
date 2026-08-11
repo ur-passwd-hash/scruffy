@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "blind_test_id": "web-fixtures-blind-20260810",
+  "phase": "reconciliation",
+  "blind_status": "verified",
+  "authorship_assessment": "not_performed",
+  "revealed_inputs": [
+    "evals/web-fixtures/keys/expectations.json",
+    "evals/web-fixtures/README.md"
+  ],
+  "reveal_after_freeze": true,
+  "reconciliation": [
+    {
+      "blind_candidate": "CAND-001",
+      "sample_id": "WF-A-01",
+      "baseline_match": "planted defect (interaction)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Category match (interaction)."
+    },
+    {
+      "blind_candidate": "CAND-002",
+      "sample_id": "WF-A-03",
+      "baseline_match": "planted defect (information_architecture)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Category match; blind run additionally documented the destructive location.reload() state loss named in the key."
+    },
+    {
+      "blind_candidate": "CAND-003",
+      "sample_id": "WF-B-01",
+      "baseline_match": "planted defect (copy)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Category match (copy)."
+    },
+    {
+      "blind_candidate": "CAND-004",
+      "sample_id": "WF-B-03",
+      "baseline_match": "planted defect (visual: synthetic proof)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Disposition matched; category differed (blind: copy/trust_integrity, key: visual). Same defect, adjacent lens; evaluator scores disposition only."
+    },
+    {
+      "blind_candidate": "CAND-005",
+      "sample_id": "WF-C-01",
+      "baseline_match": "planted defect (accessibility)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Blind run found all three planted elements: fake span control, placeholder-only labels, failing hint contrast (measured 2.61:1 vs key's ~2.8:1 estimate)."
+    },
+    {
+      "blind_candidate": "CAND-006",
+      "sample_id": "WF-C-02",
+      "baseline_match": "none \u2014 key expects cleared (legitimate control)",
+      "disposition": "false_positive_against_key",
+      "notes": "Blind run flagged the hardcoded 'Saved at 09:30' timestamp and non-persistence after reload. The key treats this section as the clean control (labels, autocomplete, real button, role=status). The observations are factually true of the fixture but the fixed timestamp is deterministic demo data, not a planted defect. Retained in the frozen discovery for the record; counted as the run's one miss."
+    },
+    {
+      "blind_candidate": "CAND-007",
+      "sample_id": "WF-C-03",
+      "baseline_match": "planted defect (interaction)",
+      "disposition": "confirmed_true_positive",
+      "notes": "Category match (interaction)."
+    }
+  ],
+  "cleared_confirmed": [
+    "WF-A-02",
+    "WF-A-04",
+    "WF-B-02",
+    "WF-B-04",
+    "WF-C-04"
+  ],
+  "summary": {
+    "planted_defects": 6,
+    "discovered": 6,
+    "recall": 1.0,
+    "legitimate_patterns": 6,
+    "correctly_cleared": 5,
+    "false_positives": 1,
+    "disposition_agreement": "11/12",
+    "integrity_problems": 0
+  }
+}

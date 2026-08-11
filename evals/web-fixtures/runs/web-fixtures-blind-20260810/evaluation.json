@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "authorship_labels_used": false,
+  "results": [
+    {
+      "path": "/sessions/youthful-eager-shannon/mnt/outputs/scruffy-blind/blind-discovery-evaluator-view.json",
+      "agent": "claude-fable-5/cowork-scruffy",
+      "passed": false,
+      "matched_samples": [
+        "WF-A-01",
+        "WF-A-02",
+        "WF-A-03",
+        "WF-A-04",
+        "WF-B-01",
+        "WF-B-02",
+        "WF-B-03",
+        "WF-B-04",
+        "WF-C-01",
+        "WF-C-03",
+        "WF-C-04"
+      ],
+      "mismatches": [
+        {
+          "sample_id": "WF-C-02",
+          "expected": "cleared",
+          "actual": "candidate"
+        }
+      ],
+      "integrity_problems": [],
+      "dispositions": {
+        "WF-A-01": "candidate",
+        "WF-A-03": "candidate",
+        "WF-B-01": "candidate",
+        "WF-B-03": "candidate",
+        "WF-C-01": "candidate",
+        "WF-C-02": "candidate",
+        "WF-C-03": "candidate",
+        "WF-A-02": "cleared",
+        "WF-A-04": "cleared",
+        "WF-B-02": "cleared",
+        "WF-B-04": "cleared",
+        "WF-C-04": "cleared"
+      }
+    }
+  ],
+  "comparison": null,
+  "passed": false
+}

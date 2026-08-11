@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "blind_test_id": "web-fixtures-blind-20260810",
+  "phase": "blind_discovery",
+  "authorship_assessment": "not_performed",
+  "agent": "claude-fable-5/cowork-scruffy",
+  "derivation": {
+    "note": "Mechanical field-name projection of the frozen blind-discovery.json for scripts/evaluate_blind_outputs.py. Generated post-reveal by script; no disposition, signal, or evidence content changed.",
+    "frozen_source_sha256": "555a6a8835e8248fb12f67c70ec16aad47f994fbc7fa3665cd3c22ae906cd058"
+  },
+  "candidates": [
+    {
+      "sample_id": "WF-A-01",
+      "candidate_id": "CAND-001",
+      "signals": [
+        "Selecting 'Herbs' and then 'Vegetables' left all 6 cards visible (computed display 'block' on every non-matching card) \u2014 visible count never changed for any option.",
+        "The only observable effect was DOM reorder to strict alphabetical (Bee Balm\u2026Lacinato Kale), identical for every category value \u2014 a sort, not a filter."
+      ],
+      "evidence": [
+        "Operated: order_before [Genovese Basil, Lacinato Kale, Calendula, Cherry Radish, Common Chives, Bee Balm] -> order_after alphabetical; visible_after 6/6 for 'herb' and 'veg'.",
+        "evidence/WF-A-01.png; source: catfilter change handler sorts grid children by name (allowed-input source, lines ~81-88)."
+      ],
+      "consequence": "A shopper who selects 'Herbs' believes they are looking at only herbs; all categories remain on screen in a new order, so the catalogue cannot be narrowed and the control's label is false.",
+      "counterexample_tested": "Considered that alphabetical sort might be the intended behavior with a mislabeled control; rejected \u2014 the label, the category option values, and the working search control beside it all establish a filtering idiom, and no sort affordance is announced.",
+      "confidence": "high",
+      "title": "'Filter by category' sorts the catalogue alphabetically instead of filtering it",
+      "category": "interaction"
+    },
+    {
+      "sample_id": "WF-A-03",
+      "candidate_id": "CAND-002",
+      "signals": [
+        "URL is byte-identical before and after every view switch (no hash, query, or history entry), so no view can be bookmarked, deep-linked, or restored.",
+        "'Share this view' (clicked while Planting calendar was active) wrote the bare page URL to the clipboard \u2014 instrumented call recorded 'http://127.0.0.1:8907/checkout-flow.html' \u2014 then confirmed 'Copied'; a recipient lands on the default Catalogue, not the shared view.",
+        "Returning to Catalogue triggers a full location.reload(): the active search term 'kale' was erased (input empty after return) and the Planting view had already destroyed the grid node (grid count 0) rather than hiding it."
+      ],
+      "evidence": [
+        "Operated URL/state/clipboard trace in probe results; evidence/WF-A-03.png, evidence/pageA-full.png."
+      ],
+      "consequence": "The share affordance's promise is false and switching views silently discards the user's in-progress filtering; multi-state content cannot be linked, which also blocks the 'why would someone return' path.",
+      "counterexample_tested": "Tab panels without URL state are a common SPA pattern and not inherently slop; rejected as innocent here because the page itself offers 'Share this view' (an explicit state-sharing promise it breaks) and uses a destructive reload instead of re-rendering.",
+      "confidence": "high",
+      "title": "View state has no address: share copies a stateless URL and returning to Catalogue destroys work in progress",
+      "category": "information_architecture"
+    },
+    {
+      "sample_id": "WF-B-01",
+      "candidate_id": "CAND-003",
+      "signals": [
+        "specificity \u2014 abstract filler dominates ('world's most advanced', 'cutting-edge technology', 'unparalleled results', 'unlock their full potential'): every sentence moves unchanged to any product in any industry; analyzer measured 2 abstract-filler matches against 1 concrete anchor in 31 words.",
+        "responsibility \u2014 the only number, 'Trusted by over 10,000 industry leaders', names no source, cohort, or date, and 'industry leaders' contradicts the page's stated audience of freelancers."
+      ],
+      "evidence": [
+        "Quoted rendered text captured from the operated page; evidence/WF-B-01.png; analyzer receipt evidence/analyzer-WF-B-01.json (language en, sample 31 words / 3 sentences, adequacy insufficient for statistical cadence claims \u2014 none are made here).",
+        "Counter-surface: WF-B-02 on the same page states price, timeline, export format, reminder policy, and a working uptime link."
+      ],
+      "consequence": "Users cannot tell what the product does or verify any claim; differentiation and trust both drop at the page's first proof moment.",
+      "counterexample_tested": "See editorial_review.counterexample_tested.",
+      "confidence": "high",
+      "title": "Portable superlative claims with zero provenance replace the freelancer-specific reason the heading promises",
+      "category": "copy"
+    },
+    {
+      "sample_id": "WF-B-03",
+      "candidate_id": "CAND-004",
+      "signals": [
+        "responsibility \u2014 rendered DOM shows four plain <span> badges with no link, title, citation, or source: '\u2605\u2605\u2605\u2605\u2605 Rated 5/5 by users' (which users? how many? where?), '\ud83c\udfc6 Best Invoicing Tool 2026' (awarded by whom?), '\u2714 Certified Excellence' (certified by whom, against what?).",
+        "specificity \u2014 'Bank-grade security' and 'Certified Excellence' have no verifiable referent at all, and the unanimous 5/5 with no review count contrasts with the precise, sourced figures the same page proves it can publish (WF-B-02 uptime data)."
+      ],
+      "evidence": [
+        "Captured outerHTML of the badge row (no anchors, no attribution attributes); evidence/WF-B-03.png."
+      ],
+      "consequence": "Unverifiable social proof at the decision point erodes trust in the whole page, including its true claims.",
+      "counterexample_tested": "See editorial_review.counterexample_tested.",
+      "confidence": "high",
+      "title": "Self-awarded trust badges: no rater, no awarding body, no certifier, no linkable referent",
+      "category": "copy"
+    },
+    {
+      "sample_id": "WF-C-01",
+      "candidate_id": "CAND-005",
+      "signals": [
+        "Keyboard/AT exclusion: the element is a SPAN with tabIndex -1, no role, and no accessible state; a full Tab traversal of the page reached 8 stops and never included it; even element.focus() fails to move focus to it.",
+        "Fake for pointer users too: clicking produced zero DOM change (page content byte-identical before and after) \u2014 the handler is empty, yet cursor:pointer and button styling invite the click.",
+        "Supporting failures in the same section: both inputs are placeholder-only (labels.length 0 \u2014 name disappears on entry), and the hint text measures 2.61:1 contrast at 13px (below the 4.5:1 minimum, WCAG 1.4.3)."
+      ],
+      "evidence": [
+        "Tab-sequence trace, focus probe, before/after DOM comparison, computed contrast; evidence/WF-C-01.png."
+      ],
+      "consequence": "The section's only action is inoperable: keyboard and assistive-technology users cannot reach it, and mouse users who click it get silent nothing \u2014 defaults can never be applied, with no error, disabled state, or explanation.",
+      "counterexample_tested": "Considered an intentionally disabled control awaiting input; rejected \u2014 there is no disabled attribute, styling, or explanatory state, and the cursor/styling actively affords clicking.",
+      "confidence": "high",
+      "title": "'Apply defaults' is a fake control: a styled <span> that no one can reach by keyboard and that does nothing for anyone",
+      "category": "accessibility"
+    },
+    {
+      "sample_id": "WF-C-02",
+      "candidate_id": "CAND-006",
+      "signals": [
+        "Fabricated precision: clicking Save at 22:05 displayed 'Saved at 09:30'; saving again displayed the identical '09:30' \u2014 the timestamp is hardcoded (source: new Date(2026,0,1,9,30)), so the specific-looking confirmation is false.",
+        "Broken persistence claim: after reload, both fields and the status were empty \u2014 the state the UI declared 'Saved' is gone on the very next page load."
+      ],
+      "evidence": [
+        "Operated save/re-save/reload trace with real-clock comparison; evidence/WF-C-02.png."
+      ],
+      "consequence": "A user cannot tell whether their latest save succeeded (every save reports the same moment), and data the UI confirmed as saved does not survive a refresh.",
+      "counterexample_tested": "Tested the innocent readings: a deterministic demo timestamp and deliberately session-scoped persistence. Partially credited \u2014 hence moderate confidence and medium severity \u2014 but a reader-facing confirmation still asserts a specific wrong fact, and 'Saved' with no scope qualifier still overpromises. Genuine strengths retained in this sample: real <button>, visible focus style, and role='status' so the confirmation is announced.",
+      "confidence": "moderate",
+      "title": "Save confirmation asserts a fixed fabricated timestamp and a persistence it does not deliver",
+      "category": "interaction"
+    },
+    {
+      "sample_id": "WF-C-03",
+      "candidate_id": "CAND-007",
+      "signals": [
+        "Data loss: typed 'Please contact billing for records' into the close-account note, clicked 'Save changes', and the field was emptied \u2014 the value is discarded, not stored or redisplayed anywhere.",
+        "Zero feedback: no status text appeared (main text length delta 0), and the section contains no role=status or aria-live region \u2014 nothing confirms, denies, or explains; contrast with sibling WF-C-02 which at least confirms."
+      ],
+      "evidence": [
+        "Operated fill/save/observe trace; evidence/WF-C-03.png."
+      ],
+      "consequence": "In the highest-stakes section of the page ('Danger zone', shown to clients at account closure), the user's writing vanishes on save with no confirmation, no error, and no recovery path \u2014 indistinguishable from success until it matters.",
+      "counterexample_tested": "Considered an 'apply-and-clear' input idiom (like a chat box); rejected \u2014 a settings preference must redisplay its stored value, nothing anywhere shows the note was retained, and no confirmation exists to license the clearing.",
+      "confidence": "high",
+      "title": "'Save changes' silently destroys the typed note and gives no feedback of any kind",
+      "category": "interaction"
+    }
+  ],
+  "cleared_suspicions": [
+    {
+      "sample_id": "WF-A-02",
+      "suspicion": "Search might be cosmetic or mismatched with its promise, like the adjacent filter.",
+      "why_cleared": "The control does what it says, with feedback, keyboard access, and a working reset path."
+    },
+    {
+      "sample_id": "WF-A-04",
+      "suspicion": "Card-soup layout and small uppercase category text might fail hierarchy or contrast.",
+      "why_cleared": "Rendered evidence shows scannable hierarchy and passing contrast; no task friction observed in the grid itself (its filter failures belong to WF-A-01/WF-A-03)."
+    },
+    {
+      "sample_id": "WF-B-02",
+      "suspicion": "Second claim block might be more of the same promotional filler; the '/uptime' link might be decorative.",
+      "why_cleared": "This is the counterexample that convicts WF-B-01: specific, attributable, actionable copy whose one link resolves to real data. Minor note (not a defect): link text '/uptime' resolves to an in-page section rather than a route."
+    },
+    {
+      "sample_id": "WF-B-04",
+      "suspicion": "Placeholder 'Invoice editor interface' frame might be synthetic proof \u2014 fake product imagery passed off as a real account.",
+      "why_cleared": "The synthetic-proof suspicion is disproven by honest disclosure: nothing is fabricated and the simulation is labeled. Replacing the placeholder with a real annotated screenshot is an enhancement opportunity, not a defect."
+    },
+    {
+      "sample_id": "WF-C-04",
+      "suspicion": "Toggle might be another fake or unannounced control; state text might be decorative.",
+      "why_cleared": "Control, state, feedback, and keyboard path all behave as promised. Minor note (not promoted): the #remindstate span carries no aria-live, but no functional announcement barrier was verified since aria-pressed on the focused button conveys the state."
+    }
+  ],
+  "checks_not_run": []
+}

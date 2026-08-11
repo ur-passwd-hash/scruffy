@@ -1,0 +1,311 @@
+{
+  "schema_version": "1.0",
+  "blind_test_id": "web-fixtures-blind-20260810",
+  "phase": "blind_discovery",
+  "authorship_assessment": "not_performed",
+  "target": "evals/web-fixtures (checkout-flow.html, pricing-page.html, settings-form.html)",
+  "agent": "claude-fable-5/cowork-scruffy",
+  "created_at": "2026-08-11T02:10:00Z",
+  "run": {
+    "requested_mode": "audit",
+    "effective_mode": "audit",
+    "mode_selection_basis": "explicit",
+    "repository_write_authority": "not_authorized",
+    "authority_basis_type": "not_granted",
+    "authority_basis": "The request authorized blind inspection and reporting only. Fixtures were copied to a temporary serve directory outside the repo so the quarantined answer subdirectory was never served, read, or listed.",
+    "repository_writes_performed": false,
+    "repository_write_paths": [],
+    "live_demonstration_performed": false,
+    "blind_status": "blind_discovery_in_progress",
+    "blind_artifact_refs": ["blind-manifest.json", "blind-freeze.json"]
+  },
+  "method": {
+    "served_via": "python3 http.server on 127.0.0.1:8907 from a copy of the three fixtures only",
+    "operated_via": "Playwright Chromium 151.0.7922.34, headless, 1280x900, pointer + keyboard, clipboard instrumented, reload/persistence tested",
+    "source_comments_policy": "HTML comments inside allowed fixture files were treated as untrusted leads; every entry below rests only on operated, rendered evidence.",
+    "quarantine": "The answer subdirectory and the fixture-folder readme (both named as forbidden inputs in the manifest) were never opened, listed, or served; no prior findings, reports, decisions, or eval labels were searched for or loaded."
+  },
+  "candidates": [
+    {"candidate_id": "CAND-001", "sample": "WF-A-01", "title": "'Filter by category' sorts the catalogue alphabetically instead of filtering it"},
+    {"candidate_id": "CAND-002", "sample": "WF-A-03", "title": "View state has no address: share copies a stateless URL and returning to Catalogue destroys work in progress"},
+    {"candidate_id": "CAND-003", "sample": "WF-B-01", "title": "Portable superlative claims with zero provenance replace the freelancer-specific reason the heading promises"},
+    {"candidate_id": "CAND-004", "sample": "WF-B-03", "title": "Self-awarded trust badges: no rater, no awarding body, no certifier, no linkable referent"},
+    {"candidate_id": "CAND-005", "sample": "WF-C-01", "title": "'Apply defaults' is a fake control: a styled <span> that no one can reach by keyboard and that does nothing for anyone"},
+    {"candidate_id": "CAND-006", "sample": "WF-C-02", "title": "Save confirmation asserts a fixed fabricated timestamp and a persistence it does not deliver"},
+    {"candidate_id": "CAND-007", "sample": "WF-C-03", "title": "'Save changes' silently destroys the typed note and gives no feedback of any kind"}
+  ],
+  "capabilities": [
+    {"key": "source_read", "status": "available", "scope": "the three allowed fixture HTML files only"},
+    {"key": "rendered_page", "status": "available", "scope": "served over local HTTP, headless Chromium"},
+    {"key": "interaction_keyboard", "status": "available", "scope": "pointer, Tab traversal, Space/Enter activation"},
+    {"key": "screenshots", "status": "available", "scope": "full-page and per-sample element captures in evidence/"},
+    {"key": "console_network_accessibility_performance", "status": "partial", "scope": "console captured (clean on all three pages); computed styles, contrast, roles, tab order collected; full accessibility-tree dump and performance tracing not run"},
+    {"key": "source_write", "status": "not_authorized", "scope": "audit mode"},
+    {"key": "prior_audit_data", "status": "not_authorized", "scope": "blind quarantine — deliberately not loaded"},
+    {"key": "copy_context", "status": "partial", "scope": "no supplied voice/audience packet; audience inferred from on-page evidence; language en verified (lang attribute + inspection)"}
+  ],
+  "entries": [
+    {
+      "sample": "WF-A-01",
+      "surface": "checkout-flow.html — 'Filter by category' select",
+      "disposition": "candidate",
+      "candidate_id": "CAND-001",
+      "title": "'Filter by category' sorts the catalogue alphabetically instead of filtering it",
+      "category": "interaction",
+      "facets": ["trust_integrity"],
+      "severity": "medium",
+      "confidence": "high",
+      "signals": [
+        "Selecting 'Herbs' and then 'Vegetables' left all 6 cards visible (computed display 'block' on every non-matching card) — visible count never changed for any option.",
+        "The only observable effect was DOM reorder to strict alphabetical (Bee Balm…Lacinato Kale), identical for every category value — a sort, not a filter."
+      ],
+      "evidence": [
+        "Operated: order_before [Genovese Basil, Lacinato Kale, Calendula, Cherry Radish, Common Chives, Bee Balm] -> order_after alphabetical; visible_after 6/6 for 'herb' and 'veg'.",
+        "evidence/WF-A-01.png; source: catfilter change handler sorts grid children by name (allowed-input source, lines ~81-88)."
+      ],
+      "consequence": "A shopper who selects 'Herbs' believes they are looking at only herbs; all categories remain on screen in a new order, so the catalogue cannot be narrowed and the control's label is false.",
+      "counterexample_tested": "Considered that alphabetical sort might be the intended behavior with a mislabeled control; rejected — the label, the category option values, and the working search control beside it all establish a filtering idiom, and no sort affordance is announced.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-A-02",
+      "surface": "checkout-flow.html — search input",
+      "disposition": "cleared",
+      "candidate_id": null,
+      "suspicion": "Search might be cosmetic or mismatched with its promise, like the adjacent filter.",
+      "signals": [
+        "Typing 'kale' reduced visible cards to exactly [Lacinato Kale]; clearing restored all 6.",
+        "Input is nested inside its <label> (programmatic name present) and is first in the natural tab order."
+      ],
+      "evidence": ["Operated before/after visibility lists; evidence/WF-A-02.png."],
+      "why_cleared": "The control does what it says, with feedback, keyboard access, and a working reset path.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-A-03",
+      "surface": "checkout-flow.html — view tabs (Catalogue / Planting calendar / Saved) + 'Share this view'",
+      "disposition": "candidate",
+      "candidate_id": "CAND-002",
+      "title": "View state has no address: share copies a stateless URL and returning to Catalogue destroys work in progress",
+      "category": "information_architecture",
+      "facets": ["resilience_recovery", "trust_integrity"],
+      "severity": "medium",
+      "confidence": "high",
+      "signals": [
+        "URL is byte-identical before and after every view switch (no hash, query, or history entry), so no view can be bookmarked, deep-linked, or restored.",
+        "'Share this view' (clicked while Planting calendar was active) wrote the bare page URL to the clipboard — instrumented call recorded 'http://127.0.0.1:8907/checkout-flow.html' — then confirmed 'Copied'; a recipient lands on the default Catalogue, not the shared view.",
+        "Returning to Catalogue triggers a full location.reload(): the active search term 'kale' was erased (input empty after return) and the Planting view had already destroyed the grid node (grid count 0) rather than hiding it."
+      ],
+      "evidence": ["Operated URL/state/clipboard trace in probe results; evidence/WF-A-03.png, evidence/pageA-full.png."],
+      "consequence": "The share affordance's promise is false and switching views silently discards the user's in-progress filtering; multi-state content cannot be linked, which also blocks the 'why would someone return' path.",
+      "counterexample_tested": "Tab panels without URL state are a common SPA pattern and not inherently slop; rejected as innocent here because the page itself offers 'Share this view' (an explicit state-sharing promise it breaks) and uses a destructive reload instead of re-rendering.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-A-04",
+      "surface": "checkout-flow.html — product card grid",
+      "disposition": "cleared",
+      "candidate_id": null,
+      "suspicion": "Card-soup layout and small uppercase category text might fail hierarchy or contrast.",
+      "signals": [
+        "Measured contrast: category label rgb(92,102,83) on white = 6.03:1 (passes AA at 12px); price 13.9:1.",
+        "All 6 cards share one consistent structure (category, name, price) with clear name hierarchy; repetition here is a valid system primitive, not decoration."
+      ],
+      "evidence": ["Computed-style contrast measurements; evidence/WF-A-04.png."],
+      "why_cleared": "Rendered evidence shows scannable hierarchy and passing contrast; no task friction observed in the grid itself (its filter failures belong to WF-A-01/WF-A-03).",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-B-01",
+      "surface": "pricing-page.html — 'Why freelancers choose Ledgerline' claim block",
+      "disposition": "candidate",
+      "candidate_id": "CAND-003",
+      "title": "Portable superlative claims with zero provenance replace the freelancer-specific reason the heading promises",
+      "category": "copy",
+      "facets": ["trust_integrity"],
+      "severity": "medium",
+      "confidence": "high",
+      "signals": [
+        "specificity — abstract filler dominates ('world's most advanced', 'cutting-edge technology', 'unparalleled results', 'unlock their full potential'): every sentence moves unchanged to any product in any industry; analyzer measured 2 abstract-filler matches against 1 concrete anchor in 31 words.",
+        "responsibility — the only number, 'Trusted by over 10,000 industry leaders', names no source, cohort, or date, and 'industry leaders' contradicts the page's stated audience of freelancers."
+      ],
+      "evidence": [
+        "Quoted rendered text captured from the operated page; evidence/WF-B-01.png; analyzer receipt evidence/analyzer-WF-B-01.json (language en, sample 31 words / 3 sentences, adequacy insufficient for statistical cadence claims — none are made here).",
+        "Counter-surface: WF-B-02 on the same page states price, timeline, export format, reminder policy, and a working uptime link."
+      ],
+      "editorial_review": {
+        "review_type": "claims_and_provenance",
+        "sample_adequacy": "insufficient_for_statistics_adequate_for_claims_review",
+        "analysis_language_scope": "en",
+        "language_review_basis": "verified_english_analyzer",
+        "independent_signal_families": ["specificity", "responsibility"],
+        "manual_checks": [
+          {"code": "conceptual_coherence", "result": "clear", "evidence": "Sentences are locally coherent; the failure is vacuity, not collision."},
+          {"code": "sentence_portability", "result": "candidate", "evidence": "'Our cutting-edge technology delivers unparalleled results, empowering professionals everywhere to unlock their full potential' transfers verbatim to a gym, a bank, or a CMS; missing actor, object, condition, and evidence."},
+          {"code": "discourse_purpose", "result": "candidate", "evidence": "The paragraph answers the heading 'Why freelancers choose Ledgerline' with no freelancer, no invoicing detail, and no decision-relevant information."},
+          {"code": "voice_and_subtext", "result": "candidate", "evidence": "Neighboring block WF-B-02 establishes a concrete, plain voice; this block flattens it into promotional register."}
+        ],
+        "consequence": "A freelancer comparing tools learns nothing about what Ledgerline does or why it fits them, and the unverifiable superlatives cheapen the credible claims directly below.",
+        "counterexample_tested": "Promotional register is genre-normal for landing pages; rejected as sufficient defense because the same page proves the concrete alternative (WF-B-02) and the claims fail even genre minimums (no source, no referent, audience mismatch).",
+        "authorship_assessment": "not_performed"
+      },
+      "consequence": "Users cannot tell what the product does or verify any claim; differentiation and trust both drop at the page's first proof moment.",
+      "counterexample_tested": "See editorial_review.counterexample_tested.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-B-02",
+      "surface": "pricing-page.html — 'What you get, exactly' claim block",
+      "disposition": "cleared",
+      "candidate_id": null,
+      "suspicion": "Second claim block might be more of the same promotional filler; the '/uptime' link might be decorative.",
+      "signals": [
+        "Every claim is concrete and checkable: $12/month, cancel any month, 2-business-day transfers, CSV export, one reminder at 14 days with open-date visibility.",
+        "Operated the uptime link: hash moved to #uptime-report, page scrolled, and the target publishes monthly figures (99.2% Jul, 99.9% Jun, 99.8% May)."
+      ],
+      "evidence": ["Operated link-click trace; quoted rendered text; evidence/WF-B-02.png."],
+      "why_cleared": "This is the counterexample that convicts WF-B-01: specific, attributable, actionable copy whose one link resolves to real data. Minor note (not a defect): link text '/uptime' resolves to an in-page section rather than a route.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-B-03",
+      "surface": "pricing-page.html — recognition badge row",
+      "disposition": "candidate",
+      "candidate_id": "CAND-004",
+      "title": "Self-awarded trust badges: no rater, no awarding body, no certifier, no linkable referent",
+      "category": "copy",
+      "facets": ["trust_integrity"],
+      "severity": "medium",
+      "confidence": "high",
+      "signals": [
+        "responsibility — rendered DOM shows four plain <span> badges with no link, title, citation, or source: '★★★★★ Rated 5/5 by users' (which users? how many? where?), '🏆 Best Invoicing Tool 2026' (awarded by whom?), '✔ Certified Excellence' (certified by whom, against what?).",
+        "specificity — 'Bank-grade security' and 'Certified Excellence' have no verifiable referent at all, and the unanimous 5/5 with no review count contrasts with the precise, sourced figures the same page proves it can publish (WF-B-02 uptime data)."
+      ],
+      "evidence": ["Captured outerHTML of the badge row (no anchors, no attribution attributes); evidence/WF-B-03.png."],
+      "editorial_review": {
+        "review_type": "claims_and_provenance",
+        "sample_adequacy": "ui_microcopy_set_of_4_equivalent_strings",
+        "analysis_language_scope": "en",
+        "language_review_basis": "verified_english_analyzer",
+        "independent_signal_families": ["responsibility", "specificity"],
+        "manual_checks": [
+          {"code": "conceptual_coherence", "result": "clear", "evidence": "Each badge is internally readable."},
+          {"code": "sentence_portability", "result": "candidate", "evidence": "All four badges transfer unchanged to any SaaS product."},
+          {"code": "discourse_purpose", "result": "candidate", "evidence": "The row exists to manufacture credibility yet supplies nothing a reader can check."},
+          {"code": "voice_and_subtext", "result": "candidate", "evidence": "Award-theater register conflicts with the plain, evidence-first voice of WF-B-02."}
+        ],
+        "consequence": "Trust theater: a skeptical buyer can verify none of the four claims, and their presence undermines the genuinely verifiable claims adjacent.",
+        "counterexample_tested": "Legitimate award/rating badges exist; rejected here because real ones name the source (G2, an awards body, an auditor/standard like SOC 2) and link to it — these name nothing and link nowhere.",
+        "authorship_assessment": "not_performed"
+      },
+      "consequence": "Unverifiable social proof at the decision point erodes trust in the whole page, including its true claims.",
+      "counterexample_tested": "See editorial_review.counterexample_tested.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-B-04",
+      "surface": "pricing-page.html — product demonstration figure",
+      "disposition": "cleared",
+      "candidate_id": null,
+      "suspicion": "Placeholder 'Invoice editor interface' frame might be synthetic proof — fake product imagery passed off as a real account.",
+      "signals": [
+        "No <img> and no fabricated customer data in the frame; it presents itself as a labeled stand-in, not a screenshot.",
+        "The figcaption states in rendered text: 'PRODUCT DEMONSTRATION — SIMULATED DATA, NOT A CUSTOMER ACCOUNT' — explicit provenance disclosure."
+      ],
+      "evidence": ["Rendered text + DOM inspection (img count 0); evidence/WF-B-04.png."],
+      "why_cleared": "The synthetic-proof suspicion is disproven by honest disclosure: nothing is fabricated and the simulation is labeled. Replacing the placeholder with a real annotated screenshot is an enhancement opportunity, not a defect.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-C-01",
+      "surface": "settings-form.html — Invoice defaults section",
+      "disposition": "candidate",
+      "candidate_id": "CAND-005",
+      "title": "'Apply defaults' is a fake control: a styled <span> that no one can reach by keyboard and that does nothing for anyone",
+      "category": "accessibility",
+      "facets": ["resilience_recovery"],
+      "severity": "high",
+      "confidence": "high",
+      "signals": [
+        "Keyboard/AT exclusion: the element is a SPAN with tabIndex -1, no role, and no accessible state; a full Tab traversal of the page reached 8 stops and never included it; even element.focus() fails to move focus to it.",
+        "Fake for pointer users too: clicking produced zero DOM change (page content byte-identical before and after) — the handler is empty, yet cursor:pointer and button styling invite the click.",
+        "Supporting failures in the same section: both inputs are placeholder-only (labels.length 0 — name disappears on entry), and the hint text measures 2.61:1 contrast at 13px (below the 4.5:1 minimum, WCAG 1.4.3)."
+      ],
+      "evidence": ["Tab-sequence trace, focus probe, before/after DOM comparison, computed contrast; evidence/WF-C-01.png."],
+      "consequence": "The section's only action is inoperable: keyboard and assistive-technology users cannot reach it, and mouse users who click it get silent nothing — defaults can never be applied, with no error, disabled state, or explanation.",
+      "counterexample_tested": "Considered an intentionally disabled control awaiting input; rejected — there is no disabled attribute, styling, or explanatory state, and the cursor/styling actively affords clicking.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-C-02",
+      "surface": "settings-form.html — Contact details save",
+      "disposition": "candidate",
+      "candidate_id": "CAND-006",
+      "title": "Save confirmation asserts a fixed fabricated timestamp and a persistence it does not deliver",
+      "category": "interaction",
+      "facets": ["trust_integrity", "resilience_recovery"],
+      "severity": "medium",
+      "confidence": "moderate",
+      "signals": [
+        "Fabricated precision: clicking Save at 22:05 displayed 'Saved at 09:30'; saving again displayed the identical '09:30' — the timestamp is hardcoded (source: new Date(2026,0,1,9,30)), so the specific-looking confirmation is false.",
+        "Broken persistence claim: after reload, both fields and the status were empty — the state the UI declared 'Saved' is gone on the very next page load."
+      ],
+      "evidence": ["Operated save/re-save/reload trace with real-clock comparison; evidence/WF-C-02.png."],
+      "consequence": "A user cannot tell whether their latest save succeeded (every save reports the same moment), and data the UI confirmed as saved does not survive a refresh.",
+      "counterexample_tested": "Tested the innocent readings: a deterministic demo timestamp and deliberately session-scoped persistence. Partially credited — hence moderate confidence and medium severity — but a reader-facing confirmation still asserts a specific wrong fact, and 'Saved' with no scope qualifier still overpromises. Genuine strengths retained in this sample: real <button>, visible focus style, and role='status' so the confirmation is announced.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-C-03",
+      "surface": "settings-form.html — Danger zone preferences save",
+      "disposition": "candidate",
+      "candidate_id": "CAND-007",
+      "title": "'Save changes' silently destroys the typed note and gives no feedback of any kind",
+      "category": "interaction",
+      "facets": ["resilience_recovery"],
+      "severity": "high",
+      "confidence": "high",
+      "signals": [
+        "Data loss: typed 'Please contact billing for records' into the close-account note, clicked 'Save changes', and the field was emptied — the value is discarded, not stored or redisplayed anywhere.",
+        "Zero feedback: no status text appeared (main text length delta 0), and the section contains no role=status or aria-live region — nothing confirms, denies, or explains; contrast with sibling WF-C-02 which at least confirms."
+      ],
+      "evidence": ["Operated fill/save/observe trace; evidence/WF-C-03.png."],
+      "consequence": "In the highest-stakes section of the page ('Danger zone', shown to clients at account closure), the user's writing vanishes on save with no confirmation, no error, and no recovery path — indistinguishable from success until it matters.",
+      "counterexample_tested": "Considered an 'apply-and-clear' input idiom (like a chat box); rejected — a settings preference must redisplay its stored value, nothing anywhere shows the note was retained, and no confirmation exists to license the clearing.",
+      "authorship_assessment": "not_performed"
+    },
+    {
+      "sample": "WF-C-04",
+      "surface": "settings-form.html — Payment reminders toggle",
+      "disposition": "cleared",
+      "candidate_id": null,
+      "suspicion": "Toggle might be another fake or unannounced control; state text might be decorative.",
+      "signals": [
+        "Real <button> operated by keyboard: focus + Space flipped aria-pressed false->true and the visible state updated 'Reminders are off' -> 'Reminders are on'.",
+        "State legible: adjacent status text measures 8.2:1 contrast; the pressed state is exposed on the focused control itself so assistive tech announces the change at the point of interaction."
+      ],
+      "evidence": ["Keyboard operation trace; evidence/WF-C-04.png."],
+      "why_cleared": "Control, state, feedback, and keyboard path all behave as promised. Minor note (not promoted): the #remindstate span carries no aria-live, but no functional announcement barrier was verified since aria-pressed on the focused button conveys the state.",
+      "authorship_assessment": "not_performed"
+    }
+  ],
+  "strengths": [
+    "WF-A-02: search filters exactly as labeled with a working reset path.",
+    "WF-B-02: concrete, verifiable claims backed by a working link to published monthly uptime data — a model for the rest of the page.",
+    "WF-B-04: honest provenance disclosure on simulated product imagery.",
+    "WF-C-04: fully operable, announced, high-contrast toggle; WF-C-02's confirmation region correctly uses role='status' and the save button has a visible focus style."
+  ],
+  "cleared_suspicions_summary": ["WF-A-02", "WF-A-04", "WF-B-02", "WF-B-04", "WF-C-04"],
+  "checks_not_run": [
+    {"check": "Runtime performance tracing", "reason": "Static local fixtures; no meaningful network/runtime load to trace", "impact": "performance category not scored"},
+    {"check": "Responsive/mobile viewports, zoom reflow, reduced motion", "reason": "Single 1280x900 desktop viewport operated", "impact": "responsive findings not claimed"},
+    {"check": "Full accessibility-tree dump / screen-reader verification", "reason": "Semantics inferred from DOM roles, states, tab order, and computed styles only", "impact": "announcement behavior is inferred, not heard; no conformance verdict issued"},
+    {"check": "Statistical sentence-cadence scoring", "reason": "Largest prose sample is 31 words (analyzer adequacy: insufficient)", "impact": "no cadence/distribution claims made; copy findings rest on claims/provenance and portability review"}
+  ],
+  "evidence_assets": [
+    {"id": "EV-PROBE", "kind": "task_observation", "locator": "probe-results (operated trace quoted inline per entry)", "verification": "observed"},
+    {"id": "EV-SHOTS", "kind": "screenshot", "locator": "evidence/*.png (3 full-page + 11 per-sample captures)", "verification": "captured"},
+    {"id": "EV-ANALYZER-B01", "kind": "analysis_receipt", "locator": "evidence/analyzer-WF-B-01.json", "verification": "captured"}
+  ],
+  "notes": "Every data-sample element on the three pages has exactly one entry above: 7 candidates (CAND-001..CAND-007), 5 cleared, 0 not run. No baseline counts, prior IDs, expected labels, or prior artifacts were consulted or referenced."
+}

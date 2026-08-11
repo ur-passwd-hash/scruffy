@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "blind_test_id": "web-fixtures-blind-20260810",
+  "phase": "blind_discovery",
+  "target": "evals/web-fixtures (checkout-flow.html, pricing-page.html, settings-form.html)",
+  "agent": "claude-fable-5/cowork-scruffy",
+  "created_at": "2026-08-11T01:59:26.259114Z",
+  "prompt": {
+    "path": "/sessions/youthful-eager-shannon/mnt/outputs/scruffy-blind/prompt.txt",
+    "sha256": "1f754fc0ce7b045434bb70d8b1ed64ebdc40af49dae5dde9ae8f08e93b7fbb6a"
+  },
+  "skill": {
+    "path": "/sessions/youthful-eager-shannon/mnt/scruffy",
+    "tree_sha256": "a4aa4dd2933b7d0ef790bce398d2bb051209e4c3ad0bb969ee46d578329a8a08"
+  },
+  "allowed_inputs": [
+    {
+      "path": "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/checkout-flow.html",
+      "sha256": "ca286552132ea80e6a00436110e39f3616e035d7c2f475d17ebe7c7d37e7c6ee",
+      "bytes": 5210
+    },
+    {
+      "path": "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/pricing-page.html",
+      "sha256": "d13f2f0b5bb8d6a0ddfd6d99edb195d1ab4fd1b1ca00652e90b4489a1fb93511",
+      "bytes": 3986
+    },
+    {
+      "path": "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/settings-form.html",
+      "sha256": "75244f0813854de90cd0a2574e4ccee608aa142cfbf0882983fa23fe42a97f01",
+      "bytes": 4259
+    }
+  ],
+  "forbidden_inputs": [
+    "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/keys",
+    "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/README.md"
+  ],
+  "forbidden_markers": [
+    "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/README.md",
+    "/sessions/youthful-eager-shannon/mnt/scruffy/evals/web-fixtures/keys",
+    "README.md",
+    "keys",
+    "prior findings.json / decisions.json / dashboards / work orders / eval keys"
+  ],
+  "integrity_rules": {
+    "no_resumed_session": true,
+    "temporary_candidate_ids_only": true,
+    "freeze_before_reveal": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "blind_test_id": "web-fixtures-blind-20260810",
+  "phase": "blind_frozen",
+  "frozen_at": "2026-08-11T02:08:45.502266Z",
+  "manifest": {
+    "path": "/sessions/youthful-eager-shannon/mnt/outputs/scruffy-blind/blind-manifest.json",
+    "sha256": "bd38419ef51243f84ab42b56199ef4df31e9e57c653d858d76d3dc4df11d1e13"
+  },
+  "discovery": {
+    "path": "/sessions/youthful-eager-shannon/mnt/outputs/scruffy-blind/blind-discovery.json",
+    "sha256": "555a6a8835e8248fb12f67c70ec16aad47f994fbc7fa3665cd3c22ae906cd058"
+  },
+  "contamination_status": "verified_no_forbidden_markers"
+}
