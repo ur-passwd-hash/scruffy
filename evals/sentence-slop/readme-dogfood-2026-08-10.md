@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `99ce16d0d58ea09fe19af32f297a1fe31b3ffedd7649c3ad36ba664cbf5700ed`
+Target SHA-256: `11afa30903b22b42bc386de1403ea906ac0eec688a8989f0e5a5f1b958ee4581`
 
 Command:
 
@@ -140,3 +140,23 @@ original repeated_openings lead. These are leads on our own prose and are expect
 the README's install and validation sections carry long enumerated sentences whose
 guard ("a single parallel enumerated list reads fine") applies to several but not all.
 Manual pass conclusion: tighten opportunistically; no finding. No authorship assessment.
+
+## Release 2.5.0 reference-grounding reconciliation
+
+The new shipped-product-grounding section changed reader-facing prose. The current
+run reports 3,097 source words, 1,568 analyzed words, 1,529 excluded markup/code
+words, and 133 sentences. It emits four review leads across three independent
+families: `overlong_sentence`, `clause_pileup`, `repeated_openings`, and
+`paragraph_pattern_reuse`. Those measurements trigger review; they do not establish
+a finding or authorship.
+
+The manual passes were rerun on the added section. It has one bounded purpose:
+explain the optional capability, name the vendor-neutral rule, point to the canonical
+reference, and give the two supported Claude connection paths. The repeated
+"Mobbin MCP" opening keeps the paid-plan requirement adjacent to the setup command;
+the three-sentence paragraph shape does not obscure the task. The section names the
+connector, tools, OAuth constraint, source file, and exact endpoint, so it is not
+portable promotional filler. Terminology matches the canonical
+`design_reference_search` capability and recovery is explicit: an absent connector
+is disclosed and the audit continues. The previous eight manual-check conclusions
+remain clear. This receipt makes no authorship assessment.

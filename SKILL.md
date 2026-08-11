@@ -15,11 +15,11 @@ Read [references/audit-contract.md](references/audit-contract.md), select the ap
 
 ## Capability preflight
 
-Before making findings, record all eight canonical capabilities from [references/audit-contract.md](references/audit-contract.md) as available, partial, unavailable, not needed, not run, or not authorized. Use the exact capability keys in durable context data.
+Before making findings, record all nine canonical capabilities from [references/audit-contract.md](references/audit-contract.md) as available, partial, unavailable, not needed, not run, or not authorized. Use the exact capability keys in durable context data.
 
 Missing capability is not evidence of a defect. Reduce confidence, omit unsupported scores, and label the check **not run**. Never inspect passwords, cookies, authentication tokens, browser storage contents, or unrelated private data. Test persistence behavior by changing visible state, reloading or reopening the app, and observing the result.
 
-Read [references/taxonomy.md](references/taxonomy.md) before classifying findings. Read [references/verification.md](references/verification.md) before operating a live interface. Read [references/archetypes.md](references/archetypes.md) after framing the product to select the applicable coverage modules. Read [references/sentence-slop.md](references/sentence-slop.md) whenever sentence construction, cadence, passive voice, rhetorical scaffolding, or synthetic-sounding copy is in scope. For a requested blind or independent run, read [references/blind-audit.md](references/blind-audit.md) before searching for prior artifacts. For implementation or a decision deliverable, read [references/output-schema.md](references/output-schema.md). For every repeat audit or any durable report, read [references/durability.md](references/durability.md). Read [references/scoring.md](references/scoring.md) before assigning severity, confidence, or scores.
+Read [references/taxonomy.md](references/taxonomy.md) before classifying findings. Read [references/verification.md](references/verification.md) before operating a live interface. Read [references/reference-grounding.md](references/reference-grounding.md) before any design or redesign exploration, before judging a pattern against shipped-product convention, and whenever a design-reference search connector (for example Mobbin MCP) or a user taste overlay is available in the environment. Read [references/archetypes.md](references/archetypes.md) after framing the product to select the applicable coverage modules. Read [references/sentence-slop.md](references/sentence-slop.md) whenever sentence construction, cadence, passive voice, rhetorical scaffolding, or synthetic-sounding copy is in scope. For a requested blind or independent run, read [references/blind-audit.md](references/blind-audit.md) before searching for prior artifacts. For implementation or a decision deliverable, read [references/output-schema.md](references/output-schema.md). For every repeat audit or any durable report, read [references/durability.md](references/durability.md). Read [references/scoring.md](references/scoring.md) before assigning severity, confidence, or scores.
 
 ## Required order of work
 
@@ -106,6 +106,8 @@ For new design or redesign work, explore before converging:
 3. Three compositions within the strongest material system — vary hierarchy and spatial structure, not merely color.
 
 Select using product fit, task clarity, accessibility, feasibility, and distinctiveness. Explain the rejected alternatives briefly. Do not create variant theater: each option must differ structurally.
+
+Ground the ladder before climbing it: when a design-reference search capability is available, pull 3–8 shipped-product references for the surface archetype per [references/reference-grounding.md](references/reference-grounding.md), extract named patterns with citations, and record the capability state either way. References outrank priors; the user's verdicts outrank references.
 
 ## Evidence rules
 

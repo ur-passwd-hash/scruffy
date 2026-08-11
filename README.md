@@ -132,6 +132,23 @@ Apply these only where the product exposes the concern: **Trust and content inte
 - Retractions receive the same prominence as findings.
 - An interactive decision report is supported, but Markdown and JSON fallbacks keep the skill portable.
 
+## Grounding in shipped products
+
+For design and redesign work, Scruffy can ground structural choices in a live
+search over shipped products before exploring directions. Mobbin MCP is the
+reference connector, but any equivalent design-reference search satisfies the
+capability; its absence is disclosed and never treated as a defect. The query,
+evidence, precedence, citation, and false-positive rules live in
+[`references/reference-grounding.md`](references/reference-grounding.md).
+
+Mobbin MCP requires a paid Mobbin plan, enforced during OAuth. Claude users can
+connect it through the [Mobbin directory connector](https://claude.ai/directory/connectors/mobbin),
+or register the HTTP endpoint for a user-scoped CLI session:
+
+```sh
+claude mcp add mobbin --scope user --transport http https://api.mobbin.com/mcp
+```
+
 <!-- scruffy-modes:start -->
 ## Modes
 

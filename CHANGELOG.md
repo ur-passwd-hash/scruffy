@@ -2,6 +2,14 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## 2.5.0 — 2026-08-10
+
+- Added reference grounding: an optional design-reference search capability
+  (reference implementation: Mobbin MCP — `search_screens`, `search_flows`, and
+  `search_sections`) plus the user taste overlay restored from the Anti-Slop
+  lineage, with precedence rules and popularity/deviation false-positive guards
+  in `references/reference-grounding.md`. Absence is disclosed, never a finding.
+
 ## 2.4.0 — 2026-08-10
 
 - Enforced four evidence rules that previously existed only as prose. Schema-2.1

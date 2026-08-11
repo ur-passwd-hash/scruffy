@@ -127,6 +127,10 @@
       {
         "key": "copy_context",
         "label": "Copy samples, audience, voice, and regulated-language constraints"
+      },
+      {
+        "key": "design_reference_search",
+        "label": "Design-reference search (shipped-product connector)"
       }
     ],
     "capability_statuses": [

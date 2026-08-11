@@ -27,6 +27,7 @@ Every substantial audit records exactly these capabilities. Missing capability i
 - `source_write` — File write and implementation access
 - `prior_audit_data` — Prior audit registry, reports, and decision data
 - `copy_context` — Copy samples, audience, voice, and regulated-language constraints
+- `design_reference_search` — Design-reference search (shipped-product connector)
 
 ## Evidence receipts
 

@@ -45,10 +45,10 @@ def load_contract(path: Path = MANIFEST) -> dict[str, Any]:
     capabilities = data.get("context", {}).get("capabilities")
     if not isinstance(questions, list) or len(questions) != 6:
         raise ValueError("audit context must define six product-frame questions")
-    if not isinstance(capabilities, list) or len(capabilities) != 8:
-        raise ValueError("audit context must define eight capabilities")
+    if not isinstance(capabilities, list) or len(capabilities) != 9:
+        raise ValueError("audit context must define nine capabilities")
     capability_keys = [row.get("key") for row in capabilities if isinstance(row, dict)]
-    if len(capability_keys) != 8 or len(capability_keys) != len(set(capability_keys)):
+    if len(capability_keys) != 9 or len(capability_keys) != len(set(capability_keys)):
         raise ValueError("audit context repeats a capability key")
     context = data["context"]
     for field in (
