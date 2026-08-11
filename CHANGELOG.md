@@ -4,6 +4,16 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## Unreleased
 
+- Gave scripts/annotate.html a complete keyboard authoring path (WCAG 2.1.1),
+  closing the one open finding from the tool's first self-audit: the stage is
+  now a focusable application region where Enter opens the file chooser, B adds
+  a box, arrows move it, Shift+arrows resize it, Enter hands focus to the label
+  input, Delete removes it, and every change is announced through a status live
+  region with a visible focus outline. Re-verified keyboard-only end to end in
+  a rendered session. Also collapsed the redundant one-pager score row label
+  ("Accessibility slop · Accessibility" now renders as "Accessibility slop"),
+  with a regression in test_durability.py.
+
 - Fixed an innocent-substring false positive in the blind-freeze contamination
   scan: forbidden markers now match as whole tokens (marker "keys" no longer
   flags "monkeys"), with a regression covering both the benign and the

@@ -15,7 +15,10 @@
   #wrap{display:flex;gap:16px;align-items:flex-start}
   #stage{position:relative;flex:1;min-width:0;border:1px solid var(--line);background:var(--panel);min-height:340px;
          display:flex;align-items:center;justify-content:center;cursor:crosshair;user-select:none}
-  #stage.empty::after{content:"paste a screenshot (⌘V), drop an image, or click to browse";color:var(--dim)}
+  #stage.empty::after{content:"paste a screenshot (⌘V), drop an image, or click / press Enter to browse";color:var(--dim)}
+  #stage:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+  .box.active{border-style:dashed}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
   #img{display:block;max-width:100%;height:auto;pointer-events:none}
   .box{position:absolute;border:2px solid var(--acc);background:rgba(255,91,4,.10)}
   .box .tag{position:absolute;top:-22px;left:-2px;background:var(--acc);color:#111;font-weight:700;
@@ -39,9 +42,10 @@
 </head>
 <body>
 <header><h1><b>UI</b> audit annotator</h1>
-<span class="hint">drag to box an element · label it · export JSON/PNG · attach either to the audit</span></header>
+<span class="hint">drag or press B to box an element · label it · export JSON/PNG · attach either to the audit</span></header>
 <div id="wrap">
-  <div id="stage" class="empty"><img id="img" hidden alt=""></div>
+  <div id="stage" class="empty" tabindex="0" role="application"
+       aria-label="Annotation stage. Press Enter to browse for an image. With an image loaded: B adds a box, arrow keys move it, Shift plus arrows resize it, Enter labels it, Delete removes it."><img id="img" hidden alt=""></div>
   <div id="side">
     <div id="list"></div>
     <div class="btns">
@@ -54,6 +58,7 @@
   </div>
 </div>
 <input type="file" id="file" accept="image/*" hidden>
+<span id="live" class="sr" role="status"></span>
 <script>
 const stage=document.getElementById('stage'),img=document.getElementById('img'),
       list=document.getElementById('list'),out=document.getElementById('out');
@@ -77,17 +82,45 @@ addEventListener('mousemove',e=>{if(!drag)return;
 addEventListener('mouseup',e=>{if(!drag)return;
   const d=drag;drag=null;if(d.x1==null)return;
   const x=Math.min(d.x0,d.x1),y=Math.min(d.y0,d.y1),w=Math.abs(d.x1-d.x0),h=Math.abs(d.y1-d.y0);
-  if(w>8&&h>8){boxes.push({label:'',x:x/d.r.width,y:y/d.r.height,w:w/d.r.width,h:h/d.r.height});}
+  if(w>8&&h>8){boxes.push({label:'',x:x/d.r.width,y:y/d.r.height,w:w/d.r.width,h:h/d.r.height});active=boxes.length-1;}
   render();focusLast();});
+
+// Keyboard authoring path (WCAG 2.1.1): everything drag can do, keys can do.
+let active=-1;
+const say=t=>{document.getElementById('live').textContent=t;};
+stage.addEventListener('keydown',e=>{
+  if(img.hidden){
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();document.getElementById('file').click();}
+    return;
+  }
+  const k=e.key;
+  if(k==='b'||k==='B'){
+    boxes.push({label:'',x:.4,y:.4,w:.2,h:.2});active=boxes.length-1;render();
+    say('Box '+boxes.length+' added at center. Arrows move, Shift+arrows resize, Enter labels, Delete removes.');
+    e.preventDefault();return;
+  }
+  if(active<0||!boxes[active])return;
+  const b=boxes[active],s=.02;
+  if(k==='ArrowLeft'){if(e.shiftKey)b.w=Math.max(s,b.w-s);else b.x=Math.max(0,b.x-s);}
+  else if(k==='ArrowRight'){if(e.shiftKey)b.w=Math.min(1-b.x,b.w+s);else b.x=Math.min(1-b.w,b.x+s);}
+  else if(k==='ArrowUp'){if(e.shiftKey)b.h=Math.max(s,b.h-s);else b.y=Math.max(0,b.y-s);}
+  else if(k==='ArrowDown'){if(e.shiftKey)b.h=Math.min(1-b.y,b.h+s);else b.y=Math.min(1-b.h,b.y+s);}
+  else if(k==='Enter'){render();focusIdx(active);say('Label box '+(active+1));e.preventDefault();return;}
+  else if(k==='Delete'||k==='Backspace'){boxes.splice(active,1);active=-1;render();say('Box removed.');e.preventDefault();return;}
+  else if(k==='Escape'){active=-1;render();return;}
+  else return;
+  e.preventDefault();render();
+});
 
 function render(live){
   stage.querySelectorAll('.box').forEach(b=>b.remove());
   if(img.hidden)return;
   const r=img.getBoundingClientRect(),off={x:img.offsetLeft,y:img.offsetTop};
-  const draw=(x,y,w,h,n,label)=>{const d=document.createElement('div');d.className='box';
+  const draw=(x,y,w,h,n,label,isActive)=>{const d=document.createElement('div');
+    d.className='box'+(isActive?' active':'');
     Object.assign(d.style,{left:off.x+x+'px',top:off.y+y+'px',width:w+'px',height:h+'px'});
     d.innerHTML=`<span class="tag">${n}${label?' · '+label:''}</span>`;stage.appendChild(d);};
-  boxes.forEach((b,i)=>draw(b.x*r.width,b.y*r.height,b.w*r.width,b.h*r.height,i+1,b.label));
+  boxes.forEach((b,i)=>draw(b.x*r.width,b.y*r.height,b.w*r.width,b.h*r.height,i+1,b.label,i===active));
   if(live&&live.x1!=null)draw(Math.min(live.x0,live.x1),Math.min(live.y0,live.y1),
     Math.abs(live.x1-live.x0),Math.abs(live.y1-live.y0),boxes.length+1,'');
   list.innerHTML='';
@@ -99,6 +132,7 @@ function render(live){
     list.appendChild(row);});
 }
 function focusLast(){const ins=list.querySelectorAll('input');if(ins.length)ins[ins.length-1].focus();}
+function focusIdx(i){const ins=list.querySelectorAll('input');if(ins[i])ins[i].focus();}
 
 function payload(){const W=img.naturalWidth,H=img.naturalHeight;
   return {image:imgName,width:W,height:H,elements:boxes.map((b,i)=>({n:i+1,label:b.label,

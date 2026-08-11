@@ -200,6 +200,12 @@ def main() -> int:
         if not score_row_label("copy").startswith("Editorial slop"):
             print("FAIL: copy must present as Editorial slop")
             return 1
+        # Regression: when the score label adds no words beyond the public
+        # category, the row must not repeat itself ("Accessibility slop ·
+        # Accessibility" reads as a rendering mistake).
+        if score_row_label("accessibility") != "Accessibility slop":
+            print("FAIL: redundant score label must collapse to the public category")
+            return 1
 
         # Guard: an unrecognized key degrades to the raw key rather than inventing a label.
         if score_row_label("not_a_category") != "not_a_category":

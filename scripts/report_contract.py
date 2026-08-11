@@ -72,10 +72,14 @@ def capability_rows(context: dict[str, Any]) -> list[list[Any]]:
 
 def score_row_label(key: Any) -> str:
     """Name the canonical slop category first so a reader can map a score to the
-    public category, then the measurement framing used for the score itself."""
+    public category, then the measurement framing used for the score itself.
+    When the measurement framing adds no words beyond the public label
+    ("Accessibility slop · Accessibility"), show the public label alone."""
     public = CATEGORY_LABELS.get(key)
     scored = SCORE_LABELS.get(key)
     if public and scored:
+        if scored.lower() == public.lower().removesuffix(" slop"):
+            return public
         return f"{public} · {scored}"
     return public or scored or str(key or "")
 
