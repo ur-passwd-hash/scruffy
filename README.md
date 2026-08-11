@@ -357,6 +357,7 @@ python3 scripts/test_sentence_blind_runner.py
 python3 scripts/test_web_fixtures.py
 python3 scripts/rule_engine.py --check
 python3 scripts/test_rule_engine.py
+python3 scripts/test_product_surfaces.py
 ```
 
 The first checks metadata, the Claude maintainer contract, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.

@@ -96,6 +96,7 @@ python3 scripts/test_sentence_blind_runner.py
 python3 scripts/test_web_fixtures.py
 python3 scripts/rule_engine.py --check
 python3 scripts/test_rule_engine.py
+python3 scripts/test_product_surfaces.py
 ```
 
 When Claude Code is installed, also run `claude plugin validate .`. If behavior

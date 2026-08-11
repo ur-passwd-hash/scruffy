@@ -2,6 +2,16 @@
 
 All notable changes to the public Scruffy skill, formerly Anti-Slop, are documented here.
 
+## Unreleased
+
+- Implemented the first two product bets as reference CLIs: scripts/scan.py
+  (B1: URL or file to static leads plus the operated checklist, honesty note
+  built in) and scripts/render_onepager.py (B2: shareable broadsheet one-pager
+  whose badge asserts process only — audited, revision, registry SHA-256 —
+  never quality). Regressions in scripts/test_product_surfaces.py forbid
+  fake-score artifacts and verify the embedded hash. Design agents restyle
+  these; the contracts and honesty language are canonical.
+
 ## 2.5.0 — 2026-08-10
 
 - Added the operated_check rule class: checklist rules with no static executor

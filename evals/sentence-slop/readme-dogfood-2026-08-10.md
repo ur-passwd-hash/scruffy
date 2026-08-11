@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `11afa30903b22b42bc386de1403ea906ac0eec688a8989f0e5a5f1b958ee4581`
+Target SHA-256: `7cb7b1a24e45dad2f3d4f07cd5110e264fe3b3ca91800e3897ff162c1596db7d`
 
 Command:
 
@@ -121,8 +121,8 @@ fixed editorial defect, not erased by the clean current result.
 
 `README.md` changed for repository structure: the evaluation fixture directory
 was renamed to `evals/continuity/`, the known-answer `evals/web-fixtures/` suite
-was added, and the `schema/rules/` lead packs joined the validation list and
-layout tree.
+was added, and the `schema/rules/` lead packs and the product-surface test joined the
+validation list and layout tree.
 Every edited line sits inside a fenced code block, which the analyzer excludes
 as markup, so each rerun reported identical measurements: 2,948 source words, 1,484 analyzed reader-facing words, 1,464 excluded
 markup words, 122 sentences, adequacy `adequate`, and one `repeated_openings` lead in

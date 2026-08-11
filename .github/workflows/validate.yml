@@ -40,3 +40,5 @@ jobs:
         run: python3 scripts/rule_engine.py --check
       - name: Test deterministic rule engine
         run: python3 scripts/test_rule_engine.py
+      - name: Test product surfaces
+        run: python3 scripts/test_product_surfaces.py
