@@ -160,3 +160,12 @@ portable promotional filler. Terminology matches the canonical
 `design_reference_search` capability and recovery is explicit: an absent connector
 is disclosed and the audit continues. The previous eight manual-check conclusions
 remain clear. This receipt makes no authorship assessment.
+
+## Measurement reconcile — end of 2026-08-10
+
+Final rerun after all repository-structure edits: 3103 source words, 1568
+analyzed reader-facing words, 1535 excluded markup words, 133 sentences,
+adequacy `adequate`, 4 lead(s) including the cognitive_load family. Earlier
+figures in this receipt describe earlier README states; this block is
+authoritative for the committed revision. Manual-pass conclusions unchanged.
+No authorship assessment.
