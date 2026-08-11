@@ -82,6 +82,29 @@ def main() -> int:
             expected=2,
         )
 
+        # Innocent-substring guard: a forbidden basename like "keys" must not
+        # flag words that merely contain it, but a real mention must still fail.
+        keys_dir = root / "keys"
+        keys_dir.write_text("expected labels", encoding="utf-8")
+        manifest2 = root / "blind-manifest-2.json"
+        run(
+            [
+                "prepare", "--target", "synthetic-packet", "--agent", "test-agent",
+                "--prompt-file", str(prompt), "--skill-root", str(ROOT),
+                "--allow", str(packet), "--forbid", str(forbidden), "--forbid", str(keys_dir),
+                "--output", str(manifest2),
+            ]
+        )
+        benign = root / "benign.json"
+        discovery(benign, "The surveyed monkeys and turkeys stayed on the allowed packet.")
+        run(["freeze", "--manifest", str(manifest2), "--discovery", str(benign), "--output", str(root / "benign-freeze.json")])
+        mention = root / "mention.json"
+        discovery(mention, "I opened keys before deciding.")
+        run(
+            ["freeze", "--manifest", str(manifest2), "--discovery", str(mention), "--output", str(root / "mention-freeze.json")],
+            expected=2,
+        )
+
     print("PASS: blind preparation, freeze, verification, mutation rejection, and contamination rejection")
     return 0
 

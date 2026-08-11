@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -120,11 +121,22 @@ def validate_discovery_shape(data: dict[str, Any]) -> None:
 
 
 def detect_contamination(manifest: dict[str, Any], discovery_text: str) -> list[str]:
+    """Flag forbidden markers that appear as whole tokens in the discovery text.
+
+    Token boundaries prevent innocent-substring false positives (marker "keys"
+    must not match "monkeys") while still flagging any real mention of a
+    forbidden path or file name, which remains conservative fail-closed
+    behavior: a blind discovery has no reason to name its forbidden inputs.
+    """
     lowered = discovery_text.lower()
-    return [
-        marker for marker in manifest.get("forbidden_markers", [])
-        if isinstance(marker, str) and marker and marker.lower() in lowered
-    ]
+    found = []
+    for marker in manifest.get("forbidden_markers", []):
+        if not (isinstance(marker, str) and marker):
+            continue
+        pattern = r"(?<![0-9a-z_])" + re.escape(marker.lower()) + r"(?![0-9a-z_])"
+        if re.search(pattern, lowered):
+            found.append(marker)
+    return found
 
 
 def freeze(args: argparse.Namespace) -> int:

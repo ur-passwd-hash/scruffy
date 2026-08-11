@@ -13,8 +13,9 @@ expected disposition for each point lives only in `keys/expectations.json`.
 
 ## Contamination rule
 
-`keys/` is the answer key. Never open it during an audit of these fixtures, and list
-it as a forbidden input in every blind manifest that targets them:
+`keys/` is the answer key and `runs/` archives scored past runs (dispositions,
+reconciliations, and evaluator output). Never open either during an audit of these
+fixtures, and list both as forbidden inputs in every blind manifest that targets them:
 
 ```sh
 python3 scripts/blind_protocol.py prepare \
@@ -27,6 +28,7 @@ python3 scripts/blind_protocol.py prepare \
   --allow evals/web-fixtures/settings-form.html \
   --forbid evals/web-fixtures/keys/expectations.json \
   --forbid-marker web-fixtures/keys \
+  --forbid-marker web-fixtures/runs \
   --test-id <id> --output <dir>/blind-manifest.json
 ```
 

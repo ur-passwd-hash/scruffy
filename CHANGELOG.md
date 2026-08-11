@@ -4,6 +4,18 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## Unreleased
 
+- Fixed an innocent-substring false positive in the blind-freeze contamination
+  scan: forbidden markers now match as whole tokens (marker "keys" no longer
+  flags "monkeys"), with a regression covering both the benign and the
+  real-mention case in scripts/test_blind_protocol.py. Documented the
+  previously implicit blind-discovery JSON shape (top-level candidates /
+  cleared_suspicions / checks_not_run lists keyed by sample_id, CAND-NNN ids,
+  two-signal minimum) and the do-not-name-forbidden-paths rule in
+  references/blind-audit.md. The web-fixtures contamination rule now also
+  forbids evals/web-fixtures/runs/, which archives scored past runs (first
+  entry: web-fixtures-blind-20260810, 11/12 disposition agreement, blindness
+  verified).
+
 - Implemented the first two product bets as reference CLIs: scripts/scan.py
   (B1: URL or file to static leads plus the operated checklist, honesty note
   built in) and scripts/render_onepager.py (B2: shareable broadsheet one-pager

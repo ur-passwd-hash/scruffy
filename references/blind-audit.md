@@ -13,7 +13,31 @@ Use this protocol when the user asks for a blind test, independent audit, fresh-
 3. Create `blind-manifest.json` before discovery. Record the target, agent/runtime label, exact prompt hash, skill-tree hash, allowed-input hashes, forbidden paths or markers, timestamp, and `phase: blind_discovery`.
 4. Do not search the workspace for baselines, stable IDs, or related reports during this phase. If a forbidden artifact is encountered accidentally, stop and mark the run contaminated; do not rely on memory to subtract its influence.
 5. Use temporary IDs such as `CAND-001`. Do not guess stable IDs or prior dispositions.
-6. Write `blind-discovery.json` with candidate findings, strengths, cleared suspicions, capabilities, checks not run, and evidence. It must not mention baseline counts, prior IDs, or expected labels.
+6. Write `blind-discovery.json` with candidate findings, strengths, cleared suspicions, capabilities, checks not run, and evidence. It must not mention baseline counts, prior IDs, or expected labels. Do not name forbidden paths or marker strings anywhere in the discovery text either — the freeze contamination scan flags any whole-token mention of a forbidden marker, so describe quarantine in neutral words ("the forbidden inputs named in the manifest").
+
+   The validators and the known-answer evaluator read a specific shape. `freeze` requires a top-level `candidates` list where every entry has a `candidate_id` matching `CAND-` followed by three digits. `scripts/evaluate_blind_outputs.py` additionally requires the three disposition lists, each entry keyed by `sample_id`:
+
+   ```json
+   {
+     "phase": "blind_discovery",
+     "authorship_assessment": "not_performed",
+     "candidates": [
+       {
+         "sample_id": "WF-A-01",
+         "candidate_id": "CAND-001",
+         "signals": ["first independent signal", "second independent signal"],
+         "evidence": ["typed evidence receipt or observed trace"],
+         "consequence": "who is affected and which task becomes harder",
+         "counterexample_tested": "the innocent reading that was tested and rejected",
+         "confidence": "high"
+       }
+     ],
+     "cleared_suspicions": [{"sample_id": "WF-A-02", "suspicion": "…", "why_cleared": "…"}],
+     "checks_not_run": [{"sample_id": "WF-A-05", "reason": "…"}]
+   }
+   ```
+
+   Candidates need at least two distinct signals plus non-empty `evidence`, `consequence`, `counterexample_tested`, and `confidence`. Additional fields are allowed; these are the minimum the tooling enforces.
 7. Freeze the discovery by recording its SHA-256 digest and timestamp in `blind-freeze.json`. Any later change invalidates the blind phase.
 
 Use `python3 scripts/blind_protocol.py prepare`, `freeze`, and `verify` when command execution is available. Otherwise create equivalent JSON and disclose that integrity was checked manually.
