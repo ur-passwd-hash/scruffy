@@ -4,29 +4,6 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## 2.5.0 — 2026-08-10
 
-- Added reference grounding: an optional design-reference search capability
-  (reference implementation: Mobbin MCP — `search_screens`, `search_flows`, and
-  `search_sections`) plus the user taste overlay restored from the Anti-Slop
-  lineage, with precedence rules and popularity/deviation false-positive guards
-  in `references/reference-grounding.md`. Absence is disclosed, never a finding.
-
-## 2.4.0 — 2026-08-10
-
-- Enforced four evidence rules that previously existed only as prose. Schema-2.1
-  validation now fails closed when an active performance finding lacks a
-  runtime_trace or measurement receipt, an active accessibility finding lacks an
-  accessibility_observation receipt or a named criterion (for example WCAG 2.4.3),
-  an active visual finding carries no rendered evidence (screenshot or
-  task_observation), or the capability ledger claims screenshots while the run
-  captured no screenshot evidence; captured screenshots likewise contradict a
-  not-run screenshot capability. Cleared and legacy schema-2.0 items are exempt,
-  preserving falsified-suspicion records and existing registries.
-- Renamed the golden reconciliation fixture to evals/continuity/ and anonymized
-  its target, prose, and identifiers; the seventeen-record structure, dispositions,
-  and regression value are unchanged.
-- Score tables now name the canonical slop category beside the score framing
-  (for example "Structure slop · Implementation shape"), with a regression, an
-  unknown-key fallback guard, and a legacy display-string passthrough guard.
 - Added the operated_check rule class: checklist rules with no static executor
   that the engine queues for the task walkthrough (8 starter checks from NN/g and
   Baymard distillations), plus a session_feedback block in engine output — a
@@ -63,6 +40,29 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
   captions, print output becomes a broadsheet with red reserved for high severity,
   and text-containment rules (min-width:0, overflow-wrap:anywhere) prevent long
   hashes and URLs from painting over adjacent content, with a rendering regression.
+- Added reference grounding: an optional design-reference search capability
+  (reference implementation: Mobbin MCP — `search_screens`, `search_flows`, and
+  `search_sections`) plus the user taste overlay restored from the Anti-Slop
+  lineage, with precedence rules and popularity/deviation false-positive guards
+  in `references/reference-grounding.md`. Absence is disclosed, never a finding.
+
+## 2.4.0 — 2026-08-10
+
+- Enforced four evidence rules that previously existed only as prose. Schema-2.1
+  validation now fails closed when an active performance finding lacks a
+  runtime_trace or measurement receipt, an active accessibility finding lacks an
+  accessibility_observation receipt or a named criterion (for example WCAG 2.4.3),
+  an active visual finding carries no rendered evidence (screenshot or
+  task_observation), or the capability ledger claims screenshots while the run
+  captured no screenshot evidence; captured screenshots likewise contradict a
+  not-run screenshot capability. Cleared and legacy schema-2.0 items are exempt,
+  preserving falsified-suspicion records and existing registries.
+- Renamed the golden reconciliation fixture to evals/continuity/ and anonymized
+  its target, prose, and identifiers; the seventeen-record structure, dispositions,
+  and regression value are unchanged.
+- Score tables now name the canonical slop category beside the score framing
+  (for example "Structure slop · Implementation shape"), with a regression, an
+  unknown-key fallback guard, and a legacy display-string passthrough guard.
 - Added a deterministic rule engine (`scripts/rule_engine.py`) with rules as data
   in `schema/rules/*.json`. Every rule carries a canonical category, a severity on
   the suggestion/warning/error ratchet, a citation into the reconciled principles
