@@ -9,13 +9,21 @@ from pathlib import Path
 from typing import Any
 
 from report_contract import (
-    capability_rows,
-    checks_not_run,
-    evidence_summary,
-    product_rows,
-    public_category_label,
-    score_rows,
-    task_rows,
+    CAPABILITY_LABELS,
+    CAPABILITY_STATUS_LABELS,
+    PRODUCT_BASIS_LABELS,
+    QUESTION_LABELS,
+    TASK_STATUS_LABELS,
+    disposition_label,
+    evidence_by_id,
+    facet_labels,
+    humanize_text,
+    item_label_map,
+    plain_category_label,
+    public_evidence_summary,
+    score_display,
+    severity_label,
+    status_label,
 )
 
 
@@ -40,64 +48,76 @@ def table(headers: list[str], rows: list[list[Any]]) -> str:
     return "\n".join(output)
 
 
-def render_item(item: dict[str, Any], decision: dict[str, Any] | None, context: dict[str, Any]) -> str:
-    destination = f" -> {item['destination_id']}" if item.get("destination_id") else ""
-    dependencies = ", ".join(item.get("depends_on", [])) or "none"
+def render_item(
+    item: dict[str, Any],
+    decision: dict[str, Any] | None,
+    context: dict[str, Any],
+    item_labels: dict[str, str],
+) -> str:
+    evidence_assets = evidence_by_id(context)
+    destination = f" → {item_labels.get(item['destination_id'], 'another review item')}" if item.get("destination_id") else ""
+    dependencies = ", ".join(item_labels.get(value, "another review item") for value in item.get("depends_on", [])) or "No dependencies"
     decision_text = ""
     if item["kind"] in {"finding", "enhancement"}:
         row = decision or {}
+        decision_label = {
+            "pending": "Not decided",
+            "approve": "Approve",
+            "defer": "Decide later",
+            "reject": "Reject",
+        }.get(row.get("decision", "pending"), str(row.get("decision", "pending")).title())
         decision_text = (
-            f"\n\n**Decision:** {clean(row.get('decision', 'pending'))}  "
+            f"\n\n**Decision:** {clean(decision_label)}  "
             f"\n**Decision note:** {clean(row.get('note', '')) or 'None.'}"
         )
-    facets = ", ".join(item.get("facets", [])) or "none"
-    receipts = evidence_summary(item.get("evidence_refs"), context) or "Legacy untyped evidence"
+    facets = ", ".join(facet_labels(item.get("facets", []))) or "None"
+    receipts = public_evidence_summary(item.get("evidence_refs"), context, item_labels=item_labels) or "No supporting records listed"
     editorial = item.get("editorial_review")
     editorial_text = ""
     if isinstance(editorial, dict):
-        families = ", ".join(editorial.get("independent_signal_families", [])) or "not applicable"
+        families = ", ".join(str(value).replace("_", " ") for value in editorial.get("independent_signal_families", [])) or "not applicable"
         editorial_text = (
-            f"\n\n**Editorial review:** {clean(editorial.get('review_type', ''))} · "
-            f"sample {clean(editorial.get('sample_adequacy', ''))} · "
-            f"language {clean(editorial.get('analysis_language_scope', 'legacy'))} "
-            f"({clean(editorial.get('language_review_basis', 'unrecorded'))}) · signals {clean(families)} · "
-            f"authorship {clean(editorial.get('authorship_assessment', 'not_performed'))}"
+            f"\n\n**How the copy was reviewed:** {clean(str(editorial.get('review_type', 'review')).replace('_', ' ').title())} · "
+            f"{clean(str(editorial.get('sample_adequacy', 'not recorded')).replace('_', ' ').title())} sample · "
+            f"signals checked: {clean(families)}. This checks writing quality only; it does not guess who or what wrote the copy."
         )
     return f"""<!-- anti-slop-item:{item['id']} -->
-### {item['id']} · {clean(item['title'])}
+### {clean(item_labels.get(item['id'], 'Review item'))} · {clean(humanize_text(item['title'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
-**Kind:** {item['kind']} · **Category:** {clean(public_category_label(item['category']))} (`{clean(item['category'])}`) · **Facets:** {clean(facets)}
+**Area:** {clean(plain_category_label(item['category']))} · **Related themes:** {clean(facets)}
 
-**Severity/priority:** {item['severity']} · **Confidence:** {item['confidence']}
+**Impact or priority:** {clean(severity_label(item))} · **Confidence:** {clean(str(item['confidence']).title())}
 
-**Status:** {item['status']} · **Revision disposition:** {item['revision_disposition']}{destination}
+**Status:** {clean(status_label(item['status']))} · **Review history:** {clean(disposition_label(item['revision_disposition']))}{destination}
 
-{clean(item['observation'])}
+{clean(humanize_text(item['observation'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
-**User impact:** {clean(item['user_impact'])}
+**User impact:** {clean(humanize_text(item['user_impact'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
-**Evidence**
+**What supports this**
 
-{bullets(item.get('evidence', []))}
+{bullets([humanize_text(value, item_labels=item_labels, evidence_assets=evidence_assets) for value in item.get('evidence', [])])}
 
-**Evidence receipts:** {clean(receipts)}{editorial_text}
+**Supporting records:** {clean(receipts)}{editorial_text}
 
-**Cause:** {clean(item['cause'])}
+**Cause:** {clean(humanize_text(item['cause'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
-**Recommended change or preservation rule:** {clean(item['recommendation'])}
+**Recommended next step:** {clean(humanize_text(item['recommendation'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
-**Acceptance checks**
+**How to verify it**
 
-{bullets(item.get('acceptance_checks', []), 'No acceptance checks required for this strength.')}
+{bullets([humanize_text(value, item_labels=item_labels, evidence_assets=evidence_assets) for value in item.get('acceptance_checks', [])], 'No additional verification required for this strength.')}
 
 **Dependencies:** {clean(dependencies)}  
-**Revision reason:** {clean(item.get('disposition_reason') or 'New in this revision.')}{decision_text}
+**Review-history reason:** {clean(humanize_text(item.get('disposition_reason') or 'New in this review.', item_labels=item_labels, evidence_assets=evidence_assets))}{decision_text}
 """
 
 
 def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict[str, Any]) -> str:
     items = registry["items"]
     by_id = {item["id"]: item for item in items}
+    item_labels = item_label_map(items)
+    evidence_assets = evidence_by_id(context)
     decisions = {row["item_id"]: row for row in decision_doc.get("decisions", [])}
     presentation = registry["presentation"]
     prioritized_findings = [by_id[item_id] for item_id in presentation["prioritized_finding_ids"]]
@@ -120,60 +140,108 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     resolved = [item for item in items if item["status"] in {"fixed", "cleared", "merged", "superseded"}]
 
     def item_group(values: list[dict[str, Any]], empty: str) -> str:
-        return "\n\n".join(render_item(item, decisions.get(item["id"]), context) for item in values) if values else empty
+        return "\n\n".join(render_item(item, decisions.get(item["id"]), context, item_labels) for item in values) if values else empty
 
     outcome = context.get("outcome", {})
-    product_table_rows = product_rows(context)
-    task_table_rows = task_rows(context)
-    capability_table_rows = capability_rows(context)
-    score_table_rows = score_rows(context)
+    product_table_rows = [
+        [
+            QUESTION_LABELS.get(row.get("key"), row.get("question", "")),
+            humanize_text(row.get("answer", ""), item_labels=item_labels, evidence_assets=evidence_assets),
+            PRODUCT_BASIS_LABELS.get(row.get("basis"), str(row.get("basis", "")).title()),
+        ]
+        for row in context.get("product_frame", [])
+    ]
+    task_table_rows = [
+        [
+            f"Journey {index}",
+            humanize_text(row.get("goal", ""), item_labels=item_labels, evidence_assets=evidence_assets),
+            humanize_text(row.get("result", ""), item_labels=item_labels, evidence_assets=evidence_assets),
+            TASK_STATUS_LABELS.get(row.get("status", ""), status_label(row.get("status", ""))),
+            humanize_text(row.get("evidence", ""), item_labels=item_labels, evidence_assets=evidence_assets)
+            or public_evidence_summary(row.get("evidence_refs"), context, item_labels=item_labels),
+        ]
+        for index, row in enumerate(context.get("tasks", []), start=1)
+    ]
+    capability_table_rows = [
+        [
+            CAPABILITY_LABELS.get(row.get("key"), str(row.get("key", "")).replace("_", " ").title()),
+            CAPABILITY_STATUS_LABELS.get(row.get("status"), status_label(row.get("status", ""))),
+            humanize_text(row.get("scope", ""), item_labels=item_labels, evidence_assets=evidence_assets),
+        ]
+        for row in context.get("capabilities", [])
+    ]
+    score_table_rows = [
+        [
+            plain_category_label(row.get("category", "")),
+            score_display(row.get("score", "")),
+            humanize_text(row.get("evidence", ""), item_labels=item_labels, evidence_assets=evidence_assets),
+        ]
+        for row in sorted(
+            context.get("scores", []),
+            key=lambda score: (0, -score.get("score")) if isinstance(score.get("score"), int) else (1, 0),
+        )
+    ]
     reconciliation_rows = [
-        [item["id"], item["status"], item["revision_disposition"], item.get("destination_id") or "-", item.get("disposition_reason") or "New in this revision."]
+        [
+            item_labels.get(item["id"], "Review item"),
+            status_label(item["status"]),
+            disposition_label(item["revision_disposition"]),
+            item_labels.get(item.get("destination_id"), "-") if item.get("destination_id") else "-",
+            humanize_text(item.get("disposition_reason") or "New in this review.", item_labels=item_labels, evidence_assets=evidence_assets),
+        ]
         for item in items
     ]
     work_orders = []
-    for order in context.get("work_orders", []):
+    for index, order in enumerate(context.get("work_orders", []), start=1):
+        related_items = ", ".join(item_labels.get(item_id, "Review item") for item_id in order.get("item_ids", [])) or "None"
         work_orders.append(
-            f"### {clean(order.get('id', ''))} · {clean(order.get('title', ''))}\n\n"
-            f"{clean(order.get('summary', ''))}\n\n"
-            f"**Items:** {clean(', '.join(order.get('item_ids', [])) or 'none')}  \n"
-            f"**Verification:** {clean(order.get('verification', ''))}\n\n"
-            f"{bullets(order.get('acceptance_checks', []), 'No acceptance checks recorded.')}"
+            f"### Work package {index} · {clean(humanize_text(order.get('title', ''), item_labels=item_labels, evidence_assets=evidence_assets))}\n\n"
+            f"{clean(humanize_text(order.get('summary', ''), item_labels=item_labels, evidence_assets=evidence_assets))}\n\n"
+            f"**Related items:** {clean(related_items)}  \n"
+            f"**How to verify:** {clean(humanize_text(order.get('verification', ''), item_labels=item_labels, evidence_assets=evidence_assets))}\n\n"
+            f"{bullets([humanize_text(value, item_labels=item_labels, evidence_assets=evidence_assets) for value in order.get('acceptance_checks', [])], 'No verification steps recorded.')}"
         )
 
-    title = clean(context.get("title", "Scruffy audit"))
+    humanized_checks = [
+        humanize_text(
+            f"{row.get('check', '')} — {row.get('reason', '')} Impact: {row.get('impact', '')}" if isinstance(row, dict) else row,
+            item_labels=item_labels,
+            evidence_assets=evidence_assets,
+        )
+        for row in context.get("checks_not_run", [])
+    ]
+    title = clean(humanize_text(context.get("title", "Product review"), item_labels=item_labels, evidence_assets=evidence_assets))
     return f"""# {title}
 
 Target: {clean(registry.get('target', ''))}  
-Audit: `{registry['audit_id']}` · Revision: `{registry['revision_id']}` · Baseline: `{registry.get('baseline_revision_id') or 'none'}`
-{f"Mode: `{registry['run']['effective_mode']}` · Write authority: `{registry['run']['repository_write_authority']}` · Blindness: `{registry['run']['blind_status']}`" if isinstance(registry.get('run'), dict) else "Mode and authority: legacy schema did not record a machine-enforced run receipt."}
+<!-- anti-slop-meta:audit={registry['audit_id']};revision={registry['revision_id']};baseline={registry.get('baseline_revision_id') or 'none'} -->
 
 <!-- anti-slop-section:outcome -->
 ## Outcome and evidence boundary
 
-**{clean(outcome.get('label', 'Insufficient evidence'))}** — {clean(outcome.get('summary', ''))}
+**{clean(humanize_text(outcome.get('label', 'Insufficient evidence'), item_labels=item_labels, evidence_assets=evidence_assets))}** — {clean(humanize_text(outcome.get('summary', ''), item_labels=item_labels, evidence_assets=evidence_assets))}
 
-Confidence: {clean(outcome.get('confidence', 'unknown'))}
+Confidence: {clean(str(outcome.get('confidence', 'unknown')).title())}
 
 <!-- anti-slop-section:product-frame -->
-## Product framing
+## What this product is meant to do
 
-{table(['Question', 'Answer', 'Basis'], product_table_rows)}
+{table(['Question', 'Answer', 'How we know'], product_table_rows)}
 
 <!-- anti-slop-section:task-ledger -->
 ## Representative tasks
 
-{table(['ID', 'Goal', 'Result', 'Status', 'Evidence'], task_table_rows)}
+{table(['Journey', 'Goal', 'Result', 'Status', 'Supporting records'], task_table_rows)}
 
 <!-- anti-slop-section:capability-ledger -->
-## Capability and coverage ledger
+## What we could and could not test
 
-{table(['Capability', 'Status', 'Scope'], capability_table_rows)}
+{table(['Test area', 'Status', 'What was covered'], capability_table_rows)}
 
 <!-- anti-slop-section:score -->
-## Category scores and result
+## Quality scores and result
 
-{table(['Category', 'Score', 'Evidence'], score_table_rows)}
+{table(['Area', 'Result', 'Why'], score_table_rows)}
 
 <!-- anti-slop-section:findings -->
 ## Prioritized findings
@@ -185,11 +253,11 @@ Confidence: {clean(outcome.get('confidence', 'unknown'))}
 {item_group(additional_findings, 'No additional active findings.')}
 
 <!-- anti-slop-section:enhancements -->
-## Enhancements
+## Suggested improvements
 
 {item_group(prioritized_enhancements, 'No prioritized enhancements.')}
 
-## Additional enhancements
+## Other suggested improvements
 
 {item_group(additional_enhancements, 'No additional enhancements.')}
 
@@ -199,24 +267,24 @@ Confidence: {clean(outcome.get('confidence', 'unknown'))}
 {item_group(strengths, 'No strengths recorded.')}
 
 <!-- anti-slop-section:resolved -->
-## Fixed, cleared, merged, and superseded
+## Closed concerns
 
 {item_group(resolved, 'No resolved items.')}
 
 <!-- anti-slop-section:reconciliation -->
-## Revision reconciliation
+## Review history
 
-{table(['ID', 'Status', 'Disposition', 'Destination', 'Reason'], reconciliation_rows)}
+{table(['Item', 'Status', 'What changed', 'Replaced by', 'Reason'], reconciliation_rows)}
 
 <!-- anti-slop-section:work-orders -->
-## Work orders and acceptance checks
+## Recommended work sequence
 
 {chr(10).join(work_orders) if work_orders else 'No work orders recorded.'}
 
 <!-- anti-slop-section:checks-not-run -->
-## Checks not run
+## What was not tested
 
-{bullets(checks_not_run(context), 'No checks-not-run entries recorded.')}
+{bullets(humanized_checks, 'Everything in scope was tested.')}
 """
 
 

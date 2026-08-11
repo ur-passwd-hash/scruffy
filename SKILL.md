@@ -151,6 +151,8 @@ The work is complete only when:
 - Findings are evidence-backed and falsification has been attempted.
 - Every finding uses a canonical category key and only applicable cross-cutting facets.
 - Every evidence reference resolves to a typed receipt; captured local evidence exists.
+- Every locally captured screenshot receipt is visibly embedded in the self-contained dashboard with alt text and a named caption; each item/screenshot pair renders its operated state, a precise “look here” instruction, the connection to the claim, and either a labeled annotation or an explicit reason the whole frame is the evidence.
+- Human-facing reports use plain-language item names, evidence labels, statuses, standards, and measurements. Stable IDs, schema terms, taxonomy keys, and unexplained acronyms remain in machine data or invisible continuity markers; the reader never has to decode them to understand or decide an item.
 - Every Editorial slop finding carries a completed editorial-review receipt.
 - Sentence-copy findings use verified reader-facing extraction, record supported language scope or abstention, complete the applicable automated and manual passage checks, meet the independent-family compound predicate, and make no authorship claim.
 - A requested blind run was frozen before baseline reveal, or contamination was disclosed.

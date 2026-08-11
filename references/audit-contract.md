@@ -33,6 +33,8 @@ Every substantial audit records exactly these capabilities. Missing capability i
 
 Schema-2.1 context stores evidence as typed receipts with an immutable ID, kind, locator, description, and verification state. Registry items reference those IDs through `evidence_refs`. A local screenshot or source locator must exist when the validator can resolve it. URLs must use HTTP or HTTPS. A non-empty prose claim is not an evidence receipt.
 
+New audits emit context schema 1.1. Every locally captured screenshot has one claim-specific visual context for each registry item that cites it, or one unlinked context when no item cites it. Each context records the operated state, a precise `look_at` instruction, the connection to the claim, and an annotation decision. `provided` annotations contain one to four percentage-based rectangles with visible labels. `not_needed` requires a reason explaining why the whole frame is the evidence or why an overlay would misrepresent a nonvisual claim. Generic asset descriptions do not satisfy this contract.
+
 ## Editorial review
 
 Every active `copy` finding carries an `editorial_review` receipt. Editorial review includes content strategy, terminology, information sequence, microcopy, claims and provenance, recovery language, voice, and sentence construction.
@@ -43,4 +45,4 @@ Allowed independent sentence-signal families are: `rhythm`, `rhetorical_structur
 
 ## Backward compatibility
 
-Schema 2.0 remains readable so published audit history survives. New audits emit schema 2.1. A 2.1 revision may reconcile a 2.0 baseline without rewriting the baseline artifact.
+Schema 2.0 and context schema 1.0 remain readable so published audit history survives. New audits emit registry schema 2.1 with context schema 1.1. A new revision may reconcile an older baseline without rewriting the baseline artifact.

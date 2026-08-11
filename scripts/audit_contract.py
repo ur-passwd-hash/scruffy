@@ -51,6 +51,16 @@ def load_contract(path: Path = MANIFEST) -> dict[str, Any]:
     if len(capability_keys) != 9 or len(capability_keys) != len(set(capability_keys)):
         raise ValueError("audit context repeats a capability key")
     context = data["context"]
+    if context.get("schema_version") != "1.1":
+        raise ValueError("current context schema must be 1.1")
+    legacy_context_schemas = context.get("legacy_schema_versions")
+    if (
+        not isinstance(legacy_context_schemas, list)
+        or not legacy_context_schemas
+        or len(legacy_context_schemas) != len(set(legacy_context_schemas))
+        or any(not isinstance(value, str) for value in legacy_context_schemas)
+    ):
+        raise ValueError("context.legacy_schema_versions must be a non-empty unique string array")
     for field in (
         "product_frame_bases", "task_statuses", "capability_statuses", "score_values",
         "evidence_kinds", "evidence_verification",
@@ -60,6 +70,12 @@ def load_contract(path: Path = MANIFEST) -> dict[str, Any]:
             raise ValueError(f"context.{field} must be a non-empty unique array")
     if "analysis_receipt" not in context["evidence_kinds"]:
         raise ValueError("audit context must define analysis_receipt evidence")
+    annotation_statuses = context.get("visual_annotation_statuses")
+    if annotation_statuses != ["provided", "not_needed"]:
+        raise ValueError("context.visual_annotation_statuses must define provided and not_needed")
+    max_regions = context.get("visual_annotation_max_regions")
+    if not isinstance(max_regions, int) or isinstance(max_regions, bool) or max_regions < 1:
+        raise ValueError("context.visual_annotation_max_regions must be a positive integer")
     editorial = data.get("editorial_review", {})
     if editorial.get("authorship_assessment") != "not_performed":
         raise ValueError("editorial contract must prohibit authorship assessment")
@@ -119,6 +135,8 @@ def render_reference(data: dict[str, Any]) -> str:
             "",
             "Schema-2.1 context stores evidence as typed receipts with an immutable ID, kind, locator, description, and verification state. Registry items reference those IDs through `evidence_refs`. A local screenshot or source locator must exist when the validator can resolve it. URLs must use HTTP or HTTPS. A non-empty prose claim is not an evidence receipt.",
             "",
+            "New audits emit context schema 1.1. Every locally captured screenshot has one claim-specific visual context for each registry item that cites it, or one unlinked context when no item cites it. Each context records the operated state, a precise `look_at` instruction, the connection to the claim, and an annotation decision. `provided` annotations contain one to four percentage-based rectangles with visible labels. `not_needed` requires a reason explaining why the whole frame is the evidence or why an overlay would misrepresent a nonvisual claim. Generic asset descriptions do not satisfy this contract.",
+            "",
             "## Editorial review",
             "",
             "Every active `copy` finding carries an `editorial_review` receipt. Editorial review includes content strategy, terminology, information sequence, microcopy, claims and provenance, recovery language, voice, and sentence construction.",
@@ -131,7 +149,7 @@ def render_reference(data: dict[str, Any]) -> str:
             "",
             "## Backward compatibility",
             "",
-            "Schema 2.0 remains readable so published audit history survives. New audits emit schema 2.1. A 2.1 revision may reconcile a 2.0 baseline without rewriting the baseline artifact.",
+            "Schema 2.0 and context schema 1.0 remain readable so published audit history survives. New audits emit registry schema 2.1 with context schema 1.1. A new revision may reconcile an older baseline without rewriting the baseline artifact.",
         ]
     )
     return "\n".join(lines) + "\n"

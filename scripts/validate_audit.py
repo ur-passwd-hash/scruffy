@@ -13,6 +13,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from audit_contract import load_contract, mode_map
+from report_contract import evidence_by_id, humanize_text, item_label_map
 from taxonomy_contract import canonical_category_keys, canonical_facet_keys, load_taxonomy
 
 
@@ -27,6 +28,11 @@ CANONICAL_FACETS = set(canonical_facet_keys(TAXONOMY))
 CATEGORY_FACETS = {row["key"]: set(row["applicable_facets"]) for row in TAXONOMY["categories"]}
 LEGACY_CATEGORY_ALIASES = TAXONOMY["legacy_category_aliases"]
 CONTEXT_CONTRACT = AUDIT_CONTRACT["context"]
+CURRENT_CONTEXT_SCHEMA = CONTEXT_CONTRACT["schema_version"]
+LEGACY_CONTEXT_SCHEMAS = set(CONTEXT_CONTRACT.get("legacy_schema_versions", []))
+SUPPORTED_CONTEXT_SCHEMAS = {CURRENT_CONTEXT_SCHEMA, *LEGACY_CONTEXT_SCHEMAS}
+VISUAL_ANNOTATION_STATUSES = set(CONTEXT_CONTRACT["visual_annotation_statuses"])
+VISUAL_ANNOTATION_MAX_REGIONS = CONTEXT_CONTRACT["visual_annotation_max_regions"]
 EDITORIAL_CONTRACT = AUDIT_CONTRACT["editorial_review"]
 KINDS = {"finding", "enhancement", "strength"}
 STATUSES = {"open", "fixed", "cleared", "needs-verification", "merged", "superseded"}
@@ -116,6 +122,14 @@ def require_text(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         fail(f"{label} must be a non-empty string")
     return value
+
+
+def require_specific_visual_text(value: Any, label: str) -> str:
+    text = require_text(value, label)
+    words = re.findall(r"[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)?", text)
+    if len(words) < 5:
+        fail(f"{label} must identify a specific visible state or claim connection")
+    return text
 
 
 def require_bool(value: Any, label: str) -> bool:
@@ -588,11 +602,14 @@ def validate_context(
         "checks_not_run",
         "evidence_assets",
     }
+    context_schema = context.get("schema_version")
+    if context_schema not in SUPPORTED_CONTEXT_SCHEMAS:
+        fail(f"context.schema_version must be one of {sorted(SUPPORTED_CONTEXT_SCHEMAS)}")
+    if context_schema == CURRENT_CONTEXT_SCHEMA:
+        required.add("visual_evidence")
     missing = sorted(required - set(context))
     if missing:
         fail(f"context missing fields: {missing}")
-    if context.get("schema_version") != CONTEXT_CONTRACT["schema_version"]:
-        fail(f"context.schema_version must be {CONTEXT_CONTRACT['schema_version']}")
     for field in ("audit_id", "revision_id"):
         if context.get(field) != registry.get(field):
             fail(f"context.{field} does not match registry")
@@ -833,7 +850,108 @@ def validate_context(
     missing_blind = sorted(set(run["blind_artifact_refs"]) - set(by_evidence))
     if missing_blind:
         fail(f"registry.run.blind_artifact_refs references missing evidence: {missing_blind}")
+    validate_visual_evidence(context, items, by_evidence)
     return by_evidence
+
+
+def validate_visual_evidence(
+    context: dict[str, Any],
+    items: dict[str, dict[str, Any]],
+    by_evidence: dict[str, dict[str, Any]],
+) -> dict[tuple[str, str | None], dict[str, Any]]:
+    """Validate claim-specific context for every captured screenshot placement."""
+    if context.get("schema_version") in LEGACY_CONTEXT_SCHEMAS:
+        return {}
+
+    rows = context.get("visual_evidence")
+    if not isinstance(rows, list):
+        fail("context.visual_evidence must be an array")
+
+    captured_ids = {
+        evidence_id
+        for evidence_id, asset in by_evidence.items()
+        if asset.get("kind") == "screenshot" and asset.get("verification") == "captured"
+    }
+    referenced_by: dict[str, set[str]] = {evidence_id: set() for evidence_id in captured_ids}
+    for item_id, item in items.items():
+        for evidence_id in item.get("evidence_refs", []):
+            if evidence_id in referenced_by:
+                referenced_by[evidence_id].add(item_id)
+    expected_pairs = {
+        (evidence_id, item_id)
+        for evidence_id, item_ids in referenced_by.items()
+        for item_id in (item_ids or {None})
+    }
+
+    by_pair: dict[tuple[str, str | None], dict[str, Any]] = {}
+    for index, row in enumerate(rows):
+        label = f"context.visual_evidence[{index}]"
+        if not isinstance(row, dict):
+            fail(f"{label} must be an object")
+        evidence_id = validate_evidence_id(row.get("evidence_id"), f"{label}.evidence_id")
+        item_id = row.get("item_id")
+        if item_id is not None:
+            item_id = require_text(item_id, f"{label}.item_id")
+            if item_id not in items:
+                fail(f"{label}.item_id names unknown registry item {item_id}")
+        pair = (evidence_id, item_id)
+        if pair in by_pair:
+            fail(f"context.visual_evidence repeats {item_id or 'unlinked'}:{evidence_id}")
+        if evidence_id not in captured_ids:
+            fail(f"{label} references screenshot evidence that is not captured: {evidence_id}")
+
+        require_specific_visual_text(row.get("state"), f"{label}.state")
+        require_specific_visual_text(row.get("look_at"), f"{label}.look_at")
+        require_specific_visual_text(row.get("connection"), f"{label}.connection")
+        annotation = row.get("annotation")
+        if not isinstance(annotation, dict):
+            fail(f"{label}.annotation must be an object")
+        status = annotation.get("status")
+        if status not in VISUAL_ANNOTATION_STATUSES:
+            fail(f"{label}.annotation.status is invalid")
+        require_specific_visual_text(annotation.get("reason"), f"{label}.annotation.reason")
+        regions = annotation.get("regions")
+        if not isinstance(regions, list):
+            fail(f"{label}.annotation.regions must be an array")
+        if status == "provided" and not 1 <= len(regions) <= VISUAL_ANNOTATION_MAX_REGIONS:
+            fail(
+                f"{label}.annotation.regions must contain one to "
+                f"{VISUAL_ANNOTATION_MAX_REGIONS} regions when status is provided"
+            )
+        if status == "not_needed" and regions:
+            fail(f"{label}.annotation.regions must be empty when status is not_needed")
+        for region_index, region in enumerate(regions):
+            region_label = f"{label}.annotation.regions[{region_index}]"
+            if not isinstance(region, dict):
+                fail(f"{region_label} must be an object")
+            coordinates: dict[str, float] = {}
+            for field in ("x", "y", "width", "height"):
+                value = region.get(field)
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    fail(f"{region_label}.{field} must be a number")
+                coordinates[field] = float(value)
+            if coordinates["x"] < 0 or coordinates["y"] < 0:
+                fail(f"{region_label} x and y must be at least zero")
+            if coordinates["width"] <= 0 or coordinates["height"] <= 0:
+                fail(f"{region_label} width and height must be greater than zero")
+            if coordinates["x"] + coordinates["width"] > 100 or coordinates["y"] + coordinates["height"] > 100:
+                fail(f"{region_label} must remain within percentage bounds 0 through 100")
+            require_text(region.get("label"), f"{region_label}.label")
+        by_pair[pair] = row
+
+    missing = sorted(
+        f"{item_id or 'unlinked'}:{evidence_id}"
+        for evidence_id, item_id in expected_pairs - set(by_pair)
+    )
+    extra = sorted(
+        f"{item_id or 'unlinked'}:{evidence_id}"
+        for evidence_id, item_id in set(by_pair) - expected_pairs
+    )
+    if missing:
+        fail(f"context.visual_evidence omits captured screenshot placements: {missing}")
+    if extra:
+        fail(f"context.visual_evidence contains non-rendered screenshot placements: {extra}")
+    return by_pair
 
 
 class DashboardParser(HTMLParser):
@@ -842,9 +960,19 @@ class DashboardParser(HTMLParser):
         self.section_ids: set[str] = set()
         self.item_ids: list[str] = []
         self.decision_ids: set[str] = set()
+        self.screenshot_images: list[dict[str, str | None]] = []
+        self.screenshot_captions: set[tuple[str, str | None]] = set()
+        self.visual_context: dict[tuple[str, str | None, str], list[str]] = {}
+        self.annotation_markers: list[tuple[str, str | None, str]] = []
+        self.whole_frame_markers: set[tuple[str, str | None]] = set()
+        self._text_captures: list[dict[str, Any]] = []
+        self.visible_text_parts: list[str] = []
+        self._nonvisible_tags: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
+        if tag in {"script", "style"}:
+            self._nonvisible_tags.append(tag)
         element_id = values.get("id")
         if element_id:
             self.section_ids.add(element_id)
@@ -854,9 +982,60 @@ class DashboardParser(HTMLParser):
         decision_for = values.get("data-decision-for")
         if decision_for:
             self.decision_ids.add(decision_for)
+        if tag == "img" and values.get("data-evidence-id"):
+            self.screenshot_images.append(
+                {
+                    "evidence_id": values.get("data-evidence-id"),
+                    "item_id": values.get("data-evidence-for"),
+                    "src": values.get("src"),
+                    "alt": values.get("alt"),
+                }
+            )
+        caption_id = values.get("data-evidence-caption")
+        if caption_id:
+            self.screenshot_captions.add((caption_id, values.get("data-evidence-for")))
+        context_kind = values.get("data-evidence-context")
+        context_evidence = values.get("data-evidence-id")
+        if context_kind and context_evidence:
+            self._text_captures.append(
+                {
+                    "tag": tag,
+                    "key": (context_evidence, values.get("data-evidence-for"), context_kind),
+                    "parts": [],
+                }
+            )
+        annotation_index = values.get("data-evidence-annotation")
+        if annotation_index is not None and context_evidence:
+            self.annotation_markers.append(
+                (context_evidence, values.get("data-evidence-for"), values.get("data-evidence-label") or "")
+            )
+        if values.get("data-evidence-whole-frame") is not None and context_evidence:
+            self.whole_frame_markers.add((context_evidence, values.get("data-evidence-for")))
+
+    def handle_data(self, data: str) -> None:
+        if not self._nonvisible_tags:
+            self.visible_text_parts.append(data)
+        for capture in self._text_captures:
+            capture["parts"].append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._nonvisible_tags and self._nonvisible_tags[-1] == tag:
+            self._nonvisible_tags.pop()
+        for index in range(len(self._text_captures) - 1, -1, -1):
+            capture = self._text_captures[index]
+            if capture["tag"] != tag:
+                continue
+            text = " ".join("".join(capture["parts"]).split())
+            self.visual_context.setdefault(capture["key"], []).append(text)
+            self._text_captures.pop(index)
+            break
 
 
-def validate_dashboard(path: Path, registry: dict[str, Any]) -> None:
+def validate_dashboard(
+    path: Path,
+    registry: dict[str, Any],
+    context: dict[str, Any] | None = None,
+) -> None:
     items = validate_registry(registry, "registry")
     parser = DashboardParser()
     try:
@@ -883,6 +1062,125 @@ def validate_dashboard(path: Path, registry: dict[str, Any]) -> None:
     missing_controls = sorted(decision_required - parser.decision_ids)
     if missing_controls:
         fail(f"dashboard lacks decision controls for active items: {missing_controls}")
+
+    if registry.get("schema_version") != CURRENT_SCHEMA_VERSION:
+        return
+    if context is None:
+        fail(f"schema {CURRENT_SCHEMA_VERSION} dashboard validation requires context")
+    raw_assets = context.get("evidence_assets")
+    if not isinstance(raw_assets, list):
+        fail("dashboard validation requires context.evidence_assets")
+    screenshot_assets = {
+        asset.get("id"): asset
+        for asset in raw_assets
+        if isinstance(asset, dict) and asset.get("kind") == "screenshot" and isinstance(asset.get("id"), str)
+    }
+    captured_ids = {
+        evidence_id
+        for evidence_id, asset in screenshot_assets.items()
+        if asset.get("verification") == "captured"
+    }
+    rendered_ids: set[str] = set()
+    rendered_pairs: set[tuple[str, str | None]] = set()
+    for image in parser.screenshot_images:
+        evidence_id = image["evidence_id"]
+        item_id = image["item_id"]
+        if evidence_id not in screenshot_assets:
+            fail(f"dashboard embeds undeclared screenshot evidence {evidence_id}")
+        if item_id is not None and item_id not in items:
+            fail(f"dashboard screenshot {evidence_id} names unknown registry item {item_id}")
+        source = image["src"] or ""
+        if not source.startswith("data:image/") or ";base64," not in source:
+            fail(f"dashboard screenshot {evidence_id} is not a self-contained image data URI")
+        if not (image["alt"] or "").strip():
+            fail(f"dashboard screenshot {evidence_id} lacks alt text")
+        pair = (evidence_id, item_id)
+        if pair not in parser.screenshot_captions:
+            fail(f"dashboard screenshot {evidence_id} lacks a visible evidence caption")
+        rendered_ids.add(evidence_id)
+        rendered_pairs.add(pair)
+
+    missing_captured = sorted(captured_ids - rendered_ids)
+    if missing_captured:
+        fail(f"dashboard does not embed captured screenshot evidence: {missing_captured}")
+    missing_item_pairs: list[str] = []
+    for item_id, item in items.items():
+        for evidence_id in item.get("evidence_refs", []):
+            asset = screenshot_assets.get(evidence_id)
+            if asset and asset.get("verification") == "captured" and (evidence_id, item_id) not in rendered_pairs:
+                missing_item_pairs.append(f"{item_id}:{evidence_id}")
+    if missing_item_pairs:
+        fail(
+            "dashboard does not render captured screenshot evidence beside each registry item: "
+            f"{sorted(missing_item_pairs)}"
+        )
+
+    if context.get("schema_version") == CURRENT_CONTEXT_SCHEMA:
+        all_evidence_assets = evidence_by_id(context)
+        public_item_labels = item_label_map(list(items.values()))
+        visual_by_pair = validate_visual_evidence(context, items, screenshot_assets)
+        for (evidence_id, item_id), visual in visual_by_pair.items():
+            for field in ("state", "look_at", "connection"):
+                rendered = parser.visual_context.get((evidence_id, item_id, field), [])
+                expected = " ".join(
+                    humanize_text(
+                        visual[field],
+                        item_labels=public_item_labels,
+                        evidence_assets=all_evidence_assets,
+                    ).split()
+                )
+                if expected not in rendered:
+                    fail(
+                        f"dashboard does not render visual context {field} for "
+                        f"{item_id or 'unlinked'}:{evidence_id}"
+                    )
+            annotation = visual["annotation"]
+            marker_labels = [
+                label
+                for marker_evidence, marker_item, label in parser.annotation_markers
+                if (marker_evidence, marker_item) == (evidence_id, item_id)
+            ]
+            expected_labels = [
+                humanize_text(
+                    region["label"],
+                    item_labels=public_item_labels,
+                    evidence_assets=all_evidence_assets,
+                )
+                for region in annotation["regions"]
+            ]
+            if annotation["status"] == "provided" and marker_labels != expected_labels:
+                fail(f"dashboard does not render the declared annotations for {item_id or 'unlinked'}:{evidence_id}")
+            if annotation["status"] == "not_needed":
+                if (evidence_id, item_id) not in parser.whole_frame_markers:
+                    fail(f"dashboard omits the whole-frame evidence decision for {item_id or 'unlinked'}:{evidence_id}")
+                rendered_reason = parser.visual_context.get((evidence_id, item_id, "annotation_reason"), [])
+                expected_reason = " ".join(
+                    humanize_text(
+                        annotation["reason"],
+                        item_labels=public_item_labels,
+                        evidence_assets=all_evidence_assets,
+                    ).split()
+                )
+                if expected_reason not in rendered_reason:
+                    fail(f"dashboard does not render the whole-frame reason for {item_id or 'unlinked'}:{evidence_id}")
+
+        visible_text = " ".join(" ".join(parser.visible_text_parts).split())
+        machine_references = {
+            *items,
+            *all_evidence_assets,
+            *(str(row.get("id")) for row in context.get("tasks", []) if isinstance(row, dict) and row.get("id")),
+            *(str(row.get("id")) for row in context.get("work_orders", []) if isinstance(row, dict) and row.get("id")),
+        }
+        exposed_references = sorted(
+            reference
+            for reference in machine_references
+            if re.search(rf"(?<![A-Za-z0-9]){re.escape(reference)}(?![A-Za-z0-9])", visible_text)
+        )
+        if exposed_references:
+            fail(
+                "dashboard exposes machine references in reader-facing text instead of plain-language labels: "
+                f"{exposed_references}"
+            )
 
 
 def validate_markdown(path: Path, registry: dict[str, Any]) -> None:
@@ -925,15 +1223,16 @@ def main() -> int:
     validate_registry(registry)
     if registry.get("schema_version") == CURRENT_SCHEMA_VERSION and not args.context:
         fail(f"schema {CURRENT_SCHEMA_VERSION} registries require --context")
-    if args.context:
-        validate_context(load_json(args.context), registry, base_path=args.context.parent)
+    context = load_json(args.context) if args.context else None
+    if context is not None:
+        validate_context(context, registry, base_path=args.context.parent)
     if args.baseline:
         validate_baseline(registry, load_json(args.baseline))
     if args.decisions:
         baseline_decisions = load_json(args.baseline_decisions) if args.baseline_decisions else None
         validate_decisions(load_json(args.decisions), registry, baseline_decisions)
     if args.dashboard:
-        validate_dashboard(args.dashboard, registry)
+        validate_dashboard(args.dashboard, registry, context)
     if args.markdown:
         validate_markdown(args.markdown, registry)
     checks = ["registry"]

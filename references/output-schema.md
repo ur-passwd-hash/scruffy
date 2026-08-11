@@ -143,7 +143,7 @@ Schema-2.1 registries require `context.json`. Use the exact product-frame, capab
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "audit_id": "stable-product-id",
   "revision_id": "r2",
   "title": "Example audit",
@@ -162,11 +162,27 @@ Schema-2.1 registries require `context.json`. Use the exact product-frame, capab
       "description": "Observed primary-task result",
       "verification": "observed"
     }
+  ],
+  "visual_evidence": [
+    {
+      "evidence_id": "EV-SHOT",
+      "item_id": "AS-01",
+      "state": "After the user completed the primary task at desktop width.",
+      "look_at": "The highlighted result panel contains no completion value or recovery action.",
+      "connection": "This visible dead end is the user impact described by AS-01.",
+      "annotation": {
+        "status": "provided",
+        "reason": "The result panel is the smallest region that demonstrates the visible claim.",
+        "regions": [
+          {"x": 20, "y": 25, "width": 60, "height": 35, "label": "Result panel without an outcome"}
+        ]
+      }
+    }
   ]
 }
 ```
 
-The complete document contains every required product-frame question, capability, and canonical category score. Registry, task, score, blind, and editorial references resolve to typed evidence IDs. Captured local screenshots, source files, traces, copy samples, and analysis receipts must exist relative to `context.json` or at their absolute path.
+The complete document contains every required product-frame question, capability, and canonical category score. Registry, task, score, blind, and editorial references resolve to typed evidence IDs. Captured local screenshots, source files, traces, copy samples, and analysis receipts must exist relative to `context.json` or at their absolute path. Context schema 1.1 also contains one `visual_evidence` record for every captured screenshot/item pair. A captured screenshot not cited by any item receives one record with `item_id: null`.
 
 ## Decisions
 
@@ -232,6 +248,10 @@ Include:
 - Prior-decision import or explicit migration instructions
 - Print-friendly styling and keyboard-operable controls
 - No external runtime dependency unless requested
+
+Every locally captured screenshot receipt must be visible in the self-contained dashboard, not merely present on disk or named by evidence ID. Render a screenshot referenced by a registry item beside that item. Render any remaining captured screenshot in an additional visual-evidence index so the dashboard does not hide collected evidence. Embed image bytes as `data:image/...;base64,...`, provide meaningful alt text, and show a caption that names the evidence receipt. The caption must visibly render the claim-specific state, `look_at` instruction, and connection from `context.json`. A `provided` annotation renders its labeled rectangles over the image. A `not_needed` annotation renders the whole-frame reason instead. Mark the image with `data-evidence-id="EV-..."`; when it supports an item, also mark it with `data-evidence-for="ITEM-ID"`. The validator rejects missing images, external or relative image sources, absent captions, generic or missing visual context, unrendered context, missing annotations, and screenshot-to-item associations that exist only in JSON.
+
+Human-facing Markdown and HTML are decision surfaces, not schema viewers. Translate stable item IDs into ordinal labels such as `Finding 1`, evidence IDs into their evidence type such as `Screenshot` or `Accessibility review`, work-order IDs into `Work package 1`, and task IDs into `Journey 1`. Render canonical categories, facets, statuses, dispositions, severity, confidence, standards, and measurements in plain language. Translate or expand technical abbreviations such as WCAG, URL, DOM, LCP, CLS, and RUM wherever they would otherwise require specialist knowledge. Keep the original values unchanged in JSON, `data-*` attributes, embedded downloads, and invisible Markdown continuity comments. A reader must be able to understand and decide every item without learning the audit schema or opening a glossary.
 
 Use the complete registry as the rendering source. Do not hand-maintain a separate HTML findings list.
 
