@@ -1,0 +1,81 @@
+---
+name: scruffys-mop
+description: Implement and verify fixes for AI slop that Scruffy has already audited. Use when a Scruffy audit exists (findings.json, context.json, decisions.json, optional tokens.json) and approved findings must be turned into real, high-craft source changes under repository-write authority, then handed back for re-audit. Consumes Scruffy's output contract read-only; implements only approved work orders in dependency order; never diagnoses, scores authorship, or marks its own work fixed. Do not use to produce a fresh audit or findings (that is Scruffy), or for non-interface code work.
+---
+
+# Scruffy's Mop
+
+Scruffy's Mop is the fix/redesign executor for Scruffy. Scruffy finds AI slop and
+proves it; Scruffy's Mop implements the smallest coherent, genuinely well-crafted
+change that clears each **approved** finding, then hands the result back to
+Scruffy to re-audit. Scruffy diagnoses, decides, and clears; Scruffy's Mop only
+implements.
+
+This skill is agent-, vendor-, framework-, browser-, and operating-system-
+agnostic, and stays inside Scruffy's evidence-bound loop.
+
+## Non-negotiable boundary
+
+- **Consume, don't re-diagnose.** Scruffy owns the audit schema. Read it
+  read-only; never redefine, extend, or fork it.
+- **Only approved items.** Implement only registry items whose `decisions.json`
+  value is `approve`. Never action `pending`, `defer`, or `reject`.
+- **Authority is inherited.** Write source only under Scruffy's `redesign`/
+  `design` mode with `source_write`, or an explicit user grant. Fail closed
+  otherwise; an audit or a dashboard decision alone is not source-edit authority.
+- **Don't self-certify.** Never set `status: fixed`/`cleared`. Only a Scruffy
+  re-audit clears a finding.
+- **Preserve product truth.** Everything in Scruffy's `product_frame` and outside
+  the approved scope survives unchanged.
+
+## Load order
+
+1. [`references/method.md`](references/method.md) — the end-to-end operating loop.
+   Start here every time.
+2. [`schema/interop.json`](schema/interop.json) +
+   [`references/scruffy-handoff.md`](references/scruffy-handoff.md) — exactly which
+   Scruffy artifacts and schema versions are consumed, and the gates.
+3. [`references/fix-protocols.md`](references/fix-protocols.md) — the per-category
+   fix protocol, opened at the item's `category` as you implement it.
+4. [`references/visual-redesign.md`](references/visual-redesign.md) — the
+   first-class path for `visual`/`product` findings: capability preflight, optional
+   design-reference grounding, and impeccable-or-floor implementation.
+5. [`references/craft-bar.md`](references/craft-bar.md) — the quality floor that
+   separates clearing a finding from camouflaging it.
+6. [`references/verification.md`](references/verification.md) — self-check and the
+   re-audit handoff.
+
+Visual redesign is the headline job. Optional craft augmentations — **impeccable**
+(free, first-class when the runtime has it) and a **design-reference search**
+(Mobbin or equivalent; paid, optional) — are detected at runtime, used if present,
+and disclosed if absent via `mop_handoff.py --augmentations`. The built-in craft
+floor always applies; no augmentation is ever a hard dependency, and an absence is
+never a defect.
+
+## The loop, in one screen
+
+```sh
+python3 scripts/mop_bundle.py check <bundle-dir>              # ingest, validate, gate (fail closed)
+python3 scripts/mop_bundle.py plan  <bundle-dir> --authorized # dependency-ordered plan of approved items
+python3 scripts/mop_preflight.py --design-reference-search available  # probe capabilities (never assume)
+# implement each step to the craft bar, in order, per fix-protocols.md
+python3 scripts/mop_dashboard.py <bundle-dir> --assets assets.json --out dashboard.html --authorized  # self-contained deliverable
+python3 scripts/mop_handoff.py <bundle-dir> --work work.json --authorized  # re-audit handoff (never marks fixed)
+```
+
+For visual/product work, the deliverable is a **single self-contained HTML
+dashboard** (`mop_dashboard.py`) with all evidence embedded as `data:` URIs, and
+capabilities come from a real **probe** (`mop_preflight.py`), never an assumption:
+a capability is `absent` only after a probe fails. See
+[`references/visual-redesign.md`](references/visual-redesign.md).
+
+The scripts do the mechanical, error-prone parts — schema-version validation, the
+authority and approval gates, dependency ordering, and the handoff shape. Use
+them; do not re-derive their work by eye. If a script prints `REFUSED`, stop and
+disclose the gap rather than editing the bundle to make it pass.
+
+## When to refuse
+
+If a step would have you produce a finding, choose an approval, invent a severity
+or evidence, mark your own work cleared, or widen scope past the approved items —
+stop and hand back instead. Those are Scruffy's, not the Mop's.

@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""Build the re-audit handoff after Scruffy's Mop implements approved fixes.
+
+The handoff maps each implemented item to the surfaces that changed and records a
+self-assessment against the item's acceptance checks. It deliberately does NOT
+set any finding to fixed/cleared: only a Scruffy re-audit has that authority. The
+handoff's per-item status is always ``implemented-pending-reaudit``.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+from mop_bundle import InteropError, build_plan, load_bundle, load_interop
+
+# A self-check result an agent records per acceptance check after implementing.
+SELF_CHECK_RESULTS = {"meets", "partial", "unmet"}
+TERMINAL_STATUS = "implemented-pending-reaudit"
+
+# Optional craft augmentations, disclosed so the re-audit and reader know whether
+# the work was reference-grounded / impeccable-driven or produced on the free floor.
+AUGMENTATION_KEYS = ("impeccable", "design_reference_search", "browser")
+AUGMENTATION_STATES = {"used", "absent", "not_applicable", "not_reported"}
+
+
+def _normalize_augmentations(augmentations: dict | None) -> dict:
+    result = {k: "not_reported" for k in AUGMENTATION_KEYS}
+    for key, state in (augmentations or {}).items():
+        if key not in AUGMENTATION_KEYS:
+            raise InteropError(f"unknown augmentation {key!r}")
+        base = str(state).split(":", 1)[0]
+        if base not in AUGMENTATION_STATES:
+            raise InteropError(
+                f"augmentation {key!r} state {state!r} is not one of "
+                f"{sorted(AUGMENTATION_STATES)} (an optional ':detail' suffix is allowed)"
+            )
+        result[key] = state
+    return result
+
+
+def build_handoff(plan: dict, work: dict, augmentations: dict | None = None) -> dict:
+    """Combine the plan with the agent's per-item ``work`` record.
+
+    ``work`` maps item_id -> {"surfaces": [...], "notes": str,
+    "self_check": [{"check": str, "result": "meets|partial|unmet"}]}.
+    ``augmentations`` discloses optional craft capabilities used or absent.
+    """
+    items = []
+    for step in plan["steps"]:
+        item_id = step["item_id"]
+        record = work.get(item_id, {})
+        self_check = record.get("self_check", [])
+        for sc in self_check:
+            if sc.get("result") not in SELF_CHECK_RESULTS:
+                raise InteropError(
+                    f"{item_id}: self_check result {sc.get('result')!r} is not "
+                    f"one of {sorted(SELF_CHECK_RESULTS)}"
+                )
+        items.append({
+            "item_id": item_id,
+            "title": step["title"],
+            "category": step["category"],
+            "acceptance_checks": step["acceptance_checks"],
+            "changed_surfaces": record.get("surfaces", []),
+            "notes": record.get("notes", ""),
+            "self_assessment": self_check,
+            # Never 'fixed'/'cleared'. Scruffy's re-audit decides that.
+            "status": TERMINAL_STATUS,
+            "cleared_by": "pending Scruffy re-audit",
+        })
+    unimplemented = [s["item_id"] for s in plan["steps"] if s["item_id"] not in work]
+    return {
+        "schema_version": "1.0",
+        "role": "consumer",
+        "producer": "scruffys-mop",
+        "audit_id": plan["audit_id"],
+        "revision_id": plan["revision_id"],
+        "handoff_note": (
+            "Re-audit these items in a new Scruffy revision. Scruffy's Mop does "
+            "not mark its own work fixed or cleared."
+        ),
+        "augmentations": _normalize_augmentations(augmentations),
+        "items": items,
+        "unimplemented": unimplemented,
+    }
+
+
+def handoff_to_markdown(handoff: dict) -> str:
+    lines = [
+        "# Scruffy's Mop — re-audit handoff",
+        "",
+        f"Audit `{handoff['audit_id']}` revision `{handoff['revision_id']}`.",
+        "",
+        f"> {handoff['handoff_note']}",
+        "",
+        "Augmentations: "
+        + ", ".join(f"{k}={v}" for k, v in handoff["augmentations"].items()),
+        "",
+    ]
+    for it in handoff["items"]:
+        lines.append(f"## {it['title']} ({it['item_id']}) — {it['status']}")
+        if it["changed_surfaces"]:
+            lines.append(f"- Changed: {', '.join(it['changed_surfaces'])}")
+        if it["notes"]:
+            lines.append(f"- Notes: {it['notes']}")
+        lines.append("- Acceptance checks (self-assessed; Scruffy verifies):")
+        results = {s["check"]: s["result"] for s in it["self_assessment"]}
+        for c in it["acceptance_checks"]:
+            lines.append(f"  - {results.get(c, 'not-assessed')}: {c}")
+        lines.append("")
+    if handoff["unimplemented"]:
+        lines.append(f"> unimplemented: {', '.join(handoff['unimplemented'])}")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _cmd(args) -> int:
+    interop = load_interop()
+    bundle = load_bundle(args.bundle, interop)
+    plan = build_plan(bundle, interop, args.authorized)
+    work = json.loads(Path(args.work).read_text(encoding="utf-8")) if args.work else {}
+    augmentations = json.loads(args.augmentations) if args.augmentations else None
+    handoff = build_handoff(plan, work, augmentations)
+    if args.json:
+        print(json.dumps(handoff, indent=2))
+    else:
+        print(handoff_to_markdown(handoff))
+    return 0
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Scruffy's Mop re-audit handoff")
+    parser.add_argument("bundle", help="Path to the Scruffy audit bundle directory")
+    parser.add_argument("--work", help="JSON file: item_id -> changed surfaces + self-check")
+    parser.add_argument("--augmentations",
+                        help='JSON, e.g. \'{"impeccable":"used","design_reference_search":"absent"}\'')
+    parser.add_argument("--authorized", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    parser.set_defaults(func=_cmd)
+    args = parser.parse_args(argv)
+    try:
+        return args.func(args)
+    except InteropError as exc:
+        print(f"REFUSED (fail closed): {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

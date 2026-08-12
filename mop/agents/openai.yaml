@@ -1,0 +1,6 @@
+interface:
+  display_name: "Scruffy's Mop"
+  short_description: "Fix what Scruffy audits, to a real craft bar"
+  default_prompt: "Use $scruffys-mop to implement the approved fixes from a Scruffy audit: read findings.json, context.json, and decisions.json, apply the approved work orders in dependency order under source-write authority, and hand the changed surfaces back for re-audit."
+policy:
+  allow_implicit_invocation: true

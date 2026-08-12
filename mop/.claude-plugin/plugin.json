@@ -1,0 +1,10 @@
+{
+  "name": "scruffys-mop",
+  "description": "Fix/redesign executor for Scruffy: implement and verify high-craft source changes that clear approved AI-slop findings, consuming Scruffy's audit contract read-only.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Zachary Satterly",
+    "url": "https://github.com/ur-passwd-hash"
+  },
+  "license": "MIT"
+}

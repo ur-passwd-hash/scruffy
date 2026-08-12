@@ -1,0 +1,15 @@
+# Consumed Scruffy audit artifacts are inputs, not source.
+/inbox/
+*.local.json
+
+# Python artifacts.
+__pycache__/
+*.pyc
+.venv/
+
+# Machine-specific Claude project notes and permissions.
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Local operating-system metadata.
+.DS_Store
