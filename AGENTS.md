@@ -116,6 +116,20 @@ git config user.email
 Do not commit transcripts, frames, browser secrets, private application data,
 generated audit outputs, or target-specific expected findings.
 
+## Companion: Scruffy's Mop
+
+`mop/` holds Scruffy's Mop, the companion fix/redesign executor. It is a
+**read-only consumer** of this repository's audit contract: it reads the output
+schema and implements approved findings, and it never edits, forks, or extends
+Scruffy's schema. Its maintainer contract is `mop/AGENTS.md`, its runtime is
+`mop/SKILL.md`, and the consumer compatibility key is `mop/schema/interop.json`.
+
+- Change Scruffy's output contract only here (in `references/`, `schema/`); the
+  Mop follows. A handoff-driven schema change is proposed to Scruffy, never made
+  from `mop/`.
+- The Mop keeps its own dependency-free suite; run it alongside this one:
+  `python3 mop/scripts/test_mop.py` and `python3 mop/scripts/validate_skill.py`.
+
 ## Definition of done
 
 A maintenance change is done only when its canonical owner is clear, generated

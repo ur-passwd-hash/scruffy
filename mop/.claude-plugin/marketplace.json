@@ -1,0 +1,16 @@
+{
+  "name": "scruffys-mop-marketplace",
+  "owner": {
+    "name": "Zachary Satterly",
+    "url": "https://github.com/ur-passwd-hash"
+  },
+  "description": "Claude Code distribution for Scruffy's Mop, the fix/redesign executor that cleans up what Scruffy audits.",
+  "plugins": [
+    {
+      "name": "scruffys-mop",
+      "source": "./",
+      "description": "Implement and verify high-craft fixes for approved Scruffy findings, then hand back for re-audit.",
+      "version": "0.1.0"
+    }
+  ]
+}

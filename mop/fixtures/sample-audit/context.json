@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.1",
+  "audit_id": "acme-billing",
+  "revision_id": "r1",
+  "title": "Acme billing page audit",
+  "outcome": {"label": "Sound with material gaps", "summary": "Trustworthy structure once billing state is unified and the status pill is legible.", "confidence": "high"},
+  "product_frame": [
+    {"key": "audience", "answer": "Admins of small teams managing their subscription.", "basis": "observed"},
+    {"key": "job", "answer": "Understand what is owed and fix a failed payment.", "basis": "observed"},
+    {"key": "primary_action", "answer": "Retry or update a payment method.", "basis": "observed"},
+    {"key": "differentiator", "answer": "Transparent, itemized dunning.", "basis": "inferred"},
+    {"key": "return_reason", "answer": "Recurring billing cycles.", "basis": "observed"},
+    {"key": "success_signal", "answer": "A past-due invoice becomes paid without support contact.", "basis": "observed"}
+  ],
+  "tasks": [
+    {"id": "T1", "goal": "Resolve a past-due invoice", "result": "Retry gives no feedback; user is unsure whether a charge occurred.", "status": "fail", "evidence_refs": ["EV-TASK"]}
+  ],
+  "capabilities": [
+    {"key": "source_read", "status": "available", "scope": "Full repository."},
+    {"key": "rendered_page", "status": "available", "scope": "Billing route."},
+    {"key": "interaction_keyboard", "status": "available", "scope": "Primary flows."},
+    {"key": "screenshots", "status": "available", "scope": "Desktop and mobile."},
+    {"key": "console_network_accessibility_performance", "status": "partial", "scope": "Accessibility tree and contrast only."},
+    {"key": "source_write", "status": "available", "scope": "Authorized for approved fixes."},
+    {"key": "prior_audit_data", "status": "not_needed", "scope": "First audit."},
+    {"key": "copy_context", "status": "available", "scope": "Plan marketing copy."},
+    {"key": "design_reference_search", "status": "unavailable", "scope": "No connector."}
+  ],
+  "scores": [
+    {"category": "product", "score": 2, "evidence": "Clear job, weak differentiation.", "evidence_refs": ["EV-TASK"]},
+    {"category": "backend_shape", "score": 1, "evidence": "Billing state fused to views.", "evidence_refs": ["EV-SRC"]},
+    {"category": "accessibility", "score": 1, "evidence": "Critical status fails contrast.", "evidence_refs": ["EV-A11Y"]},
+    {"category": "interaction", "score": 1, "evidence": "Retry has no feedback.", "evidence_refs": ["EV-TASK"]},
+    {"category": "copy", "score": 1, "evidence": "Interchangeable plan claims.", "evidence_refs": ["EV-COPY"]},
+    {"category": "visual", "score": 2, "evidence": "Arbitrary hero gradient.", "evidence_refs": ["EV-SHOT"]}
+  ],
+  "work_orders": [],
+  "checks_not_run": [
+    {"check": "Runtime performance", "reason": "No trace access", "impact": "Performance score is N/A"}
+  ],
+  "evidence_assets": [
+    {"id": "EV-SRC", "kind": "source", "locator": "src/billing/", "description": "Three divergent total computations", "verification": "observed"},
+    {"id": "EV-A11Y", "kind": "accessibility_observation", "locator": "status pill", "description": "Contrast 2.4:1", "verification": "captured"},
+    {"id": "EV-TASK", "kind": "task_observation", "locator": "T1", "description": "Retry flow gives no feedback", "verification": "observed"},
+    {"id": "EV-COPY", "kind": "copy_sample", "locator": "plan cards", "description": "Interchangeable benefit sentence", "verification": "captured"},
+    {"id": "EV-SHOT", "kind": "screenshot", "locator": "hero", "description": "Decorative gradient", "verification": "captured"}
+  ],
+  "visual_evidence": [
+    {
+      "evidence_id": "EV-SHOT",
+      "item_id": "AS-03",
+      "state": "Billing hero at desktop width before any action.",
+      "look_at": "The gradient band above the balance-due figure.",
+      "connection": "The decorative gradient competes with the primary figure described by AS-03.",
+      "annotation": {"status": "provided", "reason": "The hero band is the smallest region that shows the competing decoration.", "regions": [{"x": 0, "y": 0, "width": 100, "height": 30, "label": "Decorative gradient band"}]}
+    }
+  ]
+}

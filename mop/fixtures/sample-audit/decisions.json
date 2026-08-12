@@ -1,0 +1,14 @@
+{
+  "schema_version": "2.1",
+  "audit_id": "acme-billing",
+  "revision_id": "r1",
+  "baseline_revision_id": null,
+  "decisions": [
+    {"item_id": "AS-04", "decision": "approve", "note": "Fix the structural blocker first.", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "AS-02", "decision": "approve", "note": "Legibility of the critical status is non-negotiable.", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "AS-05", "decision": "approve", "note": "", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "AS-01", "decision": "approve", "note": "Replace with real plan differences.", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "AS-03", "decision": "defer", "note": "Revisit after the structural work.", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []},
+    {"item_id": "AS-06", "decision": "reject", "note": "Out of scope this cycle.", "updated_at": "2026-08-11T00:00:00Z", "decision_source": "current", "destination_id": null, "history": []}
+  ]
+}
