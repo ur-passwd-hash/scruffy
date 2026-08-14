@@ -46,3 +46,8 @@ Use a verbal result rather than a pseudo-precise percentage:
 - **Insufficient evidence** — required capabilities or coverage are missing.
 
 Always show the category scores and their evidence boundary beside the result.
+
+
+## Machine-enforced calibration floor
+
+A `critical` finding requires `high` confidence and at least two evidence receipts; open findings in performance, accessibility, visual, and interaction require category-appropriate evidence kinds or `needs-verification` status. See `schema/audit-contract.json` (`category_evidence_gates`).

@@ -1,107 +1,183 @@
 {
-  "schema_version": "1.0",
-  "role": "consumer",
-  "partner": "scruffy",
-  "summary": "Scruffy's Mop is the fix/redesign executor for Scruffy. Scruffy owns the audit contract; Scruffy's Mop consumes it read-only, implements approved work, and hands the result back for re-audit. Scruffy's Mop never redefines Scruffy's schema.",
-  "consumes": {
-    "findings.json": {
-      "current_registry_schema": "2.1",
-      "legacy_registry_schemas_readable": ["2.0"],
-      "reads": ["items[].id", "items[].identity_key", "items[].category", "items[].severity", "items[].confidence", "items[].status", "items[].recommendation", "items[].acceptance_checks", "items[].depends_on", "items[].evidence_refs"],
-      "note": "The immutable registry is the source of what to fix and how success is checked. Item IDs and identity keys are never reassigned or dropped."
-    },
-    "context.json": {
-      "current_schema": "1.1",
-      "legacy_schemas_readable": ["1.0"],
-      "reads": ["product_frame", "tasks", "capabilities", "scores", "work_orders", "evidence_assets", "visual_evidence", "checks_not_run"],
-      "note": "work_orders carry the dependency order Scruffy's Mop implements in. product_frame is the product truth Scruffy's Mop must preserve."
-    },
-    "decisions.json": {
-      "current_schema": "2.1",
-      "reads": ["decisions[].item_id", "decisions[].decision"],
-      "note": "Scruffy's Mop implements ONLY items whose decision is 'approve'. 'pending', 'defer', and 'reject' are never actioned."
-    },
-    "tokens.json": {
-      "current_schema": "1.0",
-      "optional": true,
-      "reads": ["tokens[].name", "tokens[].current", "tokens[].proposed", "tokens[].finding_ids"],
-      "note": "When present, proposed token values are the observed-value corrections to apply."
-    }
+ "schema_version": "1.0",
+ "role": "consumer",
+ "partner": "scruffy",
+ "summary": "Scruffy's Mop is the fix/redesign executor for Scruffy. Scruffy owns the audit contract; Scruffy's Mop consumes it read-only, implements approved work, and hands the result back for re-audit. Scruffy's Mop never redefines Scruffy's schema.",
+ "consumes": {
+  "findings.json": {
+   "current_registry_schema": "2.1",
+   "legacy_registry_schemas_readable": [
+    "2.0"
+   ],
+   "reads": [
+    "items[].id",
+    "items[].identity_key",
+    "items[].category",
+    "items[].severity",
+    "items[].confidence",
+    "items[].status",
+    "items[].recommendation",
+    "items[].acceptance_checks",
+    "items[].depends_on",
+    "items[].evidence_refs"
+   ],
+   "note": "The immutable registry is the source of what to fix and how success is checked. Item IDs and identity keys are never reassigned or dropped."
   },
-  "authority_gate": {
-    "required_scruffy_mode": ["redesign", "design"],
-    "required_capability": "source_write",
-    "rule": "Scruffy's Mop performs repository writes only under Scruffy's redesign/design authority with explicit source-write authorization. An audit or dashboard decision alone is not source-edit authorization.",
-    "fail_closed": true
+  "context.json": {
+   "current_schema": "1.1",
+   "legacy_schemas_readable": [
+    "1.0"
+   ],
+   "reads": [
+    "product_frame",
+    "tasks",
+    "capabilities",
+    "scores",
+    "work_orders",
+    "evidence_assets",
+    "visual_evidence",
+    "checks_not_run"
+   ],
+   "note": "work_orders carry the dependency order Scruffy's Mop implements in. product_frame is the product truth Scruffy's Mop must preserve."
   },
-  "produces": {
-    "source_changes": "Smallest coherent implementation that satisfies each approved item's acceptance_checks while preserving product truth from product_frame.",
-    "handoff": "Scruffy's Mop returns changed surfaces mapped to registry IDs so Scruffy can re-audit a new revision. Scruffy — not Scruffy's Mop — moves items to 'fixed'/'cleared' on direct revision evidence. Scruffy's Mop never marks its own work fixed."
+  "decisions.json": {
+   "current_schema": "2.1",
+   "reads": [
+    "decisions[].item_id",
+    "decisions[].decision"
+   ],
+   "note": "Scruffy's Mop implements ONLY items whose decision is 'approve'. 'pending', 'defer', and 'reject' are never actioned."
   },
-  "ordering": {
-    "lanes": [
-      {"lane": 1, "title": "Shared structural blockers"},
-      {"lane": 2, "title": "Routing, data, and state contracts"},
-      {"lane": 3, "title": "Semantic and interaction primitives"},
-      {"lane": 4, "title": "Visual tokens and responsive composition"},
-      {"lane": 5, "title": "Page-specific cleanup"},
-      {"lane": 6, "title": "Verification and regression tests"}
-    ],
-    "category_default_lane": {
-      "backend_shape": 1,
-      "product": 1,
-      "information_architecture": 2,
-      "interaction": 3,
-      "accessibility": 3,
-      "visual": 4,
-      "copy": 5,
-      "performance": 5
-    },
-    "severity_rank": ["critical", "high", "medium", "low"],
-    "rule": "Prefer explicit context.work_orders when present and non-empty. Otherwise synthesize: topologically sort approved items by depends_on, breaking ties by (category_default_lane, severity_rank, id). An approved item that depends on a non-approved item is flagged, not reordered ahead of its dependency."
+  "tokens.json": {
+   "current_schema": "1.0",
+   "optional": true,
+   "reads": [
+    "tokens[].name",
+    "tokens[].current",
+    "tokens[].proposed",
+    "tokens[].finding_ids"
+   ],
+   "note": "When present, proposed token values are the observed-value corrections to apply."
+  }
+ },
+ "authority_gate": {
+  "required_scruffy_mode": [
+   "redesign",
+   "design"
+  ],
+  "required_capability": "source_write",
+  "rule": "Scruffy's Mop performs repository writes only under Scruffy's redesign/design authority with explicit source-write authorization. An audit or dashboard decision alone is not source-edit authorization.",
+  "fail_closed": true
+ },
+ "produces": {
+  "directions.json": {
+   "current_schema": "1.1",
+   "owner": "scruffys-mop",
+   "location": "written beside decisions.json in the Scruffy bundle directory",
+   "written": [
+    "groups[].directions[] (three structurally distinct options, exactly one recommended)",
+    "groups[].selected (human choice; never auto-filled from recommended)",
+    "groups[].craft_engine (impeccable | floor)",
+    "groups[].grounding_tier (design_reference_search | internal)",
+    "groups[].directions[].principle_refs (citations into Scruffy's principles corpus — [KJ §n], [RUI], PRINCIPLES §n — required, never TODO)",
+    "groups[].directions[].grounding[].image (template/reference image or annotated baseline screenshot; required to select a visual direction)",
+    "groups[].imagery (available | unavailable; unavailable groups are advisory-only and cannot be selected)"
+   ],
+   "note": "The only artifact Scruffy's Mop owns. A UI recommendation cannot be made with text alone: visual directions are selectable only with an image anchor, and every direction cites the principle that motivated the finding, so a Kole Jain rule firing in Scruffy traces through the picker to the implemented fix. Scruffy's schema is never extended or forked.",
+   "legacy_schemas_readable": [
+    "1.0"
+   ]
+  }
+ },
+ "ordering": {
+  "lanes": [
+   {
+    "lane": 1,
+    "title": "Shared structural blockers"
+   },
+   {
+    "lane": 2,
+    "title": "Routing, data, and state contracts"
+   },
+   {
+    "lane": 3,
+    "title": "Semantic and interaction primitives"
+   },
+   {
+    "lane": 4,
+    "title": "Visual tokens and responsive composition"
+   },
+   {
+    "lane": 5,
+    "title": "Page-specific cleanup"
+   },
+   {
+    "lane": 6,
+    "title": "Verification and regression tests"
+   }
+  ],
+  "category_default_lane": {
+   "backend_shape": 1,
+   "product": 1,
+   "information_architecture": 2,
+   "interaction": 3,
+   "accessibility": 3,
+   "visual": 4,
+   "copy": 5,
+   "performance": 5
   },
-  "augmentations": {
-    "summary": "Optional capabilities that raise craft on visual/product work. Detect at runtime, use if present, disclose if absent. Never a hard dependency in any manifest; absence is never a defect and never blocks a fix.",
-    "impeccable": {
-      "kind": "craft_engine",
-      "cost": "free",
-      "availability": "runtime_detected",
-      "runtimes": ["claude_code"],
-      "required": false,
-      "use_for": "Elevated visual and interaction craft when implementing visual and product findings.",
-      "fallback": "The built-in craft floor in references/craft-bar.md plus references/visual-redesign.md."
-    },
-    "design_reference_search": {
-      "kind": "shipped_product_reference",
-      "reference_connector": "mobbin",
-      "any_equivalent_satisfies": true,
-      "cost": "paid",
-      "availability": "runtime_detected",
-      "required": false,
-      "use_for": "Ground a visual/product redesign direction in real shipped products before choosing one.",
-      "fallback": "Proceed with the built-in method and disclose that no design-reference grounding was available.",
-      "maps_to_scruffy_capability": "design_reference_search"
-    },
-    "browser": {
-      "kind": "renderer",
-      "cost": "free",
-      "availability": "mechanically_probed",
-      "required": false,
-      "use_for": "Render the target for real screenshot evidence; visual composition claims must come from pixels, not source.",
-      "fallback": "Source-only advice, disclosed; every composition claim is a hypothesis to confirm in-browser."
-    },
-    "degradation_rule": "Full craft when all are present; impeccable-only when the paid reference search is absent; the built-in free floor when neither augmentation is present. Every fix must clear the floor regardless, and the handoff discloses which augmentations were used and which were absent.",
-    "probe_rule": "A capability is 'absent' ONLY after a probe fails; omission is 'not_run', never 'absent'. The browser is probed mechanically by scripts/mop_preflight.py; runtime/MCP capabilities (impeccable, design_reference_search) require an agent-attested probe result and refuse 'absent' without a failure reason.",
-    "output_rule": "Visual-redesign deliverables are a single self-contained HTML dashboard with every image embedded as a data: URI (scripts/mop_dashboard.py). No external image loads: the operator reads output in a terminal, so nothing may require a network fetch, a sibling folder, or a login to render. Provenance links stay as hrefs."
+  "severity_rank": [
+   "critical",
+   "high",
+   "medium",
+   "low"
+  ],
+  "rule": "Prefer explicit context.work_orders when present and non-empty. Otherwise synthesize: topologically sort approved items by depends_on, breaking ties by (category_default_lane, severity_rank, id). An approved item that depends on a non-approved item is flagged, not reordered ahead of its dependency."
+ },
+ "augmentations": {
+  "summary": "Optional capabilities that raise craft on visual/product work. Detect at runtime, use if present, disclose if absent. Never a hard dependency in any manifest; absence is never a defect and never blocks a fix.",
+  "impeccable": {
+   "kind": "craft_engine",
+   "cost": "free",
+   "availability": "runtime_detected",
+   "runtimes": [
+    "claude_code"
+   ],
+   "required": false,
+   "use_for": "Elevated visual and interaction craft when implementing visual and product findings.",
+   "fallback": "The built-in craft floor in references/craft-bar.md plus references/visual-redesign.md."
   },
-  "compatibility_policy": {
-    "unknown_major_schema": "fail_closed",
-    "legacy_read": "read_only",
-    "on_mismatch": "Disclose the version gap and stop; never silently coerce an unrecognized schema."
+  "design_reference_search": {
+   "kind": "shipped_product_reference",
+   "reference_connector": "mobbin",
+   "any_equivalent_satisfies": true,
+   "cost": "paid",
+   "availability": "runtime_detected",
+   "required": false,
+   "use_for": "Ground a visual/product redesign direction in real shipped products before choosing one.",
+   "fallback": "Proceed with the built-in method and disclose that no design-reference grounding was available.",
+   "maps_to_scruffy_capability": "design_reference_search"
   },
-  "non_goals": [
-    "Redefining, extending, or forking Scruffy's audit schema.",
-    "Producing findings, severities, or authorship judgments (Scruffy's job).",
-    "Marking findings fixed or cleared without a Scruffy re-audit."
-  ]
+  "browser": {
+   "kind": "renderer",
+   "cost": "free",
+   "availability": "mechanically_probed",
+   "required": false,
+   "use_for": "Render the target for real screenshot evidence; visual composition claims must come from pixels, not source.",
+   "fallback": "Source-only advice, disclosed; every composition claim is a hypothesis to confirm in-browser."
+  },
+  "degradation_rule": "Full craft when all are present; impeccable-only when the paid reference search is absent; the built-in free floor when neither augmentation is present. Every fix must clear the floor regardless, and the handoff discloses which augmentations were used and which were absent.",
+  "probe_rule": "A capability is 'absent' ONLY after a probe fails; omission is 'not_run', never 'absent'. The browser is probed mechanically by scripts/mop_preflight.py; runtime/MCP capabilities (impeccable, design_reference_search) require an agent-attested probe result and refuse 'absent' without a failure reason.",
+  "output_rule": "Visual-redesign deliverables are a single self-contained HTML dashboard with every image embedded as a data: URI (scripts/mop_dashboard.py). No external image loads: the operator reads output in a terminal, so nothing may require a network fetch, a sibling folder, or a login to render. Provenance links stay as hrefs."
+ },
+ "compatibility_policy": {
+  "unknown_major_schema": "fail_closed",
+  "legacy_read": "read_only",
+  "on_mismatch": "Disclose the version gap and stop; never silently coerce an unrecognized schema."
+ },
+ "non_goals": [
+  "Redefining, extending, or forking Scruffy's audit schema.",
+  "Producing findings, severities, or authorship judgments (Scruffy's job).",
+  "Marking findings fixed or cleared without a Scruffy re-audit."
+ ]
 }

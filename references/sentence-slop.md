@@ -33,7 +33,7 @@ The bundled analyzer reports these as review leads, not verdicts:
 
 1. **Cadence uniformity** — sentence-length variance is unusually low across an adequate prose sample.
 2. **Repeated openings** — several sentences begin with the same two- or three-token frame.
-3. **Formulaic scaffolds** — repeated constructions such as “not X, but Y,” “here is the truth,” or “whether you are…” carry structure without adding product information.
+3. **Formulaic scaffolds** — repeated constructions such as “not X, but Y,” the comma-splice reframe “you’re not X, you’re Y,” “here’s the kicker,” “here is the truth,” or “whether you are…” carry structure without adding product information.
 4. **Rhetorical-question density** — questions repeatedly manufacture momentum but are not answered with concrete information or a decision.
 5. **Short-sentence burst** — several punchline-length sentences replace development with a uniform promotional beat.
 6. **Passive candidates** — responsibility may be hidden. Confirm the actor or action is actually unclear; passive voice is legitimate when the actor is unknown, irrelevant, or deliberately deemphasized.
@@ -42,6 +42,12 @@ The bundled analyzer reports these as review leads, not verdicts:
 9. **Phrase repetition** — nontrivial n-grams recur without being required product terminology.
 10. **Detail sparsity** — abstract promises dominate while actors, objects, conditions, numbers, dates, quoted interface labels, examples, or consequences are absent.
 11. **Missing error recovery** — a set of error or denial messages states failure but repeatedly omits cause, affected or retained state, and a useful next action.
+12. **Hedged profundity** — commitment-free intensity modifiers (“quietly,” “subtly,” “effortlessly,” “on some level”) recur while decorating claims that are never made concrete. The word gestures at significance precisely because it commits to nothing.
+13. **Triad density** — a high share of sentences carry short-item three-part lists (“fast, simple, and reliable”). Only triads of one- to two-word interchangeable items are counted; enumerations of distinct noun phrases are not.
+
+### Detector packs
+
+The lexicon- and pattern-driven signals above are grouped into named packs so a team can add, remove, or tweak a detector without editing the statistical core. Current packs: `contrast-scaffolds`, `hook-scaffolds` (both feed `formulaic_scaffolds`), `transition-markers` (`transition_concentration`), `abstract-filler` (`detail_sparsity`), `hedged-profundity`, and `triad-density`. Run `python3 scripts/analyze_sentence_slop.py --list-packs` to enumerate them, and pass `--disable-pack <id>` (repeatable) or `analyze(..., disabled_packs=[...])` to turn one off. Each pack is a self-contained entry in the analyzer's `PACKS` registry carrying its own patterns or terms, signal code, and provenance; packs sharing a signal code merge, so adding a new source is one appended entry (or extra terms in an existing pack) plus the mandatory false-positive fixture in `evals/sentence-slop/cases.json` and a guard note here. Every result discloses active and disabled packs; a durable report that ran with packs disabled must say so in its capability disclosure. Statistical signals (cadence, openings, questions, passives, short bursts, paragraph reuse, phrase repetition) are core and not toggleable. The error-recovery detector's vocabulary is also pack-owned: `error-states` and `recovery-cues` (which recognizes honest retained-state language such as "nothing changed" as a recovery cue). UI items may carry an optional `surface_class`; `label`, `badge`, `cell`, `heading`, and `status` classes are treated as vocabulary rather than messages and never produce missing-recovery leads.
 
 ### Required manual passage checks
 
@@ -70,7 +76,7 @@ Report the consequence, not an authorship story. A valid title is “Repeated rh
 - Do not penalize non-native, translated, accessibility-focused, technical, scientific, legal, regulated, or safety-critical prose for low variation. Evaluate whether it serves its intended user and genre. [LIANG23]
 - Passive voice becomes a product-copy issue only when it obscures responsibility, state, or recovery. Clear-language guidance favors active voice because passive constructions can lengthen and obscure content, but this is contextual guidance rather than a ban. [GOVUK-CLEAR]
 - Repetition is legitimate for commands, safety warnings, legal terms, navigation labels, design-system consistency, and teaching reinforcement.
-- Em dashes, parentheticals, rhetorical triads, fragments, contrast frames, and genre calls to action are normal writing devices. Review their density and consequence; never ban them globally. [ORgKY9AlybA 7:30–8:32][ORgKY9AlybA 16:28–16:52]
+- Em dashes, parentheticals, rhetorical triads, fragments, contrast frames, and genre calls to action are normal writing devices. Review their density and consequence; never ban them globally. The `triad-density` and `hedged-profundity` leads exist to measure density, not to ban the device; a single triad, one “quietly,” or one contrast reframe is never a finding. [ORgKY9AlybA 7:30–8:32][ORgKY9AlybA 16:28–16:52]
 - A distinctive voice is not automatically a good one. Clarity, accessibility, truth, and task completion outrank stylistic flamboyance.
 
 ## Evidence record
@@ -96,7 +102,7 @@ When the sample is insufficient, report the check as limited or not run. Do not 
 
 ## Optional deterministic analyzer
 
-Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file> --language en` when command execution is available and English scope is verified. Use `--language non_en` or `--language unknown` to record an explicit abstention. The analyzer uses only the Python standard library, strips common repository markup before prose measurement, groups leads by independent signal family, and emits the four required manual checks. The output deliberately contains no authorship score and never makes a finding. Inspect the normalized sample, perform the semantic checks, quote the text, and prove the product consequence before promotion.
+Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file> --language en` when command execution is available and English scope is verified. Use `--list-packs` to enumerate detector packs and `--disable-pack <id>` to run without one; disabled packs are disclosed in the output and must be disclosed in any durable report. Use `--language non_en` or `--language unknown` to record an explicit abstention. The analyzer uses only the Python standard library, strips common repository markup before prose measurement, groups leads by independent signal family, and emits the four required manual checks. The output deliberately contains no authorship score and never makes a finding. Inspect the normalized sample, perform the semantic checks, quote the text, and prove the product consequence before promotion.
 
 ## Research basis
 
@@ -110,3 +116,4 @@ Run `python3 scripts/analyze_sentence_slop.py <text-or-json-file> --language en`
 - [Hank Green, public statement about AI use](https://www.reddit.com/r/nerdfighters/comments/1vc37aw/hanks_comment_about_his_ai_use_posted_here_as_its/) — primary process evidence separating research assistance, personal authorship, voice dilution, trust, and overreliance; not a textual detector rule. [HANKGREEN26]
 - [W3C, *Understanding Success Criterion 3.1.5: Reading Level*](https://www.w3.org/WAI/WCAG22/Understanding/reading-level.html) — audience-aware readability and sample-based evaluation.
 - [GOV.UK, *Use clear language*](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/writing-guidelines/clear-language/) — contextual active-voice and clarity guidance.
+- Maintainer field observations, 2026-08-14 — hedged profundity (“quietly”), kicker hooks, comma-splice negative parallelism, profound-but-vague vocabulary, and triad saturation registered as lead patterns with false-positive guards; hypothesis-level provenance corroborated for contrast frames and triads by [ORgKY9AlybA], not an authorship authority. [field 2026-08-14]

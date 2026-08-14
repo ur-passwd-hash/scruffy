@@ -70,6 +70,8 @@ python3 scripts/validate_corpus.py
 python3 scripts/test_durability.py
 python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py
+python3 scripts/test_category_gates.py
+python3 scripts/test_scaffold_audit.py
 python3 scripts/test_blind_protocol.py
 python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py

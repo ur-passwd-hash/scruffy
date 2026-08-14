@@ -267,3 +267,25 @@ Order approved work by dependency:
 6. Verification and regression tests
 
 Each work order names affected surfaces, registry IDs, dependencies, acceptance checks, and verification method. An audit or dashboard decision is not source-edit authorization unless the user requested implementation.
+
+
+## Provenance vocabulary (standardized)
+
+One chain, four words, used everywhere in Scruffy and its consumers:
+
+| Term | Meaning | Lives in | Cited as |
+|---|---|---|---|
+| **Source** | Origin material: a person, paper, video, or standard | `principles/SOURCES.md` | alias — `[KJ]`, `[RUI]`, `[GOVUK-CLEAR]` |
+| **Rule** | A distilled, falsifiable statement from a source | `principles/PRINCIPLES.md` §n; reference contracts | `PRINCIPLES §12 [Lp6ey4AyDzA 3:06]` |
+| **Detector pack** | Deterministic code operationalizing rules — analyzer packs, the sentence-slop pack manifest, or a target's own CI gate | `scripts/analyze_sentence_slop.py` PACKS; `schema/sentence-slop-pack.json`; target repo gates | pack id — `recovery-cues`; `target gate: contrast-checks` |
+| **Signal** | What a detector emits: a lead needing human judgement | analyzer output `leads[].code` | `missing_recovery_information` |
+
+A finding may record rules in `principle_refs` and packs/signals in `detector_refs` (both optional, validated when present); typed receipts stay in `evidence_refs`. "Principle" and "policy" are not separate terms; a principle *is* a rule.
+
+## Category evidence gates (summary)
+
+Active performance findings require runtime evidence; accessibility findings require an `accessibility_observation` receipt and a named criterion; visual findings require rendered evidence; interaction findings require operation evidence. Critical findings require high confidence and two receipts, and `user_impact` has a 25-character concrete-consequence floor. Enforced in `validate_audit.py`; regression-locked by `scripts/test_category_gates.py`.
+
+## Starting a new bundle
+
+Run `python3 scripts/scaffold_audit.py --audit-id <id> --target <desc> --title <title> --out <dir>` to emit a pre-valid findings/context/decisions trio (TODO placeholders, one `needs-verification` seed item). Edit from green instead of negotiating with the validator.

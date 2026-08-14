@@ -414,6 +414,9 @@ def validate_registry(registry: dict[str, Any], source: str = "registry") -> dic
             incompatible_facets = sorted(set(facets) - CATEGORY_FACETS[category])
             if incompatible_facets:
                 fail(f"{label}.facets are not applicable to {category}: {incompatible_facets}")
+            for provenance_field in ("principle_refs", "detector_refs"):
+                if provenance_field in item and item[provenance_field] is not None:
+                    require_unique_text_list(item[provenance_field], f"{label}.{provenance_field}", allow_empty=True)
             evidence_refs = require_unique_text_list(
                 item["evidence_refs"],
                 f"{label}.evidence_refs",
@@ -833,6 +836,20 @@ def validate_context(
                     f"registry item {item_id} is an active visual finding without rendered evidence"
                     " (attach a screenshot or task_observation receipt; source-only visual claims are unverified)"
                 )
+            if item["category"] == "interaction" and not evidence_kinds & (
+                RENDERED_EVIDENCE_KINDS | RUNTIME_EVIDENCE_KINDS
+            ):
+                fail(
+                    f"registry item {item_id} is an active interaction finding without operation evidence"
+                    " (attach a task_observation, runtime_trace, screenshot, or measurement receipt)"
+                )
+            if item["severity"] == "critical":
+                if item["confidence"] != "high":
+                    fail(f"registry item {item_id}: critical findings require high confidence")
+                if len(item["evidence_refs"]) < 2:
+                    fail(f"registry item {item_id}: critical findings require at least two evidence receipts")
+            if len((item.get("user_impact") or "").strip()) < 25:
+                fail(f"registry item {item_id}: user_impact must state a concrete impact (>= 25 characters)")
 
     screenshots_status = by_capability["screenshots"]["status"]
     screenshot_assets = [asset for asset in by_evidence.values() if asset["kind"] == "screenshot"]

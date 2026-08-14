@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-import pathlib
-
 import json
+import pathlib
 import sys
 from pathlib import Path
 
-from analyze_sentence_slop import analyze
+from analyze_sentence_slop import PACKS, analyze
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +17,34 @@ FIXTURE = ROOT / "evals" / "sentence-slop" / "cases.json"
 
 def fail(message: str) -> None:
     raise AssertionError(message)
+
+
+
+def test_pack_parity() -> None:
+    import json
+    from analyze_sentence_slop import SIGNAL_FAMILIES
+    pack = json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "sentence-slop-pack.json").read_text())
+    listed = {row["code"]: row for row in pack["signals"]}
+    for code, family in SIGNAL_FAMILIES.items():
+        assert code in listed, f"analyzer signal {code} missing from sentence-slop pack"
+        assert listed[code]["family"] == family, f"{code}: family mismatch between analyzer and pack"
+        assert listed[code]["citation"].startswith("principles/PRINCIPLES.md §"), f"{code}: uncited"
+        assert listed[code]["false_positive_guard"], f"{code}: no guard"
+    contract_families = set(json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "audit-contract.json").read_text())["editorial_review"]["sentence_signal_families"])
+    assert {row["family"] for row in pack["signals"]} <= contract_families, "pack family outside canonical enum"
+
+
+def test_cognitive_load_detectors() -> None:
+    from analyze_sentence_slop import analyze
+    soup = ("The system, which was designed, in most cases, to handle, among other things, uploads, retries, and errors, "
+            "does many things; it also does more; and it continues at length beyond any reasonable clause budget for a reader. ") * 3
+    result = analyze(soup, mode="prose", context="general", language="en")
+    codes = {lead["code"] for lead in result["leads"]}
+    assert "clause_pileup" in codes and "overlong_sentence" in codes, codes
+    clean = "The filter sorts items. Choose a photo first. The couple approves undated photos. Uploads retry once."
+    result_clean = analyze(clean, mode="prose", context="general", language="en")
+    load = {l["code"] for l in result_clean["leads"] if l["signal_family"] == "cognitive_load"}
+    assert not load, f"clean prose false-positived: {load}"
 
 
 def main() -> int:
@@ -54,7 +81,7 @@ def main() -> int:
             fail(f"{case['id']} made an authorship assessment")
         if not result["guards"]["no_authorship_inference"]:
             fail(f"{case['id']} lacks the authorship guard")
-        if result["schema_version"] != "1.2":
+        if result["schema_version"] != "1.3":
             fail(f"{case['id']} returned an unexpected schema version")
         if any("signal_family" not in lead for lead in result["leads"]):
             fail(f"{case['id']} returned a lead without a signal family")
@@ -106,43 +133,63 @@ def main() -> int:
             if not result["guards"]["unsupported_language_abstention"]:
                 fail(f"{case['id']} lacks the unsupported-language guard")
 
+    triad_sample = next(case["text"] for case in cases if case["id"] == "triad-saturation-replaces-content")
+    enabled = analyze(triad_sample, mode="prose", context="general", language="en")
+    if "triad_density" not in {lead["code"] for lead in enabled["leads"]}:
+        fail("pack regression sample no longer produces the triad_density lead")
+    disabled = analyze(
+        triad_sample, mode="prose", context="general", language="en", disabled_packs=["triad-density"]
+    )
+    if "triad_density" in {lead["code"] for lead in disabled["leads"]}:
+        fail("disabling the triad-density pack did not remove its lead")
+    if disabled["packs"]["disabled"] != ["triad-density"]:
+        fail("disabled packs were not disclosed in analyzer output")
+    if set(enabled["packs"]["active"]) != set(enabled["packs"]["registry"]):
+        fail("default run must activate every registered pack")
+    try:
+        analyze(triad_sample, disabled_packs=["no-such-pack"])
+    except ValueError:
+        pass
+    else:
+        fail("unknown pack IDs must be rejected")
+
+    hedge_sample = next(
+        case["text"] for case in cases if case["id"] == "hedged-profundity-decorates-unsupported-claims"
+    )
+    PACKS["test-source-pack"] = {
+        "kind": "terms",
+        "match": "anywhere",
+        "signal_code": "hedged_profundity",
+        "description": "Synthetic source pack used only by the regression suite.",
+        "provenance": ("[test]",),
+        "terms": ("migration",),
+    }
+    try:
+        extended = analyze(hedge_sample, mode="prose", context="general", language="en")
+        baseline_run = analyze(
+            hedge_sample, mode="prose", context="general", language="en", disabled_packs=["test-source-pack"]
+        )
+        if extended["metrics"]["hedged_profundity_matches"] <= baseline_run["metrics"]["hedged_profundity_matches"]:
+            fail("a newly registered terms pack must merge into its signal's counts")
+        if "test-source-pack" not in extended["packs"]["registry"]:
+            fail("a newly registered pack must appear in the output registry")
+        if baseline_run["packs"]["disabled"] != ["test-source-pack"]:
+            fail("disabling a newly registered pack must be disclosed")
+    finally:
+        del PACKS["test-source-pack"]
+
+    test_pack_parity()
+    test_cognitive_load_detectors()
+
     print(
         f"PASS: {len(cases)} sentence-slop cases, markup normalization, independent-family predicate, "
-        "manual semantic checks, and authorship guards"
+        "manual semantic checks, pack toggles, pack extensibility, and authorship guards"
     )
     return 0
 
 
-def test_pack_parity() -> None:
-    import json
-    from analyze_sentence_slop import SIGNAL_FAMILIES
-    pack = json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "sentence-slop-pack.json").read_text())
-    listed = {row["code"]: row for row in pack["signals"]}
-    for code, family in SIGNAL_FAMILIES.items():
-        assert code in listed, f"analyzer signal {code} missing from sentence-slop pack"
-        assert listed[code]["family"] == family, f"{code}: family mismatch between analyzer and pack"
-        assert listed[code]["citation"].startswith("principles/PRINCIPLES.md §"), f"{code}: uncited"
-        assert listed[code]["false_positive_guard"], f"{code}: no guard"
-    contract_families = set(json.loads((pathlib.Path(__file__).resolve().parent.parent / "schema" / "audit-contract.json").read_text())["editorial_review"]["sentence_signal_families"])
-    assert {row["family"] for row in pack["signals"]} <= contract_families, "pack family outside canonical enum"
-
-def test_cognitive_load_detectors() -> None:
-    from analyze_sentence_slop import analyze
-    soup = ("The system, which was designed, in most cases, to handle, among other things, uploads, retries, and errors, "
-            "does many things; it also does more; and it continues at length beyond any reasonable clause budget for a reader. ") * 3
-    result = analyze(soup, mode="prose", context="general", language="en")
-    codes = {lead["code"] for lead in result["leads"]}
-    assert "clause_pileup" in codes and "overlong_sentence" in codes, codes
-    clean = "The filter sorts items. Choose a photo first. The couple approves undated photos. Uploads retry once."
-    result_clean = analyze(clean, mode="prose", context="general", language="en")
-    load = {l["code"] for l in result_clean["leads"] if l["signal_family"] == "cognitive_load"}
-    assert not load, f"clean prose false-positived: {load}"
-
-
 if __name__ == "__main__":
     try:
-        test_pack_parity()
-        test_cognitive_load_detectors()
         sys.exit(main())
     except AssertionError as error:
         print(f"FAIL: {error}", file=sys.stderr)

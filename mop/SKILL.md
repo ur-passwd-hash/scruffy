@@ -14,6 +14,24 @@ implements.
 This skill is agent-, vendor-, framework-, browser-, and operating-system-
 agnostic, and stays inside Scruffy's evidence-bound loop.
 
+## Required run order
+
+Every Mop session starts with the orchestrator and renders the decision surface
+before any implementation:
+
+```
+python3 scripts/mop_run.py <bundle> [--templates <reference-image-dir>] [--authorized]
+```
+
+This always produces, in order: `mop-preflight.json` (capabilities probed and
+disclosed, never assumed), a validated or freshly scaffolded `directions.json`
+(three structurally distinct, principle-cited directions per design group, with
+template/screenshot imagery attached when the runtime has it), and
+`mop-dashboard.html` — the self-contained picker the human uses to select
+directions and approve items. Implementation begins only after the human's
+exported selections pass `mop_directions.py check`; a visual direction without
+an image anchor cannot be selected, and text-only design advice fails closed.
+
 ## Non-negotiable boundary
 
 - **Consume, don't re-diagnose.** Scruffy owns the audit schema. Read it

@@ -34,65 +34,7 @@ COMMAND_LINE = re.compile(
     r"^\s{0,3}(?:[$>]\s*)?(?:git|gh|npm|npx|pnpm|yarn|python\d*|pip|uv|cargo|go|curl|wget|mkdir|ln|cp|mv|claude|codex|/scruffy|\$scruffy)\b"
 )
 
-SCAFFOLDS: dict[str, re.Pattern[str]] = {
-    "not_x_but_y": re.compile(r"\b(?:it'?s|this is|we are|that is)?\s*not\s+(?!(?:because|just|about)\b)[^.!?\n]{0,100}\bbut\b", re.I),
-    "not_because_but": re.compile(r"\bnot because\b[^.!?\n]{0,100}\bbut because\b", re.I),
-    "not_just_but": re.compile(r"\bnot just\b[^.!?\n]{0,100}\b(?:but|also)\b", re.I),
-    "here_is_the": re.compile(r"\bhere(?:'s| is)\s+the\s+(?:truth|thing|catch|problem|point)\b", re.I),
-    "truth_frame": re.compile(r"\bthe truth is\b", re.I),
-    "whether_you": re.compile(r"\bwhether you(?:'re| are)\b", re.I),
-    "in_a_world": re.compile(r"\bin a world where\b", re.I),
-    "what_if": re.compile(r"\bwhat if\b", re.I),
-    "key_frame": re.compile(r"\bthe key is\b", re.I),
-    "not_about": re.compile(r"\bit'?s not about\b", re.I),
-    "at_end_of_day": re.compile(r"\bat the end of the day\b", re.I),
-    "lets_frame": re.compile(r"\blet'?s\b", re.I),
-    "this_is_why": re.compile(r"\bthis is why\b", re.I),
-    "that_matters": re.compile(r"\band that matters\b", re.I),
-    "simply_put": re.compile(r"\bsimply put\b", re.I),
-}
 
-TRANSITIONS = (
-    "additionally",
-    "furthermore",
-    "moreover",
-    "however",
-    "ultimately",
-    "importantly",
-    "in conclusion",
-    "in today's",
-    "at its core",
-    "first and foremost",
-    "on the other hand",
-)
-
-ABSTRACT_FILLER = (
-    "seamless",
-    "seamlessly",
-    "powerful",
-    "innovative",
-    "transformative",
-    "game-changing",
-    "elevate",
-    "unlock",
-    "reimagine",
-    "empower",
-    "journey",
-    "landscape",
-    "possibilities",
-    "potential",
-    "meaningful impact",
-    "next level",
-)
-
-ERROR_STATE = re.compile(
-    r"\b(?:rejected|declined|denied|blocked|removed|failed|error|unavailable|not saved|not created|not completed)\b",
-    re.I,
-)
-RECOVERY_CUE = re.compile(
-    r"\b(?:because|due to|try again|retry|contact|check|choose|fix|restore|retained|kept|appeal|update|learn more|return to)\b",
-    re.I,
-)
 
 PASSIVE_AUX = r"(?:am|is|are|was|were|be|been|being|become|becomes|became|get|gets|got)"
 IRREGULAR_PARTICIPLES = {
@@ -134,10 +76,254 @@ SIGNAL_FAMILIES = {
     "detail_sparsity": "specificity",
     "passive_candidates": "responsibility",
     "missing_recovery_information": "responsibility",
+    "hedged_profundity": "specificity",
+    "triad_density": "rhetorical_structure",
     "overlong_sentence": "cognitive_load",
     "clause_pileup": "cognitive_load",
     "parenthetical_stacking": "cognitive_load",
 }
+
+PACKS: dict[str, dict[str, Any]] = {
+    # ------------------------------------------------------------------
+    # The single place to add slop sources. Each pack bundles related
+    # regex patterns or lexicon terms, names the signal it feeds, and
+    # records provenance. Packs sharing a signal_code merge, so a new
+    # source is one appended entry (or extra terms in an existing pack);
+    # no other code changes are required. Kinds:
+    #   "patterns" - named regexes counted into the signal (scaffold frames)
+    #   "terms"    - case-insensitive words/phrases; "match" is "anywhere"
+    #                (word-boundary count) or "sentence_lead" (sentence start)
+    #   "detector" - built-in detector named by "detector"
+    # Every pack needs a false-positive guard in references/sentence-slop.md
+    # and a regression case in evals/sentence-slop/cases.json.
+    # ------------------------------------------------------------------
+    "contrast-scaffolds": {
+        "kind": "patterns",
+        "signal_code": "formulaic_scaffolds",
+        "description": "Negative parallelism and contrast reframes: 'not X, but Y' and the comma-splice variant 'you're not X, you're Y'.",
+        "provenance": ("[ORgKY9AlybA]", "[field 2026-08-14]"),
+        "patterns": {
+            "not_x_but_y": r"\b(?:it'?s|this is|we are|that is)?\s*not\s+(?!(?:because|just|about)\b)[^.!?\n]{0,100}\bbut\b",
+            "not_because_but": r"\bnot because\b[^.!?\n]{0,100}\bbut because\b",
+            "not_just_but": r"\bnot just\b[^.!?\n]{0,100}\b(?:but|also)\b",
+            "not_about": r"\bit'?s not about\b",
+            "not_x_reframe_y": r"\b(?:it[’']?s|you[’']?re|we[’']?re|they[’']?re|that[’']?s|this is|i[’']?m)\s+not\s+[^.!?,;:\n]{1,60}[,;:—–-]\s*[’'\"“”]?\s*(?:it[’']?s|you[’']?re|we[’']?re|they[’']?re|that[’']?s|this is|i[’']?m)\b",
+            "isnt_x_its_y": r"\b(?:isn[’']?t|aren[’']?t)\s+[^.!?,;:\n]{1,60}[,;:—–-]\s*(?:it[’']?s|it is|they[’']?re|that[’']?s)\b",
+        },
+    },
+    "hook-scaffolds": {
+        "kind": "patterns",
+        "signal_code": "formulaic_scaffolds",
+        "description": "Stock momentum hooks: 'here's the kicker', 'the truth is', 'what if', 'simply put', and similar frames.",
+        "provenance": ("[ORgKY9AlybA]", "[field 2026-08-14]"),
+        "patterns": {
+            "here_is_the": r"\b(?:here(?:'s|’s| is)\s+the\s+(?:truth|thing|catch|problem|point|kicker)|the\s+kicker\s*(?:is|:))\b",
+            "truth_frame": r"\bthe truth is\b",
+            "whether_you": r"\bwhether you(?:'re| are)\b",
+            "in_a_world": r"\bin a world where\b",
+            "what_if": r"\bwhat if\b",
+            "key_frame": r"\bthe key is\b",
+            "at_end_of_day": r"\bat the end of the day\b",
+            "lets_frame": r"\blet'?s\b",
+            "this_is_why": r"\bthis is why\b",
+            "that_matters": r"\band that matters\b",
+            "simply_put": r"\bsimply put\b",
+        },
+    },
+    "transition-markers": {
+        "kind": "terms",
+        "match": "sentence_lead",
+        "signal_code": "transition_concentration",
+        "description": "Discourse-marker concentration: 'furthermore', 'ultimately', 'in conclusion', and similar sentence-lead transitions.",
+        "provenance": ("[QUDSIM25]",),
+        "terms": (
+            "additionally",
+            "furthermore",
+            "moreover",
+            "however",
+            "ultimately",
+            "importantly",
+            "in conclusion",
+            "in today's",
+            "at its core",
+            "first and foremost",
+            "on the other hand",
+        ),
+    },
+    "abstract-filler": {
+        "kind": "terms",
+        "match": "anywhere",
+        "signal_code": "detail_sparsity",
+        "description": "Profound-but-vague vocabulary: 'seamless', 'transformative', 'testament', 'tapestry', 'delve', 'pivotal', and similar words that promise without specifics.",
+        "provenance": ("[REDDIT-WRITING26]", "[field 2026-08-14]"),
+        "terms": (
+            "seamless",
+            "seamlessly",
+            "powerful",
+            "innovative",
+            "transformative",
+            "game-changing",
+            "elevate",
+            "unlock",
+            "reimagine",
+            "empower",
+            "journey",
+            "landscape",
+            "possibilities",
+            "potential",
+            "meaningful impact",
+            "next level",
+            "profound",
+            "profoundly",
+            "testament",
+            "tapestry",
+            "delve",
+            "resonate",
+            "resonates",
+            "pivotal",
+            "nuanced",
+            "paradigm",
+            "holistic",
+            "speaks volumes",
+        ),
+    },
+    "hedged-profundity": {
+        "kind": "terms",
+        "match": "anywhere",
+        "signal_code": "hedged_profundity",
+        "description": "Commitment-free intensity modifiers: 'quietly', 'subtly', 'effortlessly', and similar adverbs that gesture at significance while taking no position.",
+        "provenance": ("[field 2026-08-14]",),
+        "terms": (
+            "quietly",
+            "subtly",
+            "deceptively",
+            "effortlessly",
+            "undeniably",
+            "remarkably",
+            "strikingly",
+            "inherently",
+            "on some level",
+            "in many ways",
+            "in its own way",
+        ),
+    },
+    "triad-density": {
+        "kind": "detector",
+        "detector": "short_item_triads",
+        "signal_code": "triad_density",
+        "description": "Rule-of-three saturation: a high share of sentences carrying interchangeable short-item three-part lists.",
+        "provenance": ("[ORgKY9AlybA]", "[field 2026-08-14]"),
+    },
+    "error-states": {
+        "kind": "detector_terms",
+        "role": "error",
+        "signal_code": "missing_recovery_information",
+        "description": "Vocabulary that marks a string as an error or denial state.",
+        "provenance": ("[GOVUK-CLEAR]",),
+        "terms": (
+            "rejected", "declined", "denied", "blocked", "removed", "failed",
+            "error", "unavailable", "not saved", "not created", "not completed",
+        ),
+    },
+    "recovery-cues": {
+        "kind": "detector_terms",
+        "role": "recovery",
+        "signal_code": "missing_recovery_information",
+        "description": "Cause, retained-state, and next-action cues that make an error string recoverable, including honest retained-state statements like 'nothing changed'.",
+        "provenance": ("[GOVUK-CLEAR]", "[field 2026-08-14]"),
+        "terms": (
+            "because", "due to", "try again", "retry", "contact", "check",
+            "choose", "fix", "restore", "retained", "kept", "appeal", "update",
+            "learn more", "return to",
+            "nothing changed", "no changes were made", "left untouched",
+            "still intact", "unchanged",
+        ),
+    },
+}
+
+TRIAD = re.compile(
+    r"\b[\w’'-]+(?:\s+[\w’'-]+)?\s*,\s*[\w’'-]+(?:\s+[\w’'-]+)?\s*,\s*(?:and|or)\s+[\w’'-]+(?:\s+[\w’'-]+)?\b",
+    re.I,
+)
+
+_VALID_PACK_KINDS = {"patterns", "terms", "detector", "detector_terms"}
+
+
+def _validate_packs() -> None:
+    for pack_id, pack in PACKS.items():
+        if pack["kind"] not in _VALID_PACK_KINDS:
+            raise ValueError(f"pack {pack_id!r} has unknown kind {pack['kind']!r}")
+        if pack["signal_code"] not in SIGNAL_FAMILIES:
+            raise ValueError(f"pack {pack_id!r} feeds unregistered signal {pack['signal_code']!r}")
+        if pack["kind"] == "patterns" and not pack.get("patterns"):
+            raise ValueError(f"pattern pack {pack_id!r} has no patterns")
+        if pack["kind"] in {"terms", "detector_terms"} and not pack.get("terms"):
+            raise ValueError(f"terms pack {pack_id!r} has no terms")
+        if pack["kind"] == "detector_terms" and pack.get("role") not in {"error", "recovery"}:
+            raise ValueError(f"detector_terms pack {pack_id!r} needs role 'error' or 'recovery'")
+
+
+_validate_packs()
+
+_PACK_PATTERNS: dict[str, dict[str, re.Pattern[str]]] = {
+    pack_id: {name: re.compile(expr, re.I) for name, expr in pack["patterns"].items()}
+    for pack_id, pack in PACKS.items()
+    if pack["kind"] == "patterns"
+}
+
+
+def scaffold_patterns_for(active: set[str] | None = None) -> dict[str, re.Pattern[str]]:
+    """Merge compiled patterns from active packs feeding formulaic_scaffolds."""
+    merged: dict[str, re.Pattern[str]] = {}
+    for pack_id, patterns in _PACK_PATTERNS.items():
+        if PACKS[pack_id]["signal_code"] != "formulaic_scaffolds":
+            continue
+        if active is not None and pack_id not in active:
+            continue
+        merged.update(patterns)
+    return merged
+
+
+def terms_for(signal_code: str, active: set[str] | None = None) -> tuple[str, ...]:
+    """Merge lexicon terms from active packs feeding one signal, deduplicated."""
+    collected: list[str] = []
+    for pack_id, pack in PACKS.items():
+        if pack["kind"] != "terms" or pack["signal_code"] != signal_code:
+            continue
+        if active is not None and pack_id not in active:
+            continue
+        collected.extend(pack["terms"])
+    return tuple(dict.fromkeys(collected))
+
+
+def detector_terms_pattern(signal_code: str, role: str, active: set[str] | None = None) -> re.Pattern[str] | None:
+    """Build a word-boundary alternation from active detector_terms packs, or None when empty."""
+    collected: list[str] = []
+    for pack_id, pack in PACKS.items():
+        if pack["kind"] != "detector_terms" or pack["signal_code"] != signal_code or pack.get("role") != role:
+            continue
+        if active is not None and pack_id not in active:
+            continue
+        collected.extend(pack["terms"])
+    if not collected:
+        return None
+    joined = "|".join(re.escape(term) for term in dict.fromkeys(collected))
+    return re.compile(rf"\b(?:{joined})\b", re.I)
+
+
+LABEL_SURFACE_CLASSES = {"label", "badge", "cell", "heading", "status"}
+
+
+def detector_enabled(signal_code: str, active: set[str] | None = None) -> bool:
+    return any(
+        pack["kind"] == "detector" and pack["signal_code"] == signal_code
+        for pack_id, pack in PACKS.items()
+        if active is None or pack_id in active
+    )
+
+
+ALL_SCAFFOLDS = scaffold_patterns_for()
+
 
 
 def tokens(text: str) -> list[str]:
@@ -242,27 +428,37 @@ def split_sentences(text: str) -> list[str]:
     return sentences
 
 
-def sentence_role(sentence: str) -> str:
+def sentence_role(
+    sentence: str,
+    scaffolds: dict[str, re.Pattern[str]] | None = None,
+    transitions: tuple[str, ...] | None = None,
+) -> str:
+    active = ALL_SCAFFOLDS if scaffolds is None else scaffolds
+    active_transitions = terms_for("transition_concentration") if transitions is None else transitions
     lowered = sentence.lower().lstrip("\"'“”‘’(")
     if sentence.rstrip().endswith("?"):
         return "question"
-    if any(pattern.search(sentence) for pattern in SCAFFOLDS.values()):
+    if any(pattern.search(sentence) for pattern in active.values()):
         return "scaffold"
-    if any(lowered.startswith(transition) for transition in TRANSITIONS):
+    if any(lowered.startswith(transition) for transition in active_transitions):
         return "transition"
     if len(tokens(sentence)) <= 5:
         return "short"
     return "statement"
 
 
-def paragraph_patterns(text: str) -> list[dict[str, Any]]:
+def paragraph_patterns(
+    text: str,
+    scaffolds: dict[str, re.Pattern[str]] | None = None,
+    transitions: tuple[str, ...] | None = None,
+) -> list[dict[str, Any]]:
     signatures: Counter[tuple[str, ...]] = Counter()
     examples: dict[tuple[str, ...], list[str]] = {}
     for paragraph in re.split(r"\n\s*\n", text):
         sentences = split_sentences(paragraph)
         if len(sentences) < 2:
             continue
-        signature = tuple(sentence_role(sentence) for sentence in sentences[:3])
+        signature = tuple(sentence_role(sentence, scaffolds, transitions) for sentence in sentences[:3])
         if not any(role != "statement" for role in signature):
             continue
         signatures[signature] += 1
@@ -321,7 +517,10 @@ def load_input(path: Path) -> tuple[str, list[dict[str, str]], str | None, str |
             items.append({"surface": f"item-{index + 1}", "text": item})
         elif isinstance(item, dict) and isinstance(item.get("text"), str):
             surface = item.get("surface")
-            items.append({"surface": str(surface or f"item-{index + 1}"), "text": item["text"]})
+            entry = {"surface": str(surface or f"item-{index + 1}"), "text": item["text"]}
+            if isinstance(item.get("surface_class"), str):
+                entry["surface_class"] = item["surface_class"]
+            items.append(entry)
         else:
             raise ValueError(f"items[{index}] must be a string or an object with text")
     return "\n".join(item["text"] for item in items), items, supplied_context, supplied_language
@@ -391,6 +590,15 @@ def add_lead(leads: list[dict[str, Any]], code: str, measurement: str, reason: s
     )
 
 
+def resolve_packs(disabled_packs: list[str] | None) -> tuple[set[str], set[str]]:
+    """Validate the disabled-pack list and return (active, disabled) pack IDs."""
+    disabled = set(disabled_packs or [])
+    unknown = disabled - set(PACKS)
+    if unknown:
+        raise ValueError(f"unknown pack(s): {sorted(unknown)}; available: {sorted(PACKS)}")
+    return set(PACKS) - disabled, disabled
+
+
 def analyze(
     text: str,
     *,
@@ -398,9 +606,15 @@ def analyze(
     context: str = "general",
     language: str = "unknown",
     items: list[dict[str, str]] | None = None,
+    disabled_packs: list[str] | None = None,
 ) -> dict[str, Any]:
     if language not in LANGUAGE_CHOICES:
         raise ValueError(f"language must be one of {sorted(LANGUAGE_CHOICES)}")
+    active_packs, disabled = resolve_packs(disabled_packs)
+    active_scaffolds = scaffold_patterns_for(active_packs)
+    transition_terms = terms_for("transition_concentration", active_packs)
+    filler_terms = terms_for("detail_sparsity", active_packs)
+    hedge_terms = terms_for("hedged_profundity", active_packs)
     items = items or []
     resolved_mode = "ui_microcopy" if mode == "ui" or (mode == "auto" and items) else "prose"
     if resolved_mode == "prose":
@@ -419,36 +633,6 @@ def analyze(
     sentences = split_sentences(analysis_text)
     word_list = tokens(analysis_text)
     lengths = [len(tokens(sentence)) for sentence in sentences if tokens(sentence)]
-
-    overlong = [s for s in sentences if len(tokens(s)) > 35]
-    if overlong:
-        add_lead(
-            leads_load := [], "overlong_sentence",
-            f"{len(overlong)} of {len(sentences)} sentences exceed 35 words",
-            "Sentences past roughly 35 words ask the reader to hold too many clauses at once.",
-            [s[:110] for s in overlong],
-            "A long sentence that is one parallel enumerated list reads fine; check structure before flagging.",
-        )
-    else:
-        leads_load = []
-    pileups = [s for s in sentences if s.count(";") >= 2 or s.count(",") >= 5]
-    if pileups:
-        add_lead(
-            leads_load, "clause_pileup",
-            f"{len(pileups)} sentences with semicolon chains or five-plus commas",
-            "Stacked clauses in one breath bury the main point.",
-            [s[:110] for s in pileups],
-            "Citation strings legitimately carry punctuation density.",
-        )
-    stacked = [s for s in sentences if s.count("(") >= 2]
-    if stacked:
-        add_lead(
-            leads_load, "parenthetical_stacking",
-            f"{len(stacked)} sentences with two or more parentheticals",
-            "Multiple parentheticals per sentence bury the main clause.",
-            [s[:110] for s in stacked],
-            "A single clarifying parenthetical is normal prose.",
-        )
     word_count = len(word_list)
     sentence_count = len(lengths)
     surface_count = len(items) if items else (1 if text.strip() else 0)
@@ -475,21 +659,35 @@ def analyze(
     passives = passive_candidates(sentences)
     scaffold_hits = {
         name: len(pattern.findall(analysis_text))
-        for name, pattern in SCAFFOLDS.items()
+        for name, pattern in active_scaffolds.items()
         if pattern.search(analysis_text)
     }
     transition_hits: list[dict[str, Any]] = []
     for index, sentence in enumerate(sentences, 1):
         lowered = sentence.lower().lstrip("\"'“”‘’(")
-        hit = next((transition for transition in TRANSITIONS if lowered.startswith(transition)), None)
+        hit = next((transition for transition in transition_terms if lowered.startswith(transition)), None)
         if hit:
             transition_hits.append({"sentence": index, "transition": hit, "text": sentence[:240]})
     grams = repeated_ngrams(analysis_text)
     filler_hits = {
         phrase: len(re.findall(rf"\b{re.escape(phrase)}\b", analysis_text, re.I))
-        for phrase in ABSTRACT_FILLER
+        for phrase in filler_terms
         if re.search(rf"\b{re.escape(phrase)}\b", analysis_text, re.I)
     }
+    hedge_hits = {
+        phrase: len(re.findall(rf"\b{re.escape(phrase)}\b", analysis_text, re.I))
+        for phrase in hedge_terms
+        if re.search(rf"\b{re.escape(phrase)}\b", analysis_text, re.I)
+    }
+    triad_sentences = (
+        [
+            {"sentence": index, "text": sentence[:240]}
+            for index, sentence in enumerate(sentences, 1)
+            if TRIAD.search(sentence)
+        ]
+        if detector_enabled("triad_density", active_packs) and resolved_mode == "prose"
+        else []
+    )
     specificity = specificity_markers(analysis_text, sentences)
     anchors = specificity["count"]
     short_sentences = [
@@ -497,15 +695,21 @@ def analyze(
         for index, sentence in enumerate(sentences, 1)
         if 1 <= len(tokens(sentence)) <= 5
     ]
-    reused_paragraph_patterns = paragraph_patterns(analysis_text) if resolved_mode == "prose" else []
+    reused_paragraph_patterns = (
+        paragraph_patterns(analysis_text, active_scaffolds, transition_terms) if resolved_mode == "prose" else []
+    )
+    error_pattern = detector_terms_pattern("missing_recovery_information", "error", active_packs)
+    recovery_pattern = detector_terms_pattern("missing_recovery_information", "recovery", active_packs)
     unrecoverable_errors = [
         {"surface": item["surface"], "text": item["text"][:240]}
         for item in items
-        if ERROR_STATE.search(item["text"]) and not RECOVERY_CUE.search(item["text"])
+        if error_pattern is not None
+        and item.get("surface_class", "").lower() not in LABEL_SURFACE_CLASSES
+        and error_pattern.search(item["text"])
+        and not (recovery_pattern is not None and recovery_pattern.search(item["text"]))
     ]
 
     leads: list[dict[str, Any]] = []
-    leads.extend(leads_load)
     prose_stats_allowed = resolved_mode == "prose" and adequacy in {"adequate", "limited"}
     if prose_stats_allowed and sentence_count >= 6 and coefficient <= 0.28:
         add_lead(
@@ -605,6 +809,58 @@ def analyze(
             [{"phrase": key, "count": value} for key, value in filler_hits.items()],
             "A low anchor count is only a crude lead; inspect whether the surrounding product context already supplies specifics.",
         )
+
+    overlong = [s for s in sentences if len(tokens(s)) > 35]
+    if overlong:
+        add_lead(
+            leads_load := [], "overlong_sentence",
+            f"{len(overlong)} of {len(sentences)} sentences exceed 35 words",
+            "Sentences past roughly 35 words ask the reader to hold too many clauses at once.",
+            [s[:110] for s in overlong],
+            "A long sentence that is one parallel enumerated list reads fine; check structure before flagging.",
+        )
+    else:
+        leads_load = []
+    pileups = [s for s in sentences if s.count(";") >= 2 or s.count(",") >= 5]
+    if pileups:
+        add_lead(
+            leads_load, "clause_pileup",
+            f"{len(pileups)} sentences with semicolon chains or five-plus commas",
+            "Stacked clauses in one breath bury the main point.",
+            [s[:110] for s in pileups],
+            "Citation strings legitimately carry punctuation density.",
+        )
+    stacked = [s for s in sentences if s.count("(") >= 2]
+    if stacked:
+        add_lead(
+            leads_load, "parenthetical_stacking",
+            f"{len(stacked)} sentences with two or more parentheticals",
+            "Multiple parentheticals per sentence bury the main clause.",
+            [s[:110] for s in stacked],
+            "A single clarifying parenthetical is normal prose.",
+        )
+    leads.extend(leads_load)
+
+    hedge_total = sum(hedge_hits.values())
+    if word_count >= 80 and hedge_total >= 3 and len(hedge_hits) >= 2:
+        add_lead(
+            leads,
+            "hedged_profundity",
+            f"{hedge_total} commitment-free intensity modifiers across {len(hedge_hits)} distinct terms",
+            "Modifiers like “quietly” or “subtly” can gesture at significance while committing the copy to no verifiable claim.",
+            [{"term": key, "count": value} for key, value in sorted(hedge_hits.items(), key=lambda kv: -kv[1])],
+            "Literal physical uses (“quietly closed the door”) and justified emphasis are legitimate; verify the modifier decorates an abstract claim that is never supported.",
+        )
+    triad_ratio = len(triad_sentences) / sentence_count if sentence_count else 0.0
+    if prose_stats_allowed and sentence_count >= 6 and len(triad_sentences) >= 4 and triad_ratio >= 0.30:
+        add_lead(
+            leads,
+            "triad_density",
+            f"{len(triad_sentences)} of {sentence_count} sentences carry a three-item list ({triad_ratio:.0%})",
+            "A default rule-of-three rhythm can substitute cadence for content when triads recur without adding information.",
+            triad_sentences,
+            "Only short-item triads are counted; genuine enumerations, procedures, and legal or safety lists legitimately use threes. Promote only when the triad items are interchangeable, padded, or repeated across surfaces.",
+        )
     if resolved_mode == "ui_microcopy" and len(unrecoverable_errors) >= 2:
         add_lead(
             leads,
@@ -612,7 +868,7 @@ def analyze(
             f"{len(unrecoverable_errors)} error-state strings lack a cause or recovery cue",
             "Users may not know what failed, what was retained, or what action can resolve the state.",
             unrecoverable_errors,
-            "The surrounding surface may supply the missing cause and action; inspect each rendered state before promoting the lead.",
+            "The surrounding surface may supply the missing cause and action; inspect each rendered state before promoting the lead. Items tagged with surface_class label/badge/cell/heading/status are excluded as vocabulary, not messages.",
         )
 
     language_supported = language in SUPPORTED_LANGUAGES
@@ -631,7 +887,7 @@ def analyze(
             if opening["count"] >= 2
         }
         repeated_roles = {
-            sentence_role(sentences[index - 1])
+            sentence_role(sentences[index - 1], active_scaffolds, transition_terms)
             for index in repeated_sentence_indexes
             if 0 < index <= len(sentences)
         }
@@ -672,12 +928,25 @@ def analyze(
         ]
 
     return {
-        "schema_version": "1.2",
+        "schema_version": "1.3",
         "mode": resolved_mode,
         "context": context,
         "language": language,
         "language_analysis_status": "supported" if language_supported else "abstained",
         "authorship_assessment": "not_performed",
+        "packs": {
+            "active": sorted(active_packs),
+            "disabled": sorted(disabled),
+            "registry": {
+                pack_id: {
+                    "signal_code": pack["signal_code"],
+                    "kind": pack["kind"],
+                    "description": pack["description"],
+                    "provenance": list(pack.get("provenance", ())),
+                }
+                for pack_id, pack in sorted(PACKS.items())
+            },
+        },
         "normalization": normalization,
         "sample": {
             "words": word_count,
@@ -696,6 +965,8 @@ def analyze(
             "concrete_anchors": anchors,
             "specificity_markers": specificity,
             "abstract_filler_matches": filler_total,
+            "hedged_profundity_matches": sum(hedge_hits.values()),
+            "triad_sentences": len(triad_sentences),
             "short_sentences": len(short_sentences),
             "paragraph_patterns_reused": len(reused_paragraph_patterns),
             "error_states_without_recovery_cue": len(unrecoverable_errors),
@@ -751,17 +1022,38 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Use only when the context is supplied; never infer it from prose.",
     )
+    parser.add_argument(
+        "--disable-pack",
+        action="append",
+        default=None,
+        metavar="PACK_ID",
+        help="Disable one detector pack (repeatable). Run --list-packs to see IDs.",
+    )
     parser.add_argument("--output", type=Path, help="Optional JSON output path")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
+    if "--list-packs" in argv:
+        for pack_id, pack in sorted(PACKS.items()):
+            provenance = ", ".join(pack.get("provenance", ()))
+            print(f"{pack_id}\t{pack['signal_code']}\t{pack['description']}\t{provenance}")
+        return 0
     args = build_parser().parse_args(argv)
     try:
         text, items, supplied_context, supplied_language = load_input(args.input)
         context = args.context or supplied_context or "general"
         language = args.language or supplied_language or "unknown"
-        result = analyze(text, mode=args.mode, context=context, language=language, items=items)
+        result = analyze(
+            text,
+            mode=args.mode,
+            context=context,
+            language=language,
+            items=items,
+            disabled_packs=args.disable_pack,
+        )
     except (OSError, ValueError, json.JSONDecodeError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 2

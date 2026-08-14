@@ -120,7 +120,7 @@ Open: mascot, palette, and all visual language — nothing visual is committed y
 ## Evidence on Hand
 
 - Scruffy's real output contract, consumed here:
-  `../references/output-schema.md`, `../schema/audit-contract.json`.
+  `../scruffy/references/output-schema.md`, `../scruffy/schema/audit-contract.json`.
 - This repo's `schema/interop.json` (the consumer compatibility key) and
   `references/scruffy-handoff.md`.
 - Implemented runtime method: `SKILL.md` plus `references/method.md`,

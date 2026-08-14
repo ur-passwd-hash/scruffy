@@ -1,7 +1,7 @@
 # Scruffy's Mop maintainer contract
 
 This repository is the standalone source project for Scruffy's Mop, the fix/redesign
-executor that consumes [Scruffy](..)'s audit output. This file governs
+executor that consumes [Scruffy](../scruffy)'s audit output. This file governs
 work **on Scruffy's Mop itself**. Claude Code imports it through root `CLAUDE.md`.
 
 ## Start here

@@ -68,6 +68,20 @@ def probe_browser() -> dict:
         if found:
             return {"status": "available", "tool": cmd, "path": found,
                     "version": _version(found), "checked": checked}
+    import glob
+    from pathlib import Path
+    playwright_globs = (
+        str(Path.home() / ".cache/ms-playwright/chromium*/chrome-linux*/chrome"),
+        str(Path.home() / ".cache/ms-playwright/chromium*/chrome-linux*/headless_shell"),
+        str(Path.home() / ".cache/ms-playwright/chromium_headless_shell*/chrome-linux*/headless_shell"),
+        str(Path.home() / "Library/Caches/ms-playwright/chromium*/chrome-mac*/Chromium.app/Contents/MacOS/Chromium"),
+    )
+    for pattern in playwright_globs:
+        checked.append(pattern)
+        matches = sorted(glob.glob(pattern))
+        if matches:
+            return {"status": "available", "tool": "playwright-chromium", "path": matches[-1],
+                    "version": _version(matches[-1]), "checked": checked}
     return {"status": "absent", "reason": "no Chrome/Chromium/Edge/Brave binary found",
             "checked": checked}
 
@@ -135,6 +149,11 @@ def main(argv=None) -> int:
         p.add_argument(f"--{cap.replace('_', '-')}-reason",
                        help=f"failure reason (required if {cap} is 'absent')")
     p.add_argument("--json", action="store_true")
+    p.add_argument(
+        "--handoff-augmentations",
+        action="store_true",
+        help="Print only the handoff augmentations JSON (save to a file, pass to mop_handoff --augmentations @file)",
+    )
     args = p.parse_args(argv)
 
     attest = {}
@@ -148,6 +167,9 @@ def main(argv=None) -> int:
     except PreflightError as exc:
         print(f"REFUSED (never-assume rule): {exc}", file=sys.stderr)
         return 2
+    if args.handoff_augmentations:
+        print(json.dumps(to_handoff_augmentations(report), indent=2))
+        return 0
     print(json.dumps(report, indent=2) if args.json else _human(report))
     return 0
 

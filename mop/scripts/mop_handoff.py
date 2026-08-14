@@ -120,7 +120,10 @@ def _cmd(args) -> int:
     bundle = load_bundle(args.bundle, interop)
     plan = build_plan(bundle, interop, args.authorized)
     work = json.loads(Path(args.work).read_text(encoding="utf-8")) if args.work else {}
-    augmentations = json.loads(args.augmentations) if args.augmentations else None
+    if args.augmentations and args.augmentations.startswith("@"):
+        augmentations = json.loads(Path(args.augmentations[1:]).read_text(encoding="utf-8"))
+    else:
+        augmentations = json.loads(args.augmentations) if args.augmentations else None
     handoff = build_handoff(plan, work, augmentations)
     if args.json:
         print(json.dumps(handoff, indent=2))
@@ -134,7 +137,7 @@ def main(argv=None) -> int:
     parser.add_argument("bundle", help="Path to the Scruffy audit bundle directory")
     parser.add_argument("--work", help="JSON file: item_id -> changed surfaces + self-check")
     parser.add_argument("--augmentations",
-                        help='JSON, e.g. \'{"impeccable":"used","design_reference_search":"absent"}\'')
+                        help='JSON string, or @file from mop_preflight --handoff-augmentations')
     parser.add_argument("--authorized", action="store_true")
     parser.add_argument("--json", action="store_true")
     parser.set_defaults(func=_cmd)

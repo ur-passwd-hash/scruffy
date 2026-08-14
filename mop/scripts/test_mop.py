@@ -164,6 +164,19 @@ def test_gate_fails_closed_without_authority():
     assert gate_state(b, INTEROP, authorized_override=True)["permissible"]
 
 
+def test_explicit_grant_satisfies_mode_and_authority():
+    b = _bundle()
+    b = copy.deepcopy(b)
+    b["findings"]["run"]["effective_mode"] = "audit"
+    b["findings"]["run"]["repository_write_authority"] = "not_authorized"
+    from mop_bundle import gate_state
+    blocked = gate_state(b, INTEROP, authorized_override=False)
+    assert not blocked["permissible"]
+    granted = gate_state(b, INTEROP, authorized_override=True)
+    assert granted["permissible"], granted["reasons"]
+    assert granted["authorized_override"] is True
+
+
 def test_gate_fails_closed_wrong_mode():
     b = copy.deepcopy(_bundle())
     b["findings"]["run"]["effective_mode"] = "audit"
@@ -334,6 +347,268 @@ def test_dashboard_unknown_mime_fails_closed():
         except InteropError:
             return
     raise AssertionError("unknown MIME must fail closed")
+
+
+def _plan(authorized=True):
+    b = _bundle()
+    return b, build_plan(b, INTEROP, authorized)
+
+
+def test_directions_scaffold_covers_design_lanes_only():
+    from mop_directions import DESIGN_CATEGORIES, design_groups, scaffold_directions
+    _, plan = _plan()
+    doc = scaffold_directions(plan, {"impeccable": {"status": "available"},
+                                     "design_reference_search": {"status": "absent"}})
+    grouped = {i for g in doc["groups"] for i in g["item_ids"]}
+    design = {s["item_id"] for s in plan["steps"] if s["category"] in DESIGN_CATEGORIES}
+    assert grouped == design, (grouped, design)
+    for g in doc["groups"]:
+        assert len(g["directions"]) == 3
+        assert sum(1 for d in g["directions"] if d["recommended"]) == 1
+        assert g["selected"] is None, "recommended must never be auto-selected"
+        assert g["craft_engine"] == "impeccable"
+        assert g["grounding_tier"] == "internal"
+
+
+def test_directions_floor_engine_without_impeccable():
+    from mop_directions import scaffold_directions
+    _, plan = _plan()
+    doc = scaffold_directions(plan, None)
+    assert all(g["craft_engine"] == "floor" for g in doc["groups"])
+
+
+def _filled(doc):
+    for g in doc["groups"]:
+        for d in g["directions"]:
+            d["principle_refs"] = ["[KJ §3]"]
+    return doc
+
+
+def test_directions_check_enforces_distinct_paradigms_and_one_recommended():
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    _, plan = _plan()
+    doc = _filled(scaffold_directions(plan, None))
+    check_directions(doc, plan)  # filled scaffold must validate
+    bad = copy.deepcopy(doc)
+    bad["groups"][0]["directions"][1]["paradigm"] = bad["groups"][0]["directions"][0]["paradigm"]
+    try:
+        check_directions(bad, plan)
+        raise AssertionError("repeated paradigms must fail")
+    except InteropError:
+        pass
+    bad2 = copy.deepcopy(doc)
+    bad2["groups"][0]["directions"][1]["recommended"] = True
+    try:
+        check_directions(bad2, plan)
+        raise AssertionError("two recommended must fail")
+    except InteropError:
+        pass
+
+
+def test_no_selection_withholds_design_steps_only():
+    from mop_directions import DESIGN_CATEGORIES, implementable_steps, scaffold_directions
+    _, plan = _plan()
+    doc = _filled(scaffold_directions(plan, None))
+    steps = implementable_steps(plan, doc)
+    assert all(s["category"] not in DESIGN_CATEGORIES for s in steps), \
+        "design steps must be withheld without a selection"
+    doc["groups"][0]["selected"] = doc["groups"][0]["directions"][2]["id"]
+    steps2 = implementable_steps(plan, doc)
+    assert set(i["item_id"] for i in steps2) > set(i["item_id"] for i in steps)
+
+
+def test_selection_must_reference_existing_direction():
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    _, plan = _plan()
+    doc = _filled(scaffold_directions(plan, None))
+    doc["groups"][0]["selected"] = "GRP-999-Z"
+    try:
+        check_directions(doc, plan)
+        raise AssertionError("unknown selection must fail")
+    except InteropError:
+        pass
+
+
+def test_todo_principle_refs_fail_check():
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    _, plan = _plan()
+    doc = scaffold_directions(plan, None)  # unfilled: TODO principle refs
+    try:
+        check_directions(doc, plan)
+        raise AssertionError("TODO principle refs must fail check")
+    except InteropError:
+        pass
+
+
+def _plan_with_visual():
+    b = copy.deepcopy(_bundle())
+    for dec in b["decisions"]["decisions"]:
+        if dec["item_id"] == "AS-03":
+            dec["decision"] = "approve"
+    return b, build_plan(b, INTEROP, True)
+
+
+def test_visual_selection_requires_image_anchor():
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    _, plan = _plan_with_visual()
+    doc = _filled(scaffold_directions(plan, None))
+    visual = next((g for g in doc["groups"] if "visual" in g.get("categories", [])), None)
+    assert visual is not None, "fixture must contain a visual design group"
+    assert visual["imagery"] == "unavailable", "no templates/screenshots supplied"
+    visual["selected"] = visual["directions"][0]["id"]
+    try:
+        check_directions(doc, plan)
+        raise AssertionError("text-only visual selection must be refused")
+    except InteropError as exc:
+        assert "image" in str(exc) or "imagery" in str(exc)
+
+
+def test_visual_selection_passes_with_template_image():
+    import tempfile
+    from mop_directions import check_directions, scaffold_directions
+    b, plan = _plan_with_visual()
+    with tempfile.TemporaryDirectory() as td:
+        _tiny_png(Path(td) / "linear-board-reference.png")
+        doc = _filled(scaffold_directions(plan, None, bundle=b, templates_dir=td))
+        visual = next(g for g in doc["groups"] if "visual" in g.get("categories", []))
+        assert visual["imagery"] == "available"
+        assert visual["reference_pool"], "pool must carry the taste-library anchors"
+        assert not any(d["grounding"] for d in visual["directions"]), \
+            "scaffold must never auto-attach imagery to directions"
+        # deliberate assignment from the pool is required
+        visual["directions"][0]["grounding"] = [visual["reference_pool"][0]]
+        visual["selected"] = visual["directions"][0]["id"]
+        check_directions(doc, plan)
+
+
+def test_untyped_image_anchor_is_refused():
+    import tempfile
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    b, plan = _plan_with_visual()
+    with tempfile.TemporaryDirectory() as td:
+        _tiny_png(Path(td) / "ref.png")
+        doc = _filled(scaffold_directions(plan, None, bundle=b, templates_dir=td))
+        visual = next(g for g in doc["groups"] if "visual" in g.get("categories", []))
+        anchor = dict(visual["reference_pool"][0]); anchor.pop("origin", None)
+        visual["directions"][0]["grounding"] = [anchor]
+        try:
+            check_directions(doc, plan)
+            raise AssertionError("untyped image anchor must be refused")
+        except InteropError as exc:
+            assert "origin" in str(exc)
+
+
+def test_cross_product_imagery_is_refused():
+    import tempfile
+    from mop_directions import check_directions, scaffold_directions
+    from mop_bundle import InteropError
+    b, plan = _plan_with_visual()
+    with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as foreign:
+        _tiny_png(Path(td) / "ref.png")
+        _tiny_png(Path(foreign) / "other-products-audit-evidence.png")
+        doc = _filled(scaffold_directions(plan, None, bundle=b, templates_dir=td))
+        visual = next(g for g in doc["groups"] if "visual" in g.get("categories", []))
+        visual["directions"][0]["grounding"] = [{
+            "source": "another product's audit",
+            "image": str(Path(foreign) / "other-products-audit-evidence.png"),
+            "origin": "taste_library",
+            "note": "",
+        }]
+        try:
+            check_directions(doc, plan)
+            raise AssertionError("imagery outside declared reference sources must be refused")
+        except InteropError as exc:
+            assert "cross-product" in str(exc) or "reference source" in str(exc)
+
+
+def test_dashboard_renders_direction_picker_and_export():
+    import tempfile
+    from mop_directions import scaffold_directions
+    from mop_dashboard import render
+    b, plan = _plan()
+    doc = _filled(scaffold_directions(plan, None))
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        for name in ("findings.json", "context.json", "decisions.json", "tokens.json"):
+            src = FIXTURE / name
+            if src.exists():
+                (d / name).write_text(src.read_text())
+        (d / "directions.json").write_text(json.dumps(doc))
+        out = render(d, None, str(d / "dash.html"), authorized=True)
+        html = out.read_text()
+    assert "Design directions" in html
+    assert "Download directions.json" in html
+    assert 'data-group-id="GRP-1"' in html
+    assert html.count('type="radio"') >= 3
+
+
+def test_dashboard_names_target_and_discloses_missing_screenshots():
+    import tempfile
+    from mop_dashboard import render
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td) / "fixtures" / "sample-audit"
+        td.mkdir(parents=True)
+        for name in ("findings.json", "context.json", "decisions.json", "tokens.json"):
+            src = FIXTURE / name
+            if src.exists():
+                (td / name).write_text(src.read_text())
+        out = render(td, None, str(td / "dash.html"), authorized=True)
+        html = out.read_text()
+    assert "Every item below judges one product" in html
+    assert "DEMO FIXTURE" in html, "fixture bundles must be visibly labeled as demos"
+    assert "No rendered image in this bundle" in html or "No screenshot receipt" in html, \
+        "missing rendered evidence must be disclosed, not silent"
+
+
+def test_dashboard_voice_categories_and_credits():
+    import tempfile
+    from mop_dashboard import render
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        for name in ("findings.json", "context.json", "decisions.json", "tokens.json"):
+            src = FIXTURE / name
+            if src.exists():
+                (td / name).write_text(src.read_text())
+        # give one item a principle ref so the credit line renders
+        f = json.loads((td / "findings.json").read_text())
+        f["items"][0]["principle_refs"] = ["PRINCIPLES §12 [Lp6ey4AyDzA 3:06]"]
+        (td / "findings.json").write_text(json.dumps(f))
+        out = render(td, None, str(td / "dash.html"), authorized=True)
+        html = out.read_text()
+    assert "text-transform:uppercase" not in html, "all-caps microlabels are a slop tell; sentence case only"
+    assert "Editorial slop (copy)" in html or "Structure slop (backend_shape)" in html, \
+        "cards must name the slop category explicitly, not just the schema key"
+    assert "Kole Jain" in html, "principle citations must credit the human source"
+    assert "Principle behind this finding" in html
+    assert 'data-tab="provenance"' in html and "Rules applied (and their sources)" in html \
+        and "Detector packs and signals" in html and "Evidence receipts" in html, \
+        "every finding needs a Provenance tab with the standardized Source/Rule/Pack/Signal chain"
+
+
+def test_mop_run_prepares_full_session():
+    import subprocess, tempfile
+    root = Path(__file__).resolve().parent
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        for name in ("findings.json", "context.json", "decisions.json", "tokens.json"):
+            src = FIXTURE / name
+            if src.exists():
+                (td / name).write_text(src.read_text())
+        proc = subprocess.run(
+            [sys.executable, str(root / "mop_run.py"), str(td), "--authorized",
+             "--impeccable", "absent", "--impeccable-reason", "probe failed in test",
+             "--design-reference-search", "absent", "--design-reference-search-reason", "probe failed in test"],
+            capture_output=True, text=True)
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        assert (td / "directions.json").exists(), "directions must always exist after a run"
+        assert (td / "mop-dashboard.html").exists(), "dashboard must always be rendered"
+        assert (td / "mop-preflight.json").exists(), "preflight must always be recorded"
+        assert "gate:" in proc.stdout and "augmentations:" in proc.stdout
 
 
 def _run():

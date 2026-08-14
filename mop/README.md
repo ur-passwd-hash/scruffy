@@ -1,6 +1,6 @@
 # Scruffy's Mop
 
-> **Scruffy's Mop** is the fix/redesign executor for [Scruffy](..). Scruffy finds the AI slop and proves it. Scruffy's Mop cleans it up — to a real craft bar — and hands it back for re-audit.
+> **Scruffy's Mop** is the fix/redesign executor for [Scruffy](../scruffy). Scruffy finds the AI slop and proves it. Scruffy's Mop cleans it up — to a real craft bar — and hands it back for re-audit.
 
 ## The loop
 
@@ -8,11 +8,40 @@
 Scruffy AUDIT ─► findings + context + decisions (+ tokens)
                         │  approved items only
                         ▼
-              Scruffy's Mop IMPLEMENTS (redesign/design authority)
-                        │
+        Scruffy's Mop PROPOSES directions.json        (design lanes:
+                        │  3 distinct options/group,   visual · product ·
+                        │  one recommended, human      IA · interaction)
+                        │  SELECTS in the dashboard
+                        ▼
+              Scruffy's Mop IMPLEMENTS (redesign/design authority;
+                        │   impeccable when present, craft floor always)
                         ▼
 Scruffy RE-AUDIT ─► items move open → fixed / cleared on real evidence
 ```
+
+Non-design lanes (copy, backend shape, performance) skip the picker and are
+implemented directly from the approved item's recommendation. `recommended`
+is advice — nothing is built that a human didn't pick.
+
+**The visual contract.** A UI recommendation cannot be made with text alone.
+Every direction cites the principle(s) that motivated the finding
+(`principle_refs` into Scruffy's corpus: Kole Jain `[KJ §n]`, `[RUI]`,
+`[Butterick]`, `[NN/g #n]`, `PRINCIPLES §n`), and a visual-category direction is
+**not selectable without an image anchor** — a template/reference image
+(Mobbin export, taste-library entry, `--templates <dir>`) or an annotated
+baseline screenshot from the audit's evidence. No imagery in the runtime →
+the group renders `imagery: unavailable`, stays advisory, and the check
+refuses any selection. Text-only design advice fails closed instead of
+shipping.
+
+**Provenance is part of the contract.** Every image anchor declares an
+`origin` — `target_baseline` (this audit's own screenshots), `design_reference`
+(a named external pattern source), `taste_library` (your curated reuse dir), or
+`mockup` — and must live inside a declared reference source or this bundle.
+Imagery from another product's audit or lab is refused as cross-product
+leakage: one engagement's evidence never grounds another's directions. The
+scaffold offers taste-library images as a per-group `reference_pool` and never
+auto-attaches them; assigning an image to a direction is a deliberate act.
 
 **Scruffy diagnoses and clears; Scruffy's Mop only implements.** Scruffy's Mop never produces
 findings, never scores authorship, and never marks its own work fixed.

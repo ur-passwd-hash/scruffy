@@ -1,204 +1,270 @@
 {
-  "schema_version": "2.1",
-  "audit_id": "acme-billing",
-  "target": "https://app.example.com/billing",
-  "revision_id": "r1",
-  "baseline_revision_id": null,
-  "run": {
-    "requested_mode": "redesign",
-    "effective_mode": "redesign",
-    "mode_selection_basis": "explicit",
-    "repository_write_authority": "authorized",
-    "authority_basis_type": "explicit_request",
-    "authority_basis": "The request authorized implementation of approved fixes.",
-    "repository_writes_performed": false,
-    "repository_write_paths": [],
-    "live_demonstration_performed": false,
-    "blind_status": "not_run",
-    "blind_artifact_refs": []
+ "schema_version": "2.1",
+ "audit_id": "acme-billing",
+ "target": "FAKE TEST PRODUCT — 'Acme Billing' exists only as Scruffy's Mop's built-in fixture; no finding here describes a real app",
+ "revision_id": "r1",
+ "baseline_revision_id": null,
+ "run": {
+  "requested_mode": "redesign",
+  "effective_mode": "redesign",
+  "mode_selection_basis": "explicit",
+  "repository_write_authority": "authorized",
+  "authority_basis_type": "explicit_request",
+  "authority_basis": "The request authorized implementation of approved fixes.",
+  "repository_writes_performed": false,
+  "repository_write_paths": [],
+  "live_demonstration_performed": false,
+  "blind_status": "not_run",
+  "blind_artifact_refs": []
+ },
+ "items": [
+  {
+   "id": "AS-04",
+   "identity_key": "billing-state-fused-to-view",
+   "kind": "finding",
+   "title": "[FIXTURE] Billing state is computed inside the view",
+   "category": "backend_shape",
+   "facets": [],
+   "severity": "high",
+   "confidence": "high",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "The invoice total, tax, and dunning state are derived in the render function; three surfaces recompute them differently.",
+   "user_impact": "Totals disagree between the summary, the PDF, and the email, so users cannot trust any of them.",
+   "evidence": [
+    "Three divergent total computations across BillingSummary, invoicePdf, and dunningEmail"
+   ],
+   "evidence_refs": [
+    "EV-SRC"
+   ],
+   "cause": "No single billing-state module; each surface recomputes from raw rows.",
+   "recommendation": "Extract one billing-state module that returns total, tax, and dunning state; have all surfaces read it.",
+   "acceptance_checks": [
+    "A single module is the only source of invoice total, tax, and dunning state",
+    "Summary, PDF, and email render identical totals for the same invoice"
+   ],
+   "depends_on": [],
+   "disposition_reason": "Newly observed structural blocker.",
+   "destination_id": null,
+   "editorial_review": null
   },
-  "items": [
-    {
-      "id": "AS-04",
-      "identity_key": "billing-state-fused-to-view",
-      "kind": "finding",
-      "title": "Billing state is computed inside the view",
-      "category": "backend_shape",
-      "facets": [],
-      "severity": "high",
-      "confidence": "high",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "The invoice total, tax, and dunning state are derived in the render function; three surfaces recompute them differently.",
-      "user_impact": "Totals disagree between the summary, the PDF, and the email, so users cannot trust any of them.",
-      "evidence": ["Three divergent total computations across BillingSummary, invoicePdf, and dunningEmail"],
-      "evidence_refs": ["EV-SRC"],
-      "cause": "No single billing-state module; each surface recomputes from raw rows.",
-      "recommendation": "Extract one billing-state module that returns total, tax, and dunning state; have all surfaces read it.",
-      "acceptance_checks": [
-        "A single module is the only source of invoice total, tax, and dunning state",
-        "Summary, PDF, and email render identical totals for the same invoice"
-      ],
-      "depends_on": [],
-      "disposition_reason": "Newly observed structural blocker.",
-      "destination_id": null,
-      "editorial_review": null
-    },
-    {
-      "id": "AS-02",
-      "identity_key": "contrast-fails-on-status-pill",
-      "kind": "finding",
-      "title": "Payment-status pill fails contrast",
-      "category": "accessibility",
-      "facets": [],
-      "severity": "high",
-      "confidence": "high",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "The 'Past due' pill renders #b9895f on #f2efe9 at 2.4:1.",
-      "user_impact": "Low-vision users cannot read the single most important billing state.",
-      "evidence": ["Measured contrast ratio 2.4:1 on the status pill"],
-      "evidence_refs": ["EV-A11Y"],
-      "cause": "Muted decorative token reused for a critical status.",
-      "recommendation": "Use a status color token that meets 4.5:1 against the pill background.",
-      "acceptance_checks": [
-        "The 'Past due' pill text meets at least 4.5:1 contrast",
-        "The status is distinguishable without relying on color alone"
-      ],
-      "depends_on": ["AS-04"],
-      "disposition_reason": "Newly observed accessibility barrier.",
-      "destination_id": null,
-      "editorial_review": null
-    },
-    {
-      "id": "AS-05",
-      "identity_key": "retry-payment-no-feedback",
-      "kind": "finding",
-      "title": "Retry-payment button gives no feedback",
-      "category": "interaction",
-      "facets": ["resilience_recovery"],
-      "severity": "medium",
-      "confidence": "high",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "Pressing 'Retry payment' shows no pending, success, or failure state; the row is unchanged.",
-      "user_impact": "Users press retry repeatedly, unsure whether a charge was attempted.",
-      "evidence": ["Operated the retry flow; no state change on the row"],
-      "evidence_refs": ["EV-TASK"],
-      "cause": "The handler awaits the request but never reflects pending or result state.",
-      "recommendation": "Give retry a pending state, then a success or failure result the row reflects.",
-      "acceptance_checks": [
-        "Retry shows a pending state while the request is in flight",
-        "Success and failure each produce a distinct, announced row state"
-      ],
-      "depends_on": ["AS-04"],
-      "disposition_reason": "Newly observed interaction dead end.",
-      "destination_id": null,
-      "editorial_review": null
-    },
-    {
-      "id": "AS-01",
-      "identity_key": "portable-plan-claims",
-      "kind": "finding",
-      "title": "Plan descriptions are interchangeable filler",
-      "category": "copy",
-      "facets": ["trust_integrity"],
-      "severity": "medium",
-      "confidence": "medium",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "Each plan reads 'Powerful features to help your team do more,' with no concrete difference.",
-      "user_impact": "Users cannot tell the plans apart at the moment they choose one.",
-      "evidence": ["Three plan cards share one interchangeable benefit sentence"],
-      "evidence_refs": ["EV-COPY"],
-      "cause": "Placeholder marketing copy was never replaced with real plan differences.",
-      "recommendation": "Replace each plan's sentence with the concrete limit or capability that distinguishes it.",
-      "acceptance_checks": [
-        "Each plan names a concrete, checkable difference from the others",
-        "No two plan descriptions remain interchangeable"
-      ],
-      "depends_on": [],
-      "disposition_reason": "Newly observed editorial slop.",
-      "destination_id": null,
-      "editorial_review": {
-        "review_type": "claims_provenance",
-        "sample_adequacy": "adequate",
-        "analysis_language_scope": "en",
-        "language_review_basis": "verified_english_analyzer",
-        "analyzer_evidence_ref": "EV-COPY",
-        "independent_signal_families": ["specificity"],
-        "manual_checks": [
-          {"code": "terminology_and_information_sequence", "result": "clear", "evidence": "Plan names are consistent.", "evidence_ref": "EV-COPY"},
-          {"code": "claim_support_and_provenance", "result": "candidate", "evidence": "Benefit claim is identical across differently priced plans.", "evidence_ref": "EV-COPY"},
-          {"code": "action_and_recovery_clarity", "result": "clear", "evidence": "The choose-plan action is clear.", "evidence_ref": "EV-COPY"},
-          {"code": "voice_and_audience_fit", "result": "clear", "evidence": "Voice matches the audience.", "evidence_ref": "EV-COPY"}
-        ],
-        "consequence": "The reader cannot differentiate plans at the point of choice.",
-        "counterexample_tested": "Not legitimate genre shorthand: the sentence is identical across paid tiers.",
-        "authorship_assessment": "not_performed"
-      }
-    },
-    {
-      "id": "AS-03",
-      "identity_key": "hero-gradient-arbitrary",
-      "kind": "finding",
-      "title": "Arbitrary hero gradient weakens hierarchy",
-      "category": "visual",
-      "facets": [],
-      "severity": "low",
-      "confidence": "medium",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "The billing hero uses a decorative purple-to-orange gradient unrelated to any state.",
-      "user_impact": "The gradient competes with the balance-due figure for attention.",
-      "evidence": ["Rendered hero draws the eye away from the primary figure"],
-      "evidence_refs": ["EV-SHOT"],
-      "cause": "Decorative default from a template.",
-      "recommendation": "Remove the gradient; let the balance-due figure lead.",
-      "acceptance_checks": ["The balance-due figure is the clear first fixation in the hero"],
-      "depends_on": [],
-      "disposition_reason": "Newly observed visual slop.",
-      "destination_id": null,
-      "editorial_review": null
-    },
-    {
-      "id": "AS-06",
-      "identity_key": "add-dark-mode",
-      "kind": "enhancement",
-      "title": "Offer a dark theme",
-      "category": "visual",
-      "facets": [],
-      "severity": "low",
-      "confidence": "low",
-      "status": "open",
-      "revision_disposition": "new",
-      "first_seen_revision": "r1",
-      "last_observed_revision": "r1",
-      "observation": "No dark theme is offered.",
-      "user_impact": "Users in dark environments have no low-light option.",
-      "evidence": ["No theme toggle present"],
-      "evidence_refs": ["EV-SHOT"],
-      "cause": "Not implemented.",
-      "recommendation": "Add a dark theme once tokens are consolidated.",
-      "acceptance_checks": ["A dark theme is selectable and passes contrast"],
-      "depends_on": [],
-      "disposition_reason": "New enhancement.",
-      "destination_id": null,
-      "editorial_review": null
-    }
-  ],
-  "presentation": {
-    "prioritized": ["AS-04", "AS-02", "AS-05", "AS-01", "AS-03"],
-    "enhancements": ["AS-06"]
+  {
+   "id": "AS-02",
+   "identity_key": "contrast-fails-on-status-pill",
+   "kind": "finding",
+   "title": "[FIXTURE] Payment-status pill fails contrast",
+   "category": "accessibility",
+   "facets": [],
+   "severity": "high",
+   "confidence": "high",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "The 'Past due' pill renders #b9895f on #f2efe9 at 2.4:1.",
+   "user_impact": "Low-vision users cannot read the single most important billing state.",
+   "evidence": [
+    "Measured contrast ratio 2.4:1 on the status pill"
+   ],
+   "evidence_refs": [
+    "EV-A11Y"
+   ],
+   "cause": "Muted decorative token reused for a critical status.",
+   "recommendation": "Use a status color token that meets 4.5:1 against the pill background.",
+   "acceptance_checks": [
+    "The 'Past due' pill text meets at least 4.5:1 contrast",
+    "The status is distinguishable without relying on color alone"
+   ],
+   "depends_on": [
+    "AS-04"
+   ],
+   "disposition_reason": "Newly observed accessibility barrier.",
+   "destination_id": null,
+   "editorial_review": null
+  },
+  {
+   "id": "AS-05",
+   "identity_key": "retry-payment-no-feedback",
+   "kind": "finding",
+   "title": "[FIXTURE] Retry-payment button gives no feedback",
+   "category": "interaction",
+   "facets": [
+    "resilience_recovery"
+   ],
+   "severity": "medium",
+   "confidence": "high",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "Pressing 'Retry payment' shows no pending, success, or failure state; the row is unchanged.",
+   "user_impact": "Users press retry repeatedly, unsure whether a charge was attempted.",
+   "evidence": [
+    "Operated the retry flow; no state change on the row"
+   ],
+   "evidence_refs": [
+    "EV-TASK"
+   ],
+   "cause": "The handler awaits the request but never reflects pending or result state.",
+   "recommendation": "Give retry a pending state, then a success or failure result the row reflects.",
+   "acceptance_checks": [
+    "Retry shows a pending state while the request is in flight",
+    "Success and failure each produce a distinct, announced row state"
+   ],
+   "depends_on": [
+    "AS-04"
+   ],
+   "disposition_reason": "Newly observed interaction dead end.",
+   "destination_id": null,
+   "editorial_review": null
+  },
+  {
+   "id": "AS-01",
+   "identity_key": "portable-plan-claims",
+   "kind": "finding",
+   "title": "[FIXTURE] Plan descriptions are interchangeable filler",
+   "category": "copy",
+   "facets": [
+    "trust_integrity"
+   ],
+   "severity": "medium",
+   "confidence": "medium",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "Each plan reads 'Powerful features to help your team do more,' with no concrete difference.",
+   "user_impact": "Users cannot tell the plans apart at the moment they choose one.",
+   "evidence": [
+    "Three plan cards share one interchangeable benefit sentence"
+   ],
+   "evidence_refs": [
+    "EV-COPY"
+   ],
+   "cause": "Placeholder marketing copy was never replaced with real plan differences.",
+   "recommendation": "Replace each plan's sentence with the concrete limit or capability that distinguishes it.",
+   "acceptance_checks": [
+    "Each plan names a concrete, checkable difference from the others",
+    "No two plan descriptions remain interchangeable"
+   ],
+   "depends_on": [],
+   "disposition_reason": "Newly observed editorial slop.",
+   "destination_id": null,
+   "editorial_review": {
+    "review_type": "claims_provenance",
+    "sample_adequacy": "adequate",
+    "analysis_language_scope": "en",
+    "language_review_basis": "verified_english_analyzer",
+    "analyzer_evidence_ref": "EV-COPY",
+    "independent_signal_families": [
+     "specificity"
+    ],
+    "manual_checks": [
+     {
+      "code": "terminology_and_information_sequence",
+      "result": "clear",
+      "evidence": "Plan names are consistent.",
+      "evidence_ref": "EV-COPY"
+     },
+     {
+      "code": "claim_support_and_provenance",
+      "result": "candidate",
+      "evidence": "Benefit claim is identical across differently priced plans.",
+      "evidence_ref": "EV-COPY"
+     },
+     {
+      "code": "action_and_recovery_clarity",
+      "result": "clear",
+      "evidence": "The choose-plan action is clear.",
+      "evidence_ref": "EV-COPY"
+     },
+     {
+      "code": "voice_and_audience_fit",
+      "result": "clear",
+      "evidence": "Voice matches the audience.",
+      "evidence_ref": "EV-COPY"
+     }
+    ],
+    "consequence": "The reader cannot differentiate plans at the point of choice.",
+    "counterexample_tested": "Not legitimate genre shorthand: the sentence is identical across paid tiers.",
+    "authorship_assessment": "not_performed"
+   }
+  },
+  {
+   "id": "AS-03",
+   "identity_key": "hero-gradient-arbitrary",
+   "kind": "finding",
+   "title": "[FIXTURE] Arbitrary hero gradient weakens hierarchy",
+   "category": "visual",
+   "facets": [],
+   "severity": "low",
+   "confidence": "medium",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "The billing hero uses a decorative purple-to-orange gradient unrelated to any state.",
+   "user_impact": "The gradient competes with the balance-due figure for attention.",
+   "evidence": [
+    "Rendered hero draws the eye away from the primary figure"
+   ],
+   "evidence_refs": [
+    "EV-SHOT"
+   ],
+   "cause": "Decorative default from a template.",
+   "recommendation": "Remove the gradient; let the balance-due figure lead.",
+   "acceptance_checks": [
+    "The balance-due figure is the clear first fixation in the hero"
+   ],
+   "depends_on": [],
+   "disposition_reason": "Newly observed visual slop.",
+   "destination_id": null,
+   "editorial_review": null
+  },
+  {
+   "id": "AS-06",
+   "identity_key": "add-dark-mode",
+   "kind": "enhancement",
+   "title": "[FIXTURE] Offer a dark theme",
+   "category": "visual",
+   "facets": [],
+   "severity": "low",
+   "confidence": "low",
+   "status": "open",
+   "revision_disposition": "new",
+   "first_seen_revision": "r1",
+   "last_observed_revision": "r1",
+   "observation": "No dark theme is offered.",
+   "user_impact": "Users in dark environments have no low-light option.",
+   "evidence": [
+    "No theme toggle present"
+   ],
+   "evidence_refs": [
+    "EV-SHOT"
+   ],
+   "cause": "Not implemented.",
+   "recommendation": "Add a dark theme once tokens are consolidated.",
+   "acceptance_checks": [
+    "A dark theme is selectable and passes contrast"
+   ],
+   "depends_on": [],
+   "disposition_reason": "New enhancement.",
+   "destination_id": null,
+   "editorial_review": null
   }
+ ],
+ "presentation": {
+  "prioritized": [
+   "AS-04",
+   "AS-02",
+   "AS-05",
+   "AS-01",
+   "AS-03"
+  ],
+  "enhancements": [
+   "AS-06"
+  ]
+ }
 }

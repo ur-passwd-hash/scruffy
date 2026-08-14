@@ -45,6 +45,50 @@ _DECISION_LABEL = {"approve": "Approve", "defer": "Defer", "reject": "Reject", "
 _ACTIONABLE_KINDS = ("finding", "enhancement")
 
 
+# Scruffy's public category labels (schema/taxonomy.json is canonical; display copy only).
+CATEGORY_LABELS = {
+    "product": "Product slop",
+    "information_architecture": "Information-architecture slop",
+    "interaction": "Interaction slop",
+    "accessibility": "Accessibility slop",
+    "visual": "Visual slop",
+    "copy": "Editorial slop",
+    "backend_shape": "Structure slop",
+    "performance": "Performance slop",
+}
+
+# Human credits for principle-citation aliases (Scruffy's principles/SOURCES.md is canonical).
+SOURCE_CREDITS = {
+    "KJ": "Kole Jain",
+    "RUI": "Steve Schoger & Adam Wathan, Refactoring UI",
+    "Butterick": "Matthew Butterick, Practical Typography",
+    "NN/g": "Nielsen Norman Group",
+    "LawsUX": "Jon Yablonski, Laws of UX",
+    "Tufte": "Edward Tufte",
+    "WCAG22": "W3C, WCAG 2.2",
+    "GOVUK-CLEAR": "GOV.UK clear-language guidance",
+    "P06RgnUKX_I": "Steven Haney (Paper), Y Combinator Design Review",
+    "Lp6ey4AyDzA": "Kole Jain (video Lp6ey4AyDzA)",
+    "ORgKY9AlybA": "languagejones, How to Detect AI Slop",
+    "field": "Scruffy field observation",
+    "PRINCIPLES": "Scruffy principles corpus",
+}
+
+
+def credit_reference(ref: str) -> str:
+    """Expand a citation alias into 'citation — human credit' when the source is known."""
+    text = str(ref)
+    for alias, credit in SOURCE_CREDITS.items():
+        if alias in text and credit.split(",")[0] not in text:
+            return f"{text} — {credit}"
+    return text
+
+
+def category_label(key: str) -> str:
+    label = CATEGORY_LABELS.get(key)
+    return f"{label} ({key})" if label else str(key)
+
+
 def _data_uri(path: Path, mime: str | None) -> str:
     if mime is None:
         mime = _MIME_BY_EXT.get(path.suffix.lower())
@@ -81,7 +125,7 @@ def _ordered_items(bundle: dict) -> list[dict]:
     return [items[i] for i in order]
 
 
-def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> str:
+def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path, direction_doc: dict | None = None, bundle_base: Path | None = None, demo_note: str | None = None) -> str:
     findings = bundle["findings"]
     decisions = {d["item_id"]: d for d in bundle["decisions"].get("decisions", [])}
     audit_id = findings.get("audit_id")
@@ -100,7 +144,9 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
              '&middot; self-contained</div>'
              f'<h1>{_e(audit_id)}</h1>')
     if target:
-        p.append(f'<p class="target">{_e(target)}</p>')
+        p.append(f'<p class="tgt-big">Every item below judges one product: <b>{_e(target)}</b></p>')
+    if demo_note:
+        p.append(f'<p class="demo-banner">{_e(demo_note)}</p>')
     p.append('</header>')
 
     # Capabilities from the preflight (never assumed).
@@ -114,11 +160,68 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
         p.append('</div>')
 
     # Decision bar — live counts + export (closes the loop).
-    p.append('<div class="decbar"><div class="counts">'
+    p.append(f'<div class="decbar"><div class="tchip">{_e(audit_id)}{" &middot; " + _e(target[:60]) if target else ""}</div><div class="counts">'
              '<b id="c-approve">0</b> approved &middot; <b id="c-defer">0</b> deferred &middot; '
              '<b id="c-reject">0</b> rejected &middot; <b id="c-pending">0</b> pending</div>'
              '<div class="acts"><button id="copyBtn" type="button">Copy decisions.json</button>'
              '<button id="dlBtn" type="button" class="primary">Download decisions.json</button></div></div>')
+
+    # Direction picker (design lanes): a human selects; recommended is advice only.
+    if direction_doc and direction_doc.get("groups"):
+        p.append('<section><h2>Design directions &mdash; pick one per group</h2>'
+                 '<p class="hint">The Mop implements a design-lane item only after a direction is selected here '
+                 '(or in <code>directions.json</code>). <b>Recommended</b> is advice; nothing is preselected for you.</p>')
+        for g in direction_doc["groups"]:
+            gid = g.get("id", "")
+            sel = g.get("selected")
+            p.append(f'<article class="item dirgroup" data-group-id="{_e(gid)}">')
+            imagery = g.get("imagery", "available")
+            p.append('<div class="ihead"><div class="ttl">'
+                     f'<h3>{_e(gid)}{" &middot; " + _e(g.get("work_order_id")) if g.get("work_order_id") else ""}</h3>'
+                     f'<p class="meta">items: {_e(", ".join(g.get("item_ids", [])))} &middot; {_e("; ".join(category_label(c) for c in g.get("categories", [])))} '
+                     f'&middot; craft: {_e(g.get("craft_engine",""))} &middot; grounding: {_e(g.get("grounding_tier",""))}</p></div>'
+                     + (f'<span class="dpill dpill-reject">imagery unavailable &mdash; advisory only</span>' if imagery == "unavailable" else "")
+                     + '</div>')
+            p.append('<div class="ibody"><div class="dirs">')
+            for d in g.get("directions", []):
+                did = d.get("id", "")
+                on = " on" if sel == did else ""
+                recommended = '<span class="tag">Recommended</span> ' if d.get("recommended") else ""
+                ground_bits = []
+                for ref in d.get("grounding", []):
+                    img_html = ""
+                    image = ref.get("image")
+                    if image and bundle_base is not None:
+                        ipath = Path(image)
+                        if not ipath.is_absolute():
+                            ipath = bundle_base / ipath
+                        if ipath.exists() and ipath.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}:
+                            img_html = f'<img class="gimg" src="{_data_uri(ipath, None)}" alt="{_e(ref.get("source",""))}">'
+                    origin = ref.get("origin", "")
+                    origin_html = f'<span class="obadge">{_e(origin.replace("_", " "))}</span> ' if origin else ""
+                    ground_bits.append(
+                        f'<li>{img_html}{origin_html}{_e(ref.get("source",""))}'
+                        f'{" — " + _e(ref["note"]) if ref.get("note") else ""}</li>'
+                    )
+                grounds = "".join(ground_bits)
+                principles = "; ".join(credit_reference(x) for x in d.get("principle_refs", []))
+                p.append(
+                    f'<label class="dir{on}" data-direction-id="{_e(did)}">'
+                    f'<input type="radio" name="dir-{_e(gid)}" value="{_e(did)}"{" checked" if sel == did else ""}>'
+                    f'<span class="dtitle">{recommended}{_e(d.get("title",""))}</span>'
+                    f'<span class="dmeta">{_e(d.get("paradigm",""))} &middot; {_e(d.get("material",""))}</span>'
+                    + (f'<span class="dmeta">Principle: {_e(principles)}</span>' if principles else "")
+                    + f'<p class="txt">{_e(d.get("thesis",""))}</p>'
+                    + (f'<ul class="ev evg">{grounds}</ul>' if grounds else "")
+                    + (f'<p class="dmeta">Risk: {_e(d["risk"])}</p>' if d.get("risk") else "")
+                    + '</label>'
+                )
+            p.append('</div>'
+                     '<div class="decide"><button type="button" class="b-clear" data-clear-group>Clear selection</button></div>'
+                     '</div></article>')
+        p.append('<div class="acts" style="margin-bottom:24px">'
+                 '<button id="dirDlBtn" type="button" class="primary">Download directions.json</button></div>'
+                 '</section>')
 
     # Lead screenshots (rendered evidence not tied to one item).
     lead = [s for s in screenshots if not s.get("item_ids")]
@@ -153,21 +256,29 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
         p.append(f'<article class="item kind-{_e(kind)}">')
         p.append(f'<div class="ihead"><span class="rank">{n}</span><div class="ttl">'
                  f'<h3>{_e(item.get("title"))}</h3>'
-                 f'<p class="meta">{_e(kind)} &middot; {_e(item.get("category"))} &middot; '
-                 f'{_e(item.get("severity"))} &middot; conf {_e(item.get("confidence"))} &middot; '
+                 f'<p class="meta">{_e(kind)} &middot; <b class="cat">{_e(category_label(item.get("category")))}</b> &middot; '
+                 f'{_e(item.get("severity"))} severity &middot; {_e(item.get("confidence"))} confidence &middot; '
                  f'<code>{_e(iid)}</code></p></div>'
                  f'<span class="dpill dpill-{cur}" data-pill="{iid}">{_DECISION_LABEL[cur]}</span></div>')
-        p.append('<div class="ibody">')
+        p.append(f'<div class="tabs" role="tablist"><button class="tab on" data-tab="finding" data-for="{_e(iid)}">Finding</button>'
+                 f'<button class="tab" data-tab="provenance" data-for="{_e(iid)}">Provenance</button></div>')
+        p.append(f'<div class="ibody tabpane on" data-pane="finding" data-for="{_e(iid)}">')
 
         # Scruffy finding detail.
         if item.get("observation"):
-            p.append(f'<p class="lab">Scruffy found</p><p class="txt">{_e(item["observation"])}</p>')
+            p.append(f'<p class="lab">What Scruffy found</p><p class="txt">{_e(item["observation"])}</p>')
         if item.get("user_impact"):
             p.append(f'<p class="lab">Who it affects</p><p class="txt">{_e(item["user_impact"])}</p>')
         ev = item.get("evidence") or []
         if ev:
             p.append('<p class="lab">Evidence</p><ul class="ev">'
                      + "".join(f'<li>{_e(x)}</li>' for x in ev) + '</ul>')
+
+        # Principle provenance, credited to its source.
+        item_principles = item.get("principle_refs") or []
+        if item_principles:
+            p.append('<p class="lab">Principle behind this finding</p><ul class="ev">'
+                     + "".join(f'<li>{_e(credit_reference(r))}</li>' for r in item_principles) + '</ul>')
 
         # Mop fix + direction.
         if item.get("recommendation"):
@@ -188,6 +299,30 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
             p.append(f'<figure class="shot"><img src="{shot_uri[s["path"]]}" '
                      f'alt="{_e(s.get("caption",""))}"><figcaption>{_e(s.get("caption",""))}'
                      f'</figcaption></figure>')
+        # Rendered evidence from the bundle's own receipts: embed when the file
+        # exists, and say so plainly when it does not — a silent absence reads
+        # as "no evidence needed", which is worse than the truth.
+        receipt_shots = [
+            asset for asset in (bundle.get("context", {}).get("evidence_assets") or [])
+            if asset.get("kind") == "screenshot" and asset.get("id") in (item.get("evidence_refs") or [])
+        ]
+        if not item_shots:
+            for asset in receipt_shots:
+                loc = asset.get("locator", "")
+                ipath = Path(loc)
+                if not ipath.is_absolute() and bundle_base is not None:
+                    ipath = bundle_base / loc
+                if ipath.exists() and ipath.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}:
+                    p.append(f'<figure class="shot"><img src="{_data_uri(ipath, None)}" '
+                             f'alt="{_e(asset.get("description", asset["id"]))}">'
+                             f'<figcaption>{_e(asset.get("description", ""))} ({_e(asset["id"])})</figcaption></figure>')
+                else:
+                    p.append(f'<p class="noshot">No rendered image in this bundle for {_e(asset["id"])} '
+                             f'(locator: <code>{_e(loc)}</code>) &mdash; judge this item from the text evidence '
+                             'or request a re-audit with screenshot capability.</p>')
+            if not receipt_shots and item.get("category") in ("visual", "interaction"):
+                p.append('<p class="noshot">No screenshot receipt is attached to this item &mdash; '
+                         'rendered evidence was not captured in this audit.</p>')
         if item_refs:
             p.append('<p class="lab">Grounded in</p><div class="refs">')
             for r in item_refs:
@@ -208,6 +343,38 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
             p.append('</div>')
             p.append(f'<input class="note" type="text" placeholder="note (optional)" value="{_e(note)}">')
             p.append('</div>')
+        p.append('</div>')
+
+        # Provenance pane: Source → Rule → Detector pack → Signal → Evidence, standardized.
+        p.append(f'<div class="ibody tabpane" data-pane="provenance" data-for="{_e(iid)}">')
+        rules = item.get("principle_refs") or []
+        detectors = item.get("detector_refs") or []
+        p.append('<p class="lab">Rules applied (and their sources)</p>')
+        if rules:
+            p.append('<ul class="ev">' + "".join(f'<li>{_e(credit_reference(r))}</li>' for r in rules) + '</ul>')
+        else:
+            p.append('<p class="noshot">No rule citation recorded on this item. Audits made before '
+                     'rule provenance existed in the schema may lack it; newer audits must record it.</p>')
+        p.append('<p class="lab">Detector packs and signals</p>')
+        if detectors:
+            p.append('<ul class="ev">' + "".join(f'<li>{_e(d)}</li>' for d in detectors) + '</ul>')
+        else:
+            p.append('<p class="txt">No deterministic detector contributed; this judgement is human-only, '
+                     'grounded in the evidence below.</p>')
+        p.append('<p class="lab">Evidence receipts</p>')
+        receipt_ids = item.get("evidence_refs") or []
+        assets_by_id = {a["id"]: a for a in (bundle.get("context", {}).get("evidence_assets") or [])}
+        if receipt_ids:
+            bits = []
+            for rid in receipt_ids:
+                a = assets_by_id.get(rid)
+                if a:
+                    bits.append(f'<li><code>{_e(rid)}</code> ({_e(a.get("kind",""))}) — {_e(a.get("description",""))}</li>')
+                else:
+                    bits.append(f'<li><code>{_e(rid)}</code> — receipt not present in this bundle</li>')
+            p.append('<ul class="ev">' + "".join(bits) + '</ul>')
+        else:
+            p.append('<p class="txt">No typed receipts attached.</p>')
         p.append('</div></article>')
     p.append('</section>')
 
@@ -224,7 +391,11 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path) -> 
         "baseline_revision_id": bundle["decisions"].get("baseline_revision_id"),
         "schema_version": bundle["decisions"].get("schema_version", "2.1"),
     }
-    p.append(_SCRIPT.replace("__AUDIT__", json.dumps(audit_meta)))
+    p.append(
+        _SCRIPT.replace("__AUDIT__", json.dumps(audit_meta)).replace(
+            "__DIRECTIONS__", json.dumps(direction_doc) if direction_doc else "null"
+        )
+    )
     p.append(_TAIL)
     doc = "".join(p)
     _assert_self_contained(doc)
@@ -245,7 +416,17 @@ def render(bundle_dir, assets_path, out_path, authorized: bool = False) -> Path:
     plan = build_plan(bundle, interop, authorized)
     base = Path(assets_path).resolve().parent if assets_path else Path(bundle_dir)
     assets = json.loads(Path(assets_path).read_text(encoding="utf-8")) if assets_path else {}
-    doc = build_dashboard_html(bundle, plan, assets, base)
+    directions_path = Path(bundle_dir) / "directions.json"
+    direction_doc = (
+        json.loads(directions_path.read_text(encoding="utf-8")) if directions_path.exists() else None
+    )
+    demo_note = None
+    fixture_markers = ("fixtures", "sample-audit")
+    if any(marker in str(Path(bundle_dir).resolve()).lower() for marker in fixture_markers) or assets.get("demo_note"):
+        demo_note = assets.get("demo_note") or (
+            "DEMO FIXTURE — this bundle is Scruffy's Mop's built-in test product, not one of your real audits."
+        )
+    doc = build_dashboard_html(bundle, plan, assets, base, direction_doc, Path(bundle_dir), demo_note)
     out = Path(out_path)
     out.write_text(doc, encoding="utf-8")
     return out
@@ -266,11 +447,11 @@ _HEAD = """<!doctype html><html lang="en" data-theme="light"><head>
 font-variant-numeric:tabular-nums;padding:32px 20px 80px}.wrap{max-width:920px;margin:0 auto}a{color:var(--cob)}
 code{font-family:var(--mono);font-size:.9em}
 header{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:20px}
-.kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);font-weight:600}
+.kick{font-size:11px;color:var(--brand);font-weight:600}
 h1{font-size:25px;margin:8px 0 4px}.target{font-size:12.5px;color:var(--ink3)}
 .caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
 .cap{border:1px solid var(--rule);border-radius:var(--radius);background:var(--surface);padding:12px 14px;box-shadow:var(--shadow)}
-.cap .st{float:right;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--ink3)}
+.cap .st{float:right;font-size:11px;font-weight:600;color:var(--ink3)}
 .cap-available .st{color:var(--ok)}.cap-absent .st{color:var(--warn)}.cap .nm{font-weight:600;font-size:12.5px}.cap p{font-size:12px;color:var(--ink2);margin-top:6px}
 .decbar{position:sticky;top:0;z-index:9;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;
 background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);margin-bottom:24px}
@@ -284,20 +465,28 @@ section{margin-top:24px}h2{font-size:15px;padding-bottom:8px;border-bottom:1px s
 figure.shot{margin:0 0 12px;border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
 figure.shot img{display:block;width:100%;height:auto}figure.shot figcaption{font-size:12px;color:var(--ink2);padding:8px 12px;border-top:1px solid var(--rule)}
 .blocked{color:var(--brand);font-size:12.5px;margin-bottom:12px}
+.tgt-big{font-size:14px;color:var(--ink);margin-top:6px}.tgt-big b{border-bottom:2px solid var(--brand)}
+.demo-banner{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);border:1px solid var(--warn);border-radius:var(--radius);padding:6px 12px}
+.tchip{font-size:11.5px;font-weight:600;color:var(--ink3);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.noshot{font-size:12.5px;color:var(--warn);background:var(--warn-soft);border:1px dashed var(--warn);border-radius:var(--radius);padding:8px 12px;margin-top:10px}
 .item{border:1px solid var(--rule);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
 .ihead{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--rule)}
 .rank{font-family:var(--mono);font-size:12.5px;color:var(--acton);background:var(--ink);border-radius:6px;padding:2px 8px;flex:none;margin-top:2px}
-.ttl{flex:1;min-width:0}.ihead h3{font-size:15px}.meta{font-size:12px;color:var(--ink3);margin-top:3px}
-.dpill{flex:none;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;border-radius:999px;padding:3px 10px;border:1px solid var(--rule);color:var(--ink3)}
+.ttl{flex:1;min-width:0}.ihead h3{font-size:15px}.meta{font-size:12px;color:var(--ink3);margin-top:3px}.meta .cat{color:var(--ink2);font-weight:600}
+.dpill{flex:none;font-size:11px;font-weight:600;border-radius:999px;padding:3px 10px;border:1px solid var(--rule);color:var(--ink3)}
 .dpill-approve{color:var(--ok);background:var(--ok-soft);border-color:transparent}
 .dpill-defer{color:var(--warn);background:var(--warn-soft);border-color:transparent}
 .dpill-reject{color:var(--brand);background:var(--crit);border-color:transparent}
 .ibody{padding:14px 16px}
-.lab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin:12px 0 4px}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--rule);background:var(--lane)}
+.tab{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink3);background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;cursor:pointer}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--ink);border-bottom-color:var(--brand)}
+.tabpane{display:none}.tabpane.on{display:block}
+.lab{font-size:11px;color:var(--ink3);margin:12px 0 4px}
 .txt{font-size:13px;color:var(--ink2)}ul.ev,ul.ac{margin:2px 0 0 18px;font-size:12.5px;color:var(--ink2)}
 .do{font-size:13px;color:var(--ink2);margin-top:12px}.do b{color:var(--ink)}
 .rec{border:1px solid var(--brand);background:var(--crit);border-radius:var(--radius);padding:12px;margin:10px 0}
-.rec .tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;color:var(--brand)}.rec p{margin-top:5px}
+.rec .tag{font-size:11px;font-weight:600;color:var(--brand)}.rec p{margin-top:5px}
 .principle{font-size:12.5px;color:var(--cob);margin-bottom:6px}.alt{font-size:12.5px;color:var(--ink2);margin-left:14px}
 .refs{display:flex;gap:12px;flex-wrap:wrap}.refs figure{margin:0;width:190px;max-width:100%;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:var(--lane)}
 .refs img{display:block;width:100%;height:112px;object-fit:cover;object-position:top left;border-bottom:1px solid var(--rule)}
@@ -309,6 +498,15 @@ figure.shot img{display:block;width:100%;height:auto}figure.shot figcaption{font
 .seg .b-approve.on{background:var(--ok);color:#fff}.seg .b-defer.on{background:var(--warn);color:#fff}.seg .b-reject.on{background:var(--brand);color:var(--acton)}
 .note{flex:1;min-width:160px;font:inherit;font-size:12.5px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--paper);color:var(--ink);padding:7px 10px}
 .note:focus{outline:2px solid var(--cob);outline-offset:1px}
+.dirs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px}
+label.dir{display:block;border:1px solid var(--rule);border-radius:var(--radius);background:var(--lane);padding:12px;cursor:pointer}
+label.dir:hover{border-color:var(--ink3)}label.dir.on{border-color:var(--cob);outline:2px solid var(--cob);outline-offset:-1px}
+label.dir input{margin-right:8px}.dtitle{font-weight:600;font-size:13px}.dmeta{display:block;font-size:11.5px;color:var(--ink3);margin-top:4px}
+label.dir .tag{font-size:10.5px;font-weight:700;color:var(--brand)}
+ul.evg{list-style:none;margin:8px 0 0}ul.evg li{margin-bottom:6px}
+.obadge{font-size:10px;font-weight:700;color:var(--cob);border:1px solid var(--cob);border-radius:999px;padding:1px 7px;margin-right:4px}
+.gimg{display:block;width:100%;max-height:140px;object-fit:cover;object-position:top left;border:1px solid var(--rule);border-radius:6px;margin-bottom:4px}
+.b-clear{font:inherit;font-size:12px;border:1px solid var(--rule);background:var(--surface);color:var(--ink2);border-radius:var(--radius);padding:5px 10px;cursor:pointer}
 footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--rule);font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .tt{position:fixed;top:14px;right:14px;z-index:20;font:inherit;font-size:12px;color:var(--ink2);background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:6px 12px;cursor:pointer}
 </style></head><body><button class="tt" onclick="var r=document.documentElement;r.setAttribute('data-theme',r.getAttribute('data-theme')=='dark'?'light':'dark')">Toggle theme</button>"""
@@ -316,6 +514,7 @@ footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--rule);font-si
 _SCRIPT = """<script>
 (function(){
   var AUDIT = __AUDIT__;
+  var DIRECTIONS = __DIRECTIONS__;
   function refresh(){
     var c={approve:0,defer:0,reject:0,pending:0};
     document.querySelectorAll('.decide').forEach(function(el){var d=el.dataset.decision||'pending';c[d]=(c[d]||0)+1;});
@@ -352,6 +551,41 @@ _SCRIPT = """<script>
     var a=document.createElement('a'); a.href=u; a.download='decisions.json'; document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(u);
   });
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      var id = t.dataset.for, tab = t.dataset.tab;
+      document.querySelectorAll('.tab[data-for="'+id+'"]').forEach(function(x){x.classList.toggle('on', x===t);});
+      document.querySelectorAll('.tabpane[data-for="'+id+'"]').forEach(function(pn){
+        pn.classList.toggle('on', pn.dataset.pane===tab);
+      });
+    });
+  });
+  if (DIRECTIONS) {
+    document.querySelectorAll('.dirgroup').forEach(function(gEl){
+      var gid = gEl.dataset.groupId;
+      gEl.querySelectorAll('input[type=radio]').forEach(function(r){
+        r.addEventListener('change', function(){
+          DIRECTIONS.groups.forEach(function(g){ if (g.id === gid) g.selected = r.value; });
+          gEl.querySelectorAll('label.dir').forEach(function(l){
+            l.classList.toggle('on', l.dataset.directionId === r.value);
+          });
+        });
+      });
+      var clear = gEl.querySelector('[data-clear-group]');
+      if (clear) clear.addEventListener('click', function(){
+        DIRECTIONS.groups.forEach(function(g){ if (g.id === gid) g.selected = null; });
+        gEl.querySelectorAll('input[type=radio]').forEach(function(r){ r.checked = false; });
+        gEl.querySelectorAll('label.dir').forEach(function(l){ l.classList.remove('on'); });
+      });
+    });
+    var dirBtn = document.getElementById('dirDlBtn');
+    if (dirBtn) dirBtn.addEventListener('click', function(){
+      var b = new Blob([JSON.stringify(DIRECTIONS, null, 2)], {type: 'application/json'});
+      var u = URL.createObjectURL(b); var a = document.createElement('a');
+      a.href = u; a.download = 'directions.json'; document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(u);
+    });
+  }
   refresh();
 })();
 </script>"""

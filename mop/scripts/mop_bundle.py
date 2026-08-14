@@ -176,13 +176,18 @@ def gate_state(bundle: dict, interop: dict, authorized_override: bool = False) -
     mode = run.get("effective_mode")
     write_authority = run.get("repository_write_authority")
 
-    mode_ok = mode in gate["required_scruffy_mode"]
+    # SKILL.md: write authority comes from Scruffy's redesign/design mode with
+    # source_write, OR an explicit user grant. An explicit grant therefore
+    # satisfies the mode requirement too — the grant is recorded in the gate
+    # state and the handoff, so the re-audit sees exactly what happened.
+    mode_ok = mode in gate["required_scruffy_mode"] or authorized_override
     authority_ok = write_authority == "authorized" or authorized_override
 
     reasons = []
     if not mode_ok:
         reasons.append(
-            f"effective_mode {mode!r} is not one of {gate['required_scruffy_mode']}"
+            f"effective_mode {mode!r} is not one of {gate['required_scruffy_mode']} "
+            "and no explicit user grant (--authorized) was given"
         )
     if not authority_ok:
         reasons.append(

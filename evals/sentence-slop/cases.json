@@ -8,7 +8,12 @@
       "mode": "prose",
       "context": "general",
       "text": "What if your work could feel seamless and powerful? What if your team could unlock transformative possibilities? What if every moment could elevate your journey? Here is the truth: innovation changes everything when organizations embrace a meaningful journey. Here is the truth: transformation creates meaningful impact when teams reimagine their potential. It is not about doing more, but about elevating every moment with powerful possibilities. It is not about moving faster, but about unlocking the next level through a seamless experience. Ultimately, the journey is about empowering people to create meaningful impact across an evolving landscape. Ultimately, the journey is about reimagining potential and elevating what is possible for everyone. Whether you are starting today or scaling tomorrow, the key is a transformative experience. Whether you are exploring possibilities or pursuing impact, the key is seamless innovation.",
-      "expected_leads": ["repeated_openings", "rhetorical_question_density", "formulaic_scaffolds", "detail_sparsity"],
+      "expected_leads": [
+        "repeated_openings",
+        "rhetorical_question_density",
+        "formulaic_scaffolds",
+        "detail_sparsity"
+      ],
       "review_needed": true
     },
     {
@@ -16,7 +21,9 @@
       "mode": "prose",
       "context": "technical",
       "text": "Samples were refrigerated at 4 degrees Celsius after collection. Each vial was labeled with the participant code and collection date. The assay was run in duplicate on Tuesday. Results were normalized against the control plate. Outliers were removed only when the preregistered threshold was exceeded. The final table was checked by two analysts before release. Raw measurements were retained in the repository for 30 days. The procedure was repeated for batch 17 after the control failed. No result was reported until both analysts signed the review log.",
-      "expected_leads": ["passive_candidates"],
+      "expected_leads": [
+        "passive_candidates"
+      ],
       "review_needed": false
     },
     {
@@ -24,7 +31,9 @@
       "mode": "prose",
       "context": "nonnative",
       "text": "Our shop opens at nine each morning. We sell bread that we bake before sunrise. We write the price beside every loaf. We keep yesterday's bread on a separate shelf. We give that bread to the food bank at six. Customers can ask us about wheat, eggs, or nuts. We answer with the recipe card from the kitchen. We close at seven each evening. We clean the ovens after the last customer leaves. We post tomorrow's menu on the front door before we go home.",
-      "expected_leads": ["cadence_uniformity"],
+      "expected_leads": [
+        "cadence_uniformity"
+      ],
       "review_needed": false
     },
     {
@@ -32,7 +41,11 @@
       "mode": "prose",
       "context": "general",
       "text": "At 6:12 on Friday morning, Maya opened the bakery and found the proofing cabinet at 52 degrees instead of 78. The rye loaves had barely risen. She moved forty trays to the warm oven, called the Elm Street café, and pushed its delivery from seven to eight. That solved the immediate problem, but it left the Saturday crew guessing. The new dashboard now records cabinet temperature every five minutes. When a reading falls below 74, it names the affected batch, texts the opener, and starts a fifteen-minute recovery timer. A red banner alone would have been useless while Maya's hands were covered in flour; the text message includes one button that acknowledges the alert. After three weeks, the bakery had two overnight drops. Both were caught before mixing began, and neither delayed a delivery. The owner still keeps the paper checklist beside the ovens because a dead phone should not stop breakfast.",
-      "forbidden_leads": ["detail_sparsity", "rhetorical_question_density", "formulaic_scaffolds"],
+      "forbidden_leads": [
+        "detail_sparsity",
+        "rhetorical_question_density",
+        "formulaic_scaffolds"
+      ],
       "review_needed": false
     },
     {
@@ -40,16 +53,43 @@
       "mode": "ui",
       "context": "general",
       "items": [
-        {"surface": "hero", "text": "Unlock your potential"},
-        {"surface": "feature-1", "text": "Unlock your possibilities"},
-        {"surface": "feature-2", "text": "Unlock your journey"},
-        {"surface": "feature-3", "text": "Unlock your impact"},
-        {"surface": "section-1", "text": "Here is the truth: powerful work starts here"},
-        {"surface": "section-2", "text": "Here is the truth: meaningful work starts here"},
-        {"surface": "cta-1", "text": "It is not about tools, but transformation"},
-        {"surface": "cta-2", "text": "It is not about tasks, but possibility"}
+        {
+          "surface": "hero",
+          "text": "Unlock your potential"
+        },
+        {
+          "surface": "feature-1",
+          "text": "Unlock your possibilities"
+        },
+        {
+          "surface": "feature-2",
+          "text": "Unlock your journey"
+        },
+        {
+          "surface": "feature-3",
+          "text": "Unlock your impact"
+        },
+        {
+          "surface": "section-1",
+          "text": "Here is the truth: powerful work starts here"
+        },
+        {
+          "surface": "section-2",
+          "text": "Here is the truth: meaningful work starts here"
+        },
+        {
+          "surface": "cta-1",
+          "text": "It is not about tools, but transformation"
+        },
+        {
+          "surface": "cta-2",
+          "text": "It is not about tasks, but possibility"
+        }
       ],
-      "expected_leads": ["repeated_openings", "formulaic_scaffolds"],
+      "expected_leads": [
+        "repeated_openings",
+        "formulaic_scaffolds"
+      ],
       "review_needed": true
     },
     {
@@ -57,9 +97,14 @@
       "mode": "ui",
       "context": "general",
       "items": [
-        {"surface": "account-banner", "text": "Your account was suspended."}
+        {
+          "surface": "account-banner",
+          "text": "Your account was suspended."
+        }
       ],
-      "forbidden_leads": ["cadence_uniformity"],
+      "forbidden_leads": [
+        "cadence_uniformity"
+      ],
       "review_needed": false
     },
     {
@@ -67,11 +112,26 @@
       "mode": "prose",
       "context": "general",
       "text": "<p align=\"center\"><img src=\"hero.png\" alt=\"Cartoon mascot\"></p>\n\n# Install the tool\n\n```sh\ngit clone https://example.com/repository.git\nmkdir -p ~/.agents/skills\nln -s \"$(pwd)/repository\" ~/.agents/skills/example\n```\n\nThe guide explains how a reviewer examines a working interface before changing it. Each observation names the surface, the action taken, and the visible result. A suspected defect remains provisional until the reviewer tries to disprove it. The final record separates verified failures from enhancements and cleared suspicions. Follow-up runs preserve every earlier identifier so resolved items cannot disappear. This body copy is long enough to exercise normalization without treating the image element, heading, URL, or shell commands as reader-facing sentences. Reviewers can still inspect those excluded elements with the appropriate accessibility, installation, or implementation check.",
-      "forbidden_leads": ["repeated_openings", "phrase_repetition", "detail_sparsity"],
+      "forbidden_leads": [
+        "repeated_openings",
+        "phrase_repetition",
+        "detail_sparsity"
+      ],
       "expected_words_excluded_min": 12,
-      "expected_removed": ["fenced_code_blocks", "heading_lines", "html_images"],
-      "forbidden_result_substrings": ["img src", "git clone", "p align"],
-      "manual_check_codes": ["conceptual_coherence", "sentence_portability"],
+      "expected_removed": [
+        "fenced_code_blocks",
+        "heading_lines",
+        "html_images"
+      ],
+      "forbidden_result_substrings": [
+        "img src",
+        "git clone",
+        "p align"
+      ],
+      "manual_check_codes": [
+        "conceptual_coherence",
+        "sentence_portability"
+      ],
       "review_needed": false
     },
     {
@@ -79,7 +139,10 @@
       "mode": "prose",
       "context": "general",
       "text": "It is not a prettier calendar, but a schedule that shows which nurse accepted each shift and when the handoff occurred. The overnight supervisor sees the ward, start time, and unresolved coverage count on one screen. It is not another notification feed, but a dated record that links each alert to the person who acknowledged it. During Friday's drill, Mateo reopened the 11 p.m. assignment after Priya reported a transit delay. It is not a promise of effortless staffing, but a visible queue with named owners and a documented fallback. The charge nurse can call the backup, record the response, and keep the original assignment history. It is not a replacement for judgment, but a shared account of the decision that the morning team can audit. Two hospitals tested the flow for six weeks, and both retained their paper downtime roster. A single repeated contrast construction should prompt editing, yet that one rhetorical habit does not become independent evidence merely because another measurement also sees its opening words.",
-      "expected_leads": ["formulaic_scaffolds", "repeated_openings"],
+      "expected_leads": [
+        "formulaic_scaffolds",
+        "repeated_openings"
+      ],
       "expected_dependency_collapse": true,
       "review_needed": false
     },
@@ -88,8 +151,16 @@
       "mode": "prose",
       "context": "general",
       "text": "Here is the truth: work should feel seamless and powerful. Move faster. Dream bigger. Unlock everything. Here is the truth: every journey deserves transformative possibilities. Make the leap. Reimagine the landscape. Elevate the moment. It is not about ordinary progress, but meaningful impact. It is not about specific work, but limitless potential. Ultimately, innovation empowers everyone. Ultimately, transformation changes everything. Whether you are beginning or scaling, the key is possibility. Whether you are planning or building, the key is a powerful journey.",
-      "expected_leads": ["short_sentence_burst", "formulaic_scaffolds", "detail_sparsity"],
-      "expected_signal_families": ["rhythm", "rhetorical_structure", "specificity"],
+      "expected_leads": [
+        "short_sentence_burst",
+        "formulaic_scaffolds",
+        "detail_sparsity"
+      ],
+      "expected_signal_families": [
+        "rhythm",
+        "rhetorical_structure",
+        "specificity"
+      ],
       "review_needed": true
     },
     {
@@ -97,8 +168,17 @@
       "mode": "prose",
       "context": "general",
       "text": "What if planning felt seamless? Here is the truth: a powerful journey begins with possibility. Start today.\n\nWhat if teamwork felt transformative? Here is the truth: meaningful impact begins with potential. Move together.\n\nWhat if growth felt effortless? Here is the truth: an innovative landscape begins with vision. Go further.\n\nThe three sections use different nouns, yet each makes the reader walk through the same question, declaration, and punchline without supplying an actor, condition, product behavior, or decision. The extra lines continue praising possibility, potential, transformation, and meaningful impact while withholding the thing being offered. Nothing identifies a user, object, place, date, amount, example, constraint, or observable result.",
-      "expected_leads": ["paragraph_pattern_reuse", "formulaic_scaffolds", "rhetorical_question_density", "detail_sparsity"],
-      "expected_signal_families": ["discourse_structure", "rhetorical_structure", "specificity"],
+      "expected_leads": [
+        "paragraph_pattern_reuse",
+        "formulaic_scaffolds",
+        "rhetorical_question_density",
+        "detail_sparsity"
+      ],
+      "expected_signal_families": [
+        "discourse_structure",
+        "rhetorical_structure",
+        "specificity"
+      ],
       "review_needed": true
     },
     {
@@ -106,8 +186,14 @@
       "mode": "prose",
       "context": "general",
       "text": "The proposal describes two overarching pillars that also undergird the program, leaving the spatial relationship impossible to picture. A later paragraph points a toolkit at the pricing problem and asks what the toolkit can buy, even though no tool, direction, or purchase maps to the actual decision. Another sentence calls the policy both a container to be filled and a blank slate, combining two familiar phrases whose implied actions do not agree. The grammar is smooth and the sentences vary in length. Surface counts cannot determine whether those conceptual mappings work. A reviewer must quote the collision, explain the intended claim, and show how the wording changes the reader's understanding before creating a finding.",
-      "forbidden_leads": ["formulaic_scaffolds", "detail_sparsity", "cadence_uniformity"],
-      "manual_check_codes": ["conceptual_coherence"],
+      "forbidden_leads": [
+        "formulaic_scaffolds",
+        "detail_sparsity",
+        "cadence_uniformity"
+      ],
+      "manual_check_codes": [
+        "conceptual_coherence"
+      ],
       "review_needed": false
     },
     {
@@ -117,6 +203,145 @@
       "language": "non_en",
       "text": "Nuestro equipo abre la tienda a las nueve de la mañana. Cada pan lleva su precio y una lista clara de ingredientes. Cuando falta un producto, el cartel explica cuándo volverá y qué alternativa queda disponible. Los clientes pueden preguntar por trigo, huevos o frutos secos. La persona de caja consulta la receta de la cocina antes de responder. Al final del día, el pan restante se separa para el banco de alimentos. Este texto permite probar que las expresiones regulares inglesas no deben juzgar un pasaje escrito en español. La revisión editorial necesita una persona competente en el idioma y el contexto.",
       "expected_language_status": "abstained",
+      "review_needed": false
+    },
+    {
+      "id": "negative-parallelism-reframe-and-kicker-hooks",
+      "purpose": "Comma-splice negative parallelism ('you're not X, you're Y') and kicker hooks match the contrast/hook scaffold packs, but one rhetorical family alone never triggers compound review.",
+      "mode": "prose",
+      "context": "general",
+      "text": "You're not overwhelmed, you're overstimulated. That framing sells because it flatters the reader instead of describing a mechanism.\nIt's not a productivity problem, it's an attention problem, according to the landing page. And here's the kicker: the app never defines either term.\nThe kicker is that the diagnostic quiz has eleven questions and no scoring rubric anywhere in the interface.\nA subscriber pays nine dollars a month for a weekly summary of articles the editor already published for free in March.\nThe onboarding survey asked about my sleep schedule and then recommended the identical template it recommends after every answer combination.",
+      "expected_leads": [
+        "formulaic_scaffolds"
+      ],
+      "expected_signal_families": [
+        "rhetorical_structure"
+      ],
+      "forbidden_leads": [
+        "hedged_profundity",
+        "triad_density"
+      ],
+      "review_needed": false,
+      "manual_check_codes": [
+        "conceptual_coherence",
+        "sentence_portability"
+      ]
+    },
+    {
+      "id": "hedged-profundity-decorates-unsupported-claims",
+      "purpose": "Commitment-free intensity modifiers ('quietly redefines', 'subtly reorganizes') recur while the copy never states what changed; a second family makes this reviewable.",
+      "mode": "prose",
+      "context": "general",
+      "text": "This release quietly redefines what the editor can do. The change is subtle, but its effects run deep, the announcement says.\nIt subtly reorganizes your entire library the first time it opens. Power users will find the new sidebar remarkably capable.\nOn some level, the app now understands intent, though the release notes never say how. Every gesture feels effortlessly natural, in many ways.\nThe migration is strikingly smooth, and the new defaults are inherently sensible. What actually changed, which files it touches, and what happens on failure never appear in the document.",
+      "expected_leads": [
+        "hedged_profundity"
+      ],
+      "expected_signal_families": [
+        "specificity"
+      ],
+      "review_needed": true,
+      "manual_check_codes": [
+        "sentence_portability",
+        "voice_and_subtext"
+      ]
+    },
+    {
+      "id": "literal-quietly-is-not-hedging",
+      "purpose": "False-positive guard: a narrative's single literal 'quietly' plus concrete actors, dates, and consequences must not produce a hedged-profundity lead.",
+      "mode": "prose",
+      "context": "general",
+      "text": "She quietly closed the door and walked to the kitchen. The floor creaked under the old rug. Outside, the rain kept its own slow time against the glass. Nobody else was awake yet. She poured the coffee she had ground the night before and read the note again. The handwriting was her father's, looped and uneven, dated the ninth of March. He listed the barn repairs with a price beside each one. She decided the roof came first because the forecast promised snow by Thursday. The ladder was still where he had left it in October.",
+      "forbidden_leads": [
+        "hedged_profundity",
+        "detail_sparsity",
+        "formulaic_scaffolds"
+      ],
+      "review_needed": false,
+      "manual_check_codes": [
+        "conceptual_coherence"
+      ]
+    },
+    {
+      "id": "triad-saturation-replaces-content",
+      "purpose": "Rule-of-three saturation: most sentences carry interchangeable three-item lists, so triad density leads while remaining a review lead, never a verdict.",
+      "mode": "prose",
+      "context": "general",
+      "text": "The workspace is fast, simple, and reliable, according to every section of the page. You can plan, track, and ship from one view.\nTeams reportedly save hours, reduce errors, and stay aligned. Each template was designed, tested, and refined before launch.\nEvery dashboard is clear, actionable, and easy to share with stakeholders across the organization. Setup covers imports, permissions, and notifications.\nBilling stays simple, predictable, and transparent. The changelog for June lists exactly one bug fix, one font change, and one renamed button.",
+      "expected_leads": [
+        "triad_density"
+      ],
+      "expected_signal_families": [
+        "rhetorical_structure"
+      ],
+      "forbidden_leads": [
+        "hedged_profundity"
+      ],
+      "review_needed": false,
+      "manual_check_codes": [
+        "discourse_purpose"
+      ]
+    },
+    {
+      "id": "genuine-enumeration-triads-stay-clean",
+      "purpose": "False-positive guard: a regulated procedure with real enumerations stays below the triad-density threshold and produces no lexicon leads.",
+      "mode": "prose",
+      "context": "regulated",
+      "text": "Bring your passport, two printed photos, and the visa fee in cash. The consular office opens at nine on weekdays. Applications close at noon. Processing takes ten business days from the date of submission. If a document is missing, staff return the complete packet with a checklist describing what to add. Appeals go to the second-floor desk before four. Payment is accepted in cash or by local bank card. Keep the stamped receipt until the passport comes back.",
+      "forbidden_leads": [
+        "triad_density",
+        "hedged_profundity",
+        "detail_sparsity"
+      ],
+      "review_needed": false
+    },
+    {
+      "id": "recovery-detector-respects-retained-state-and-surface-class",
+      "purpose": "Terminal toasts without cause or next step lead; honest retained-state language ('Nothing changed.') counts as a recovery cue; badge/cell/label surface classes are vocabulary, not messages.",
+      "mode": "ui",
+      "context": "general",
+      "items": [
+        {
+          "surface": "toast.copy-failed",
+          "text": "Copy failed"
+        },
+        {
+          "surface": "toast.run-failed",
+          "text": "Run request failed"
+        },
+        {
+          "surface": "toast.refine-failed",
+          "text": "Wording preview failed. Nothing changed."
+        },
+        {
+          "surface": "badge.status",
+          "surface_class": "badge",
+          "text": "failed"
+        },
+        {
+          "surface": "cell.cost",
+          "surface_class": "cell",
+          "text": "Cost unavailable"
+        },
+        {
+          "surface": "toast.save-failed",
+          "text": "Note not saved because the vault is read-only. Fix permissions and try again."
+        },
+        {
+          "surface": "empty.inbox",
+          "text": "Inbox is empty."
+        },
+        {
+          "surface": "label.section",
+          "surface_class": "label",
+          "text": "Removed"
+        }
+      ],
+      "expected_leads": [
+        "missing_recovery_information"
+      ],
+      "forbidden_leads": [
+        "cadence_uniformity"
+      ],
       "review_needed": false
     }
   ]

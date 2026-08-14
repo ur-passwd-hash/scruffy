@@ -2,8 +2,8 @@
 
 Scruffy's Mop is the consumer side of Scruffy's output contract. Scruffy owns every
 schema named here; the canonical definitions live in
-`../../references/output-schema.md` and
-`../../schema/audit-contract.json`. Scruffy's Mop reads them and never redefines
+`../scruffy/references/output-schema.md` and
+`../scruffy/schema/audit-contract.json`. Scruffy's Mop reads them and never redefines
 them. The machine-readable compatibility key is [`../schema/interop.json`](../schema/interop.json).
 
 ## The loop
