@@ -1,5 +1,7 @@
 # Scruffy's Mop
 
+![Scruffy sweeps the findings toward the Mop, which cleans them up](assets/scruffy-and-mop-hero.png)
+
 > **Scruffy's Mop** is the fix/redesign executor for [Scruffy](../scruffy). Scruffy finds the AI slop and proves it. Scruffy's Mop cleans it up — to a real craft bar — and hands it back for re-audit.
 
 ## The loop
@@ -70,17 +72,26 @@ The full handoff is documented in
 
 ## Usage
 
-Point it at a directory holding a Scruffy audit's output
-(`findings.json`, `context.json`, `decisions.json`, optional `tokens.json`):
+Every session starts with the orchestrator — one command, always the same shape:
 
 ```sh
-python3 scripts/mop_bundle.py check <bundle-dir>               # validate + gate (fail closed)
-python3 scripts/mop_bundle.py plan  <bundle-dir> --authorized  # dependency-ordered plan
-python3 scripts/mop_preflight.py --design-reference-search available  # probe capabilities (never assume)
-# implement each step to the craft bar, per references/fix-protocols.md
-python3 scripts/mop_dashboard.py <bundle-dir> --assets assets.json --out dashboard.html --authorized
-python3 scripts/mop_handoff.py <bundle-dir> --work work.json --authorized
+python3 scripts/mop_run.py <bundle-dir> [--templates <taste-library-dir>] [--assets assets.json] [--authorized]
 ```
+
+That always produces, in order: `mop-preflight.json` (capabilities probed, never
+assumed — including Playwright browsers), a validated or freshly scaffolded
+`directions.json` (three structurally distinct, principle-cited directions per
+design group; a visual direction is not selectable without an image anchor, and
+imagery outside declared reference sources is refused as cross-product leakage),
+and `mop-dashboard.html` — the decision surface, with the duo brand banner, a
+Provenance tab on every finding (Source → Rule → Detector pack → Signal →
+Evidence), explicit slop-category labels, and per-item screenshots or an
+explicit disclosure that none were captured.
+
+The underlying tools remain available piecemeal (`mop_bundle.py check|plan`,
+`mop_preflight.py`, `mop_directions.py scaffold|check`, `mop_dashboard.py`,
+`mop_handoff.py --augmentations @file`), per
+[`references/fix-protocols.md`](references/fix-protocols.md).
 
 The visual-redesign deliverable is a **single self-contained HTML dashboard** —
 every screenshot and reference embedded as a `data:` URI, no external loads —
@@ -92,12 +103,15 @@ worked example bundle ships at [`fixtures/sample-audit/`](fixtures/sample-audit/
 
 ## Status
 
-Functional. The runtime method (`SKILL.md` + `references/`), the interop contract,
-the deterministic scripts, a fixture bundle, and a 16-case test suite are in
-place and green (`python3 scripts/test_mop.py` and
-`python3 scripts/validate_skill.py`). It has not yet been exercised against a
-real-world audit outside the fixture — treat the test suite as regression
-evidence, not a product claim.
+Functional and field-run. The runtime method, interop contract, deterministic
+scripts, fixture bundle, and a 41-case test suite are green
+(`python3 scripts/test_mop.py`, `python3 scripts/validate_skill.py`). First
+real-world loop completed 2026-08-14 against the NagOps audit: approved
+recovery-copy findings implemented under explicit user grant, handed off, and
+re-verified by a Scruffy revision-2 audit (one item fixed on evidence, one
+honestly carried for its remaining CI gate). Fixture findings are titled
+`[FIXTURE]` and self-label as fake so demo data can never read as a real
+product.
 
 ## License
 

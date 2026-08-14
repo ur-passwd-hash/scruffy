@@ -125,6 +125,9 @@ Apply these only where the product exposes the concern: **Trust and content inte
 - Findings require evidence and a falsification attempt.
 - Blind audits quarantine prior reports and expected answers, freeze discovery by hash, and reveal the baseline only during reconciliation.
 - Editorial findings require typed evidence and a demonstrated consequence; sentence-pattern findings additionally require adequate samples, multiple independent signals, and manual semantic review.
+- Category evidence gates are machine-enforced: active performance findings need runtime evidence, accessibility findings a receipt plus a named criterion, visual findings rendered evidence, interaction findings operation evidence; critical severity demands high confidence and two receipts, and `user_impact` has a concrete-consequence floor.
+- Sentence lexicons live in a data-driven pack registry (`--list-packs` / `--disable-pack`) parity-checked against a cited signal manifest; disabling a pack is disclosed in every result.
+- Findings can carry `principle_refs` (which rule fired, credited to its source) and `detector_refs` (which pack or target gate raised the lead), so a judgement traces Source → Rule → Detector pack → Signal → Finding.
 - Stable IDs and identity keys prevent a later report from reusing or dropping earlier findings.
 - Application-archetype probes adapt the task walkthrough to courses, SaaS tools, transactions, forms, analytics, collaboration, editors, marketing sites, and hybrids.
 - Structural blockers are fixed before cosmetic symptoms.
@@ -268,6 +271,10 @@ Codex and Claude load the same root `SKILL.md`; there is no duplicated runtime c
 
 Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-browser or file capabilities, the skill degrades to static analysis and clearly marks runtime checks not run.
 
+## Scruffy's Mop — the fix executor
+
+Scruffy diagnoses and clears; [**Scruffy's Mop**](mop/README.md) (in [`mop/`](mop/)) implements. It consumes an audit bundle read-only, acts only on human-approved items under explicit authority, proposes three rule-cited design directions per work group with reference imagery (text-only visual advice fails closed), renders a self-contained decision dashboard, and hands the result back — only a Scruffy re-audit marks anything fixed. Start it with `python3 mop/scripts/mop_run.py <bundle-dir>`.
+
 ## Repository layout
 
 ```text
@@ -351,6 +358,8 @@ python3 scripts/validate_corpus.py
 python3 scripts/test_durability.py
 python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py
+python3 scripts/test_category_gates.py
+python3 scripts/test_scaffold_audit.py
 python3 scripts/test_blind_protocol.py
 python3 scripts/test_blind_evaluator.py
 python3 scripts/test_sentence_blind_runner.py
@@ -363,6 +372,10 @@ python3 scripts/test_product_surfaces.py
 The first checks metadata, the Claude maintainer contract, generated DRY contracts, progressive-disclosure budgets, referenced files, durability and blind-audit terms, editorial and archetype fixtures, Codex metadata, portability traps, and trigger coverage. The second checks corpus coverage, citations, timestamps, aliases, and source-state consistency. The remaining suites prove registry durability, canonical categories, write authority, typed evidence, editorial receipts, sentence false-positive guards, blind-output immutability, and contamination rejection.
 
 Compatibility note: durable report markers and browser-storage keys retain the internal `anti-slop-*` namespace so existing registries, dashboards, and decisions remain readable after the rename. This does not affect `$scruffy` or `/scruffy` invocation.
+
+## Start a new report bundle from green
+
+`python3 scripts/scaffold_audit.py --audit-id <id> --target <desc> --title <t> --out <dir>` emits a pre-valid findings/context/decisions trio (TODO-seeded, self-validating), so authoring an audit is editing a passing document rather than negotiating with the validator.
 
 ## Repeat an audit without losing history
 
