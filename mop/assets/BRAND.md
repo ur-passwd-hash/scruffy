@@ -27,6 +27,14 @@ date. No third-party imagery. Known delta: back-view shirt reads one shade
 lighter than front-view Scruffy — acceptable at banner scale, regenerate
 with a matched palette if it ever matters.
 
+Same-hand harmonization (2026-08-14): the duo banner uses a softened
+variant of the original Scruffy (1.1px edge soften + clumpy fill grain
+matched to the mop art's local-contrast profile, contrast eased 3%) kept
+here as `scruffy-hero-softened.png`. Root `assets/scruffy-hero.png` is
+untouched — the crisp original remains Scruffy's own brand. Full unity
+(matching anatomy/proportions) requires regenerating the front-view sweep
+through the imagegen pipeline with the mop art as style reference.
+
 Palette guardrails (binding, from the slop taxonomy): no purple/blue
 gradients, no pastel AI palettes, one linework style, saturated color only
 where it means something.
