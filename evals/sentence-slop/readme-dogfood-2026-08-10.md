@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `7cb7b1a24e45dad2f3d4f07cd5110e264fe3b3ca91800e3897ff162c1596db7d`
+Target SHA-256: `ed0b75cae2778da1426be4931f7969f392e3d5111618b8069ef4983172a2e12c`
 
 Command:
 
@@ -169,3 +169,32 @@ adequacy `adequate`, 4 lead(s) including the cognitive_load family. Earlier
 figures in this receipt describe earlier README states; this block is
 authoritative for the committed revision. Manual-pass conclusions unchanged.
 No authorship assessment.
+
+
+## Refresh — 2026-08-14 (packs, gates, Mop, and scaffold sections added)
+
+Rerun after the README gained the Scruffy's Mop section, the category-gate and
+pack-registry bullets, and the scaffold quickstart. Analyzer schema 1.3
+(merged pack registry + cognitive-load signals), verified `en` scope.
+
+Sample: 3,333 source words, 1,750 analyzed reader-facing words, 149 sentences,
+adequate. Leads:
+
+- `repeated_openings` — 5 repeated openings across 149 sentences
+- `paragraph_pattern_reuse` — 1 non-plain paragraph signature(s) recur at least three times
+- `overlong_sentence` — 2 of 149 sentences exceed 35 words
+- `clause_pileup` — 13 sentences with semicolon chains or five-plus commas
+- `parenthetical_stacking` — 1 sentences with two or more parentheticals
+
+Reconciliation. The added prose was tightened before this receipt: the gates
+bullet was split into four short sentences and the Mop paragraph into six,
+dropping overlong sentences from 4 to 2. The residual leads trace to
+pre-existing enumeration sentences — the corpus credit list and the
+category/evidence enumerations — which the analyzer's own guards name as
+legitimate ("citation strings legitimately carry punctuation density"; "a long
+sentence that is one parallel enumerated list reads fine"). The repeated
+openings are parallel bullet frames in the harder-to-fool list, kept
+deliberately. Manual pass over the four added sections: coherent, portable
+only where intended (the scaffold command is product-specific), each paragraph
+adds decision-relevant information, and the voice matches the surrounding
+document. No authorship assessment performed.

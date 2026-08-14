@@ -125,9 +125,9 @@ Apply these only where the product exposes the concern: **Trust and content inte
 - Findings require evidence and a falsification attempt.
 - Blind audits quarantine prior reports and expected answers, freeze discovery by hash, and reveal the baseline only during reconciliation.
 - Editorial findings require typed evidence and a demonstrated consequence; sentence-pattern findings additionally require adequate samples, multiple independent signals, and manual semantic review.
-- Category evidence gates are machine-enforced: active performance findings need runtime evidence, accessibility findings a receipt plus a named criterion, visual findings rendered evidence, interaction findings operation evidence; critical severity demands high confidence and two receipts, and `user_impact` has a concrete-consequence floor.
-- Sentence lexicons live in a data-driven pack registry (`--list-packs` / `--disable-pack`) parity-checked against a cited signal manifest; disabling a pack is disclosed in every result.
-- Findings can carry `principle_refs` (which rule fired, credited to its source) and `detector_refs` (which pack or target gate raised the lead), so a judgement traces Source → Rule → Detector pack → Signal → Finding.
+- Category evidence gates are machine-enforced. An active performance finding needs runtime evidence, accessibility a receipt plus a named criterion, visual a rendered receipt, and interaction an operation receipt. Critical severity demands high confidence and two receipts. `user_impact` has a concrete-consequence floor.
+- Sentence lexicons live in a data-driven pack registry (`--list-packs` / `--disable-pack`), parity-checked against a cited signal manifest. Disabling a pack is disclosed in every result.
+- Findings can carry `principle_refs` (the rule that fired, credited to its source) and `detector_refs` (the pack or target gate that raised the lead). A judgement traces Source → Rule → Detector pack → Signal → Finding.
 - Stable IDs and identity keys prevent a later report from reusing or dropping earlier findings.
 - Application-archetype probes adapt the task walkthrough to courses, SaaS tools, transactions, forms, analytics, collaboration, editors, marketing sites, and hybrids.
 - Structural blockers are fixed before cosmetic symptoms.
@@ -273,7 +273,7 @@ Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-b
 
 ## Scruffy's Mop — the fix executor
 
-Scruffy diagnoses and clears; [**Scruffy's Mop**](mop/README.md) (in [`mop/`](mop/)) implements. It consumes an audit bundle read-only, acts only on human-approved items under explicit authority, proposes three rule-cited design directions per work group with reference imagery (text-only visual advice fails closed), renders a self-contained decision dashboard, and hands the result back — only a Scruffy re-audit marks anything fixed. Start it with `python3 mop/scripts/mop_run.py <bundle-dir>`.
+Scruffy diagnoses and clears; [**Scruffy's Mop**](mop/README.md) (in [`mop/`](mop/)) implements. The Mop consumes an audit bundle read-only and acts only on human-approved items under explicit authority. For design work it proposes three rule-cited directions per work group, each grounded in reference imagery — text-only visual advice fails closed. It renders a self-contained decision dashboard and hands the result back. Only a Scruffy re-audit marks anything fixed. Start it with `python3 mop/scripts/mop_run.py <bundle-dir>`.
 
 ## Repository layout
 
@@ -375,7 +375,7 @@ Compatibility note: durable report markers and browser-storage keys retain the i
 
 ## Start a new report bundle from green
 
-`python3 scripts/scaffold_audit.py --audit-id <id> --target <desc> --title <t> --out <dir>` emits a pre-valid findings/context/decisions trio (TODO-seeded, self-validating), so authoring an audit is editing a passing document rather than negotiating with the validator.
+`python3 scripts/scaffold_audit.py --audit-id <id> --target <desc> --title <t> --out <dir>` emits a pre-valid findings/context/decisions trio, TODO-seeded and self-validating. Authoring an audit becomes editing a passing document instead of negotiating with the validator.
 
 ## Repeat an audit without losing history
 
