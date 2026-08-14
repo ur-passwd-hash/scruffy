@@ -140,6 +140,10 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path, dir
 
     p: list[str] = [_HEAD]
     p.append('<div class="wrap">')
+    brand = Path(__file__).resolve().parent.parent / "assets" / "scruffy-and-mop-hero.png"
+    if brand.exists():
+        p.append(f'<img class="brand" src="{_data_uri(brand, "image/png")}" '
+                 'alt="Scruffy sweeps the findings toward the Mop, which cleans them up">')
     p.append('<header><div class="kick">Scruffy&rsquo;s Mop &middot; decision dashboard '
              '&middot; self-contained</div>'
              f'<h1>{_e(audit_id)}</h1>')
@@ -446,6 +450,7 @@ _HEAD = """<!doctype html><html lang="en" data-theme="light"><head>
 *{box-sizing:border-box;margin:0}body{font:14px/1.5 var(--fs);color:var(--ink);background:var(--paper);
 font-variant-numeric:tabular-nums;padding:32px 20px 80px}.wrap{max-width:920px;margin:0 auto}a{color:var(--cob)}
 code{font-family:var(--mono);font-size:.9em}
+img.brand{display:block;max-height:96px;width:auto;margin:0 0 12px}
 header{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:20px}
 .kick{font-size:11px;color:var(--brand);font-weight:600}
 h1{font-size:25px;margin:8px 0 4px}.target{font-size:12.5px;color:var(--ink3)}
