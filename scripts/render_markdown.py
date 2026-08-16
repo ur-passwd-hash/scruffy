@@ -253,11 +253,11 @@ Confidence: {clean(str(outcome.get('confidence', 'unknown')).title())}
 {item_group(additional_findings, 'No additional active findings.')}
 
 <!-- anti-slop-section:enhancements -->
-## Suggested improvements
+## Optional enhancements
 
-{item_group(prioritized_enhancements, 'No prioritized enhancements.')}
+{item_group(prioritized_enhancements, 'No prioritized optional enhancements. Corrective changes remain listed under Prioritized findings and Recommended work sequence.')}
 
-## Other suggested improvements
+## Other optional enhancements
 
 {item_group(additional_enhancements, 'No additional enhancements.')}
 

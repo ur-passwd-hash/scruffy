@@ -4,7 +4,7 @@
     "name": "Zachary Satterly",
     "url": "https://github.com/ur-passwd-hash"
   },
-  "description": "Claude Code distribution for Scruffy's Mop, the fix/redesign executor that cleans up what Scruffy audits.",
+  "description": "Claude Code compatibility distribution for Scruffy's approved-repair workflow.",
   "plugins": [
     {
       "name": "scruffys-mop",

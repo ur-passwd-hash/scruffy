@@ -138,6 +138,18 @@
       }
     },
     {
+      "id": "OPC-IDENTITY-LOCKUP-COMPOSITION",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Multi-line identity lockups are intentionally composed",
+      "citation": "principles/PRINCIPLES.md §10",
+      "false_positive_guard": "Deliberate asymmetry, language-specific joining conventions, manual line breaks, and expressive ceremonial or editorial lockups may differ when the relationship remains legible and the rendered placement is intentional. A connector on its own line is a lead, never an automatic defect.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "At representative real widths, inspect the rendered line boxes of every multi-line identity, ceremonial title, and large display lockup. Record each line's text, bounding box, alignment, and whether the break was authored or produced by browser wrapping. Challenge connector-only lines such as &, and, or + for optical scale and placement relative to the words they join; flag accidental stair-steps, orphaned relational glyphs, collisions, or a wrap that weakens identity. Stress short, long, compound, and localized names or titles. Preserve a documented deliberate asymmetry and report unavailable line-box or content stress evidence as not run."
+      }
+    },
+    {
       "id": "OPC-ACTION-DESTRUCTIVE-HIERARCHY",
       "category": "interaction",
       "severity": "suggestion",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for Scruffy's Mop bundle ingestion, gating, planning, and handoff.
+"""Tests for Scruffy repair bundle ingestion, gating, planning, and handoff.
 
 Dependency-free. Run directly: ``python3 scripts/test_mop.py``.
 """

@@ -154,6 +154,7 @@ def main() -> int:
             "OPC-CONTAINER-DIVIDER-ECONOMY",
             "OPC-TYPOGRAPHY-RANK-AND-DENSITY",
             "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY",
+            "OPC-IDENTITY-LOCKUP-COMPOSITION",
             "OPC-ACTION-DESTRUCTIVE-HIERARCHY",
             "OPC-STATE-SIGNAL-ECONOMY",
             "OPC-RECOVERY-COPY-PROXIMITY",
@@ -198,6 +199,32 @@ def main() -> int:
             if required_guard not in typography_guard:
                 raise AssertionError(
                     f"typography-system check must preserve {required_guard!r} guard"
+                )
+        lockup_rule = next(
+            rule for pack in packs for rule in pack["rules"]
+            if rule["id"] == "OPC-IDENTITY-LOCKUP-COMPOSITION"
+        )
+        lockup_instruction = lockup_rule["predicate"]["instruction"]
+        for required_receipt in (
+            "rendered line boxes",
+            "whether the break was authored or produced by browser wrapping",
+            "connector-only lines",
+            "optical scale and placement",
+            "short, long, compound, and localized",
+            "not run",
+        ):
+            if required_receipt not in lockup_instruction:
+                raise AssertionError(
+                    f"identity-lockup check must require {required_receipt!r} evidence"
+                )
+        for required_guard in (
+            "Deliberate asymmetry",
+            "language-specific joining conventions",
+            "lead, never an automatic defect",
+        ):
+            if required_guard not in lockup_rule["false_positive_guard"]:
+                raise AssertionError(
+                    f"identity-lockup check must preserve {required_guard!r} guard"
                 )
         for page_name in ("checkout-flow.html", "pricing-page.html", "settings-form.html"):
             for lead in evaluate_page(FIXTURES / page_name, packs):

@@ -4,13 +4,28 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## Unreleased
 
+- Consolidated the public product under one name, **Scruffy**. Reference grounding,
+  principles, audit, repair, and verification are now described as workflow
+  stages rather than DIRT, Keys, or Mop companion brands. Repair dashboards use
+  the single Scruffy hero; the obsolete two-character banner was removed.
+- Rewrote the README around the evidence loop and documented the complete
+  principle-admission path: source registration, attributed rule, reproducible
+  lead, false-positive counterexample, validation, and unseen-target forward
+  test. A fresh hash-bound AI-slop review receipt replaces the stale naming-era
+  review, and validators now resolve the receipt linked by the badge instead of
+  hard-coding a dated file.
+- Added a cited, guarded identity-lockup composition check for ceremonial and
+  multi-line titles, including connector alignment and short/long/compound/
+  localized stress cases. Empty report sections now say explicitly when no
+  optional enhancements were found instead of presenting misleading empty
+  “Suggested improvements” groups.
 - Rebuilt the sentence analyzer's lexicon detectors as a data-driven runtime pack registry (contrast-scaffolds, hook-scaffolds, transition-markers, abstract-filler, hedged-profundity, triad-density, error-states, recovery-cues) with `--list-packs`, `--disable-pack`, `analyze(disabled_packs=...)`, pack disclosure in output (schema 1.3), and an extensibility regression; merged cleanly with the cognitive-load signals and the sentence-slop pack manifest, which now registers the two new signals with §33 citations and guards.
 - New signals: comma-splice negative parallelism ("you're not overwhelmed, you're overstimulated"), kicker hooks, hedged profundity ("quietly"-class modifiers), profound-but-vague filler vocabulary, and short-item triad density — each with a false-positive fixture (sentence corpus 12 → 18 cases).
 - Recovery detector: honest retained-state language ("nothing changed") now counts as a recovery cue, and UI items may carry `surface_class` so badges, cells, labels, headings, and status vocabulary never flag as unrecoverable errors.
 - Validator: optional `principle_refs`/`detector_refs` provenance on registry items, an interaction-category evidence gate, critical-severity calibration (high confidence, two receipts), and a concrete `user_impact` floor — extending the existing category gates; regression suite `scripts/test_category_gates.py`.
 - Added `scripts/scaffold_audit.py` (+ regression) emitting a pre-valid nine-capability, context-1.1 bundle so audits start from green.
 - Standardized the provenance vocabulary (Source → Rule → Detector pack → Signal → Finding) in the output-schema reference.
-- Mop: direction picker with per-group `directions.json` (three structurally distinct, rule-cited directions, one recommended, human selection gate), imagery provenance origins with cross-product leakage refusal, provenance tab on every dashboard finding, target-identity header and missing-screenshot disclosure, playwright browser probing, `mop_run.py` required entry point, and self-labeling fixtures ([FIXTURE] titles).
+- Repair workflow: direction picker with per-group `directions.json` (three structurally distinct, rule-cited directions, one recommended, human selection gate), imagery provenance origins with cross-product leakage refusal, provenance tab on every dashboard finding, target-identity header and missing-screenshot disclosure, browser probing, `mop_run.py` compatibility entry point, and self-labeling fixtures ([FIXTURE] titles).
 
 - Gave scripts/annotate.html a complete keyboard authoring path (WCAG 2.1.1),
   closing the one open finding from the tool's first self-audit: the stage is

@@ -125,7 +125,6 @@ def validate_required_files() -> None:
         "skills/scruffy/SKILL.md",
         "evals/archetypes.json",
         "evals/sentence-slop/cases.json",
-        "evals/sentence-slop/readme-dogfood-2026-08-10.md",
         "evals/durability/baseline.json",
         "evals/durability/revision-valid.json",
         "evals/durability/revision-invalid-missing.json",
@@ -503,7 +502,19 @@ def validate_sentence_evals() -> None:
 
 
 def validate_readme_dogfood() -> None:
-    path = ROOT / "evals" / "sentence-slop" / "readme-dogfood-2026-08-10.md"
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    badge = re.search(
+        r'<a href="([^"]+)"><img[^>]+alt="README AI-slop reviewed"',
+        readme,
+    )
+    if not badge:
+        fail("README AI-slop reviewed badge is missing its receipt link")
+    relative = Path(badge.group(1))
+    if relative.is_absolute() or ".." in relative.parts or relative.parent != Path("evals/sentence-slop"):
+        fail("README dogfood receipt must be a local file in evals/sentence-slop")
+    path = ROOT / relative
+    if not path.is_file():
+        fail(f"README dogfood receipt does not exist: {relative}")
     text = path.read_text(encoding="utf-8")
     match = re.search(r"Target SHA-256: `([a-f0-9]{64})`", text)
     if not match:
@@ -521,7 +532,8 @@ def validate_readme_dogfood() -> None:
         "### Action and recovery clarity",
         "### Voice and audience fit",
         "makes no authorship assessment",
-        "fixed editorial defect",
+        "one product name",
+        "**Cleared:**",
     )
     missing = [fragment for fragment in required if fragment not in text]
     if missing:

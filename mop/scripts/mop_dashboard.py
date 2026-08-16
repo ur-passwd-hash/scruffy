@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the Mop's standard deliverable: a self-contained decision dashboard.
+"""Generate Scruffy's repair-stage deliverable: a self-contained decision dashboard.
 
 The operator reads Mop output in a terminal, so a dashboard is the only surface
 where they can see evidence and act on it. It must therefore be one file with
 every image embedded as a ``data:`` URI — no sibling folder, no external fetch,
 no login-gated link needed to render — and it must let the operator **close the
-loop**: review every Scruffy finding beside the Mop's recommended direction,
+loop**: review every Scruffy finding beside the recommended direction,
 Approve / Defer / Reject each in-browser, and export an updated ``decisions.json``
 (schema 2.1) that feeds straight back into ``mop_bundle.py`` / ``mop_dashboard.py``.
 
@@ -140,11 +140,11 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path, dir
 
     p: list[str] = [_HEAD]
     p.append('<div class="wrap">')
-    brand = Path(__file__).resolve().parent.parent / "assets" / "scruffy-and-mop-hero.png"
+    brand = Path(__file__).resolve().parent.parent.parent / "assets" / "scruffy-hero.png"
     if brand.exists():
         p.append(f'<img class="brand" src="{_data_uri(brand, "image/png")}" '
-                 'alt="Scruffy sweeps the findings toward the Mop, which cleans them up">')
-    p.append('<header><div class="kick">Scruffy&rsquo;s Mop &middot; decision dashboard '
+                 'alt="Scruffy sweeping a field of cartoon nuts and bolts">')
+    p.append('<header><div class="kick">Scruffy &middot; repair decision dashboard '
              '&middot; self-contained</div>'
              f'<h1>{_e(audit_id)}</h1>')
     if target:
@@ -173,7 +173,7 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path, dir
     # Direction picker (design lanes): a human selects; recommended is advice only.
     if direction_doc and direction_doc.get("groups"):
         p.append('<section><h2>Design directions &mdash; pick one per group</h2>'
-                 '<p class="hint">The Mop implements a design-lane item only after a direction is selected here '
+                 '<p class="hint">Scruffy implements a design-lane item only after a direction is selected here '
                  '(or in <code>directions.json</code>). <b>Recommended</b> is advice; nothing is preselected for you.</p>')
         for g in direction_doc["groups"]:
             gid = g.get("id", "")
@@ -243,8 +243,8 @@ def build_dashboard_html(bundle: dict, plan: dict, assets: dict, base: Path, dir
                  + _e("; ".join(gate.get("reasons", []))) + '</p>')
 
     p.append(f'<section><h2>Findings &amp; decisions &mdash; {len(_ordered_items(bundle))} item(s)</h2>')
-    p.append('<p class="hint">Set a decision on each item, then Download decisions.json and feed it back to '
-             'the Mop. The Mop implements only <b>approved</b> items; Scruffy re-audits to clear them.</p>')
+    p.append('<p class="hint">Set a decision on each item, then Download decisions.json and return it to '
+             'Scruffy. Only <b>approved</b> items are implemented; re-audit evidence is required to clear them.</p>')
 
     for n, item in enumerate(_ordered_items(bundle), 1):
         iid = item["id"]
@@ -428,7 +428,7 @@ def render(bundle_dir, assets_path, out_path, authorized: bool = False) -> Path:
     fixture_markers = ("fixtures", "sample-audit")
     if any(marker in str(Path(bundle_dir).resolve()).lower() for marker in fixture_markers) or assets.get("demo_note"):
         demo_note = assets.get("demo_note") or (
-            "DEMO FIXTURE — this bundle is Scruffy's Mop's built-in test product, not one of your real audits."
+            "DEMO FIXTURE — this bundle is Scruffy's built-in test product, not one of your real audits."
         )
     doc = build_dashboard_html(bundle, plan, assets, base, direction_doc, Path(bundle_dir), demo_note)
     out = Path(out_path)
@@ -438,7 +438,7 @@ def render(bundle_dir, assets_path, out_path, authorized: bool = False) -> Path:
 
 _HEAD = """<!doctype html><html lang="en" data-theme="light"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Scruffy's Mop — decision dashboard</title><style>
+<title>Scruffy — repair decision dashboard</title><style>
 :root{--fs:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,Menlo,monospace;
 --paper:#e9eaec;--surface:#fff;--lane:#f2f3f4;--ink:#14161a;--ink2:#4d525c;--ink3:#6d6b69;--rule:#dcdee1;
 --brand:#d40f2e;--acton:#fff;--cob:#2a53d8;--crit:#fdeceb;--ok:#1f6b3f;--ok-soft:#e7f2ec;--warn:#8a5a06;--warn-soft:#f6efe2;

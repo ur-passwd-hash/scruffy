@@ -93,6 +93,7 @@ Grade a landing page by level, then prescribe the next level's fixes [eMMiLeo_UG
 - Weight and opacity are interchangeable hierarchy levers. Max two weights (≥1 step apart), max two text colors (100% + one at 40–70% opacity). Smallest text must NOT also be lowest contrast. You should be able to verbally rank every text element and see styling match the ranking. [7sUUzOCv47U 4:51–6:12][Lp6ey4AyDzA 0:40]
 - Hero copy: ~7-word headline / ~14-word subhead is a drafting heuristic, not an audit threshold; test literal comprehension for the defined audience. Don't let sizes across the page diverge into “two different websites” — unify unjustified outliers. [9WVt1CelBfg 1:02][RynySryqM_0 3:32–3:53][V3Omp1hm0Sg 4:25]
 - Giant display text as a design object: once, at most twice per page. [Lp6ey4AyDzA 4:51]
+- Treat a multi-line identity or title as a composed lockup, not as ordinary browser wrapping. Inspect the actual rendered line boxes: a connector such as `&`, `and`, or `+` stranded on its own line must be deliberately scaled and optically placed relative to the names or phrases it joins. Stress short, long, compound, and localized text at real widths; preserve intentional asymmetry, but never mistake an automatic stair-step for a design decision. [field 2026-08-16]
 
 ## 11. Spacing, corners & grids — the numbers
 

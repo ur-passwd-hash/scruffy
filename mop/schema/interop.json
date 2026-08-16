@@ -2,7 +2,7 @@
  "schema_version": "1.0",
  "role": "consumer",
  "partner": "scruffy",
- "summary": "Scruffy's Mop is the fix/redesign executor for Scruffy. Scruffy owns the audit contract; Scruffy's Mop consumes it read-only, implements approved work, and hands the result back for re-audit. Scruffy's Mop never redefines Scruffy's schema.",
+ "summary": "Scruffy's compatibility repair workflow consumes the audit contract read-only, implements approved work, and hands the result back for re-audit. It never redefines Scruffy's schema.",
  "consumes": {
   "findings.json": {
    "current_registry_schema": "2.1",
@@ -38,7 +38,7 @@
     "visual_evidence",
     "checks_not_run"
    ],
-   "note": "work_orders carry the dependency order Scruffy's Mop implements in. product_frame is the product truth Scruffy's Mop must preserve."
+   "note": "work_orders carry Scruffy's repair dependency order. product_frame is the product truth the repair must preserve."
   },
   "decisions.json": {
    "current_schema": "2.1",
@@ -46,7 +46,7 @@
     "decisions[].item_id",
     "decisions[].decision"
    ],
-   "note": "Scruffy's Mop implements ONLY items whose decision is 'approve'. 'pending', 'defer', and 'reject' are never actioned."
+   "note": "Scruffy implements ONLY items whose decision is 'approve'. 'pending', 'defer', and 'reject' are never actioned."
   },
   "tokens.json": {
    "current_schema": "1.0",
@@ -66,7 +66,7 @@
    "design"
   ],
   "required_capability": "source_write",
-  "rule": "Scruffy's Mop performs repository writes only under Scruffy's redesign/design authority with explicit source-write authorization. An audit or dashboard decision alone is not source-edit authorization.",
+  "rule": "Scruffy performs repair writes only under redesign/design authority with explicit source-write authorization. An audit or dashboard decision alone is not source-edit authorization.",
   "fail_closed": true
  },
  "produces": {
@@ -83,7 +83,7 @@
     "groups[].directions[].grounding[].image (template/reference image or annotated baseline screenshot; required to select a visual direction)",
     "groups[].imagery (available | unavailable; unavailable groups are advisory-only and cannot be selected)"
    ],
-   "note": "The only artifact Scruffy's Mop owns. A UI recommendation cannot be made with text alone: visual directions are selectable only with an image anchor, and every direction cites the principle that motivated the finding, so a Kole Jain rule firing in Scruffy traces through the picker to the implemented fix. Scruffy's schema is never extended or forked.",
+   "note": "The only repair-stage artifact. A UI recommendation cannot be made with text alone: visual directions are selectable only with an image anchor, and every direction cites the principle that motivated the finding, so a rule firing in Scruffy traces through the picker to the implemented fix. Scruffy's schema is never extended or forked.",
    "legacy_schemas_readable": [
     "1.0"
    ]

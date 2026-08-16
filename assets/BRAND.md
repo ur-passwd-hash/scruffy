@@ -1,30 +1,26 @@
 # Scruffy — product theme
 
 Scruffy is an interface-maintenance tool, not a mascot collection. Its theme is
-a working kit: inspect the product, ground the judgment, apply named principles,
-and clean only the work a person approves.
+a disciplined evidence loop: inspect the product, ground the judgment, apply
+named principles, repair only approved work, and verify the result.
 
 ## Product architecture
 
-| Name | Product role | Boundary |
-|---|---|---|
-| **Scruffy** | The audit tool and orchestrator | Finds, tests, records, and clears evidence-backed interface problems. |
-| **DIRT** — Design Intelligence Research & Translation | The reference workspace | Uses applicable Keys, user taste evidence, and optional external reference connectors such as Mobbin MCP. A reference is evidence of a pattern, not proof of quality. |
-| **Scruffy's Keys** | The governed principle corpus | Holds attributed principles, source status, exceptions, and operational checks. Candidate material does not become a Key until it passes the admission gates. |
-| **Scruffy's Mop** | The implementation engine | Applies human-approved work under explicit authority. It cannot diagnose from scratch or mark its own work fixed. |
+The only human-facing product name is **Scruffy**. Reference grounding, the
+principle corpus, operated checks, audit reporting, direction selection,
+implementation, and re-audit are workflow stages. Do not give those stages
+mascot names or present them as companion products.
 
 The product sequence is:
 
-> **DIRT finds relevant evidence → Keys establish the applicable principles →
-> Scruffy makes the finding → the Mop performs approved work.**
+> **Frame → ground → audit → decide → repair → verify.**
 
 ## Theme rules
 
-- Keep the maintenance metaphor functional. DIRT, Keys, and the Mop must name
-  real product responsibilities.
-- Keep Scruffy as the parent product. DIRT and Keys are not separate plugins.
-  The Mop is a companion engine in the same repository.
-- Treat Mobbin as an external connector used by DIRT, never as a bundled Scruffy
+- Keep Scruffy as the only product and character name.
+- Describe internal boundaries literally: reference grounding, principle corpus,
+  audit, decision, repair, and verification.
+- Treat Mobbin as an optional external connector, never as a bundled Scruffy
   feature or an authority whose popularity settles a design decision.
 - Use jokes sparingly. Product boundaries, evidence, installation, and recovery
   must remain literal.
@@ -34,25 +30,20 @@ The product sequence is:
 
 ## Visual system
 
-The existing character and hero are the primary Scruffy imagery. The character's
-keys and broom already support the working-kit theme; do not add a separate
-character for every product part.
+The existing character and hero are the primary Scruffy imagery. Use one
+character; do not add a separate character for every workflow stage.
 
 - Flat 2D adult-animation style
 - Deep green, rust, warm gray, ochre, and neutral paper
 - Thick, clean linework
 - No gradients or pastel AI palettes
 - Saturated color only when it carries meaning
-- The root `scruffy-hero.png` belongs to Scruffy; combined Scruffy-and-Mop art
-  belongs in Mop contexts
+- The root `scruffy-hero.png` is the shared product hero, including repair
+  dashboards.
 
 ## Human-facing language
 
-Use the full expansion on first mention:
-
-- **DIRT — Design Intelligence Research & Translation**
-- **Scruffy's Keys — the principle corpus**
-- **Scruffy's Mop — the implementation engine**
-
-After that, use DIRT, Keys, and the Mop. Explain provider names such as Mobbin
-inside DIRT's evidence, not in the top-level product promise.
+Use **Scruffy**. Name the stage only when it helps the reader: reference
+grounding, principle intake, audit, repair, or verification. Explain provider
+names such as Mobbin as optional reference evidence, not in the top-level
+product promise.

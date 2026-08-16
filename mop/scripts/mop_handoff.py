@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the re-audit handoff after Scruffy's Mop implements approved fixes.
+"""Build the re-audit handoff after Scruffy implements approved repairs.
 
 The handoff maps each implemented item to the surfaces that changed and records a
 self-assessment against the item's acceptance checks. It deliberately does NOT
@@ -78,7 +78,7 @@ def build_handoff(plan: dict, work: dict, augmentations: dict | None = None) -> 
         "audit_id": plan["audit_id"],
         "revision_id": plan["revision_id"],
         "handoff_note": (
-            "Re-audit these items in a new Scruffy revision. Scruffy's Mop does "
+            "Re-audit these items in a new Scruffy revision. The repair stage does "
             "not mark its own work fixed or cleared."
         ),
         "augmentations": _normalize_augmentations(augmentations),
@@ -89,7 +89,7 @@ def build_handoff(plan: dict, work: dict, augmentations: dict | None = None) -> 
 
 def handoff_to_markdown(handoff: dict) -> str:
     lines = [
-        "# Scruffy's Mop — re-audit handoff",
+        "# Scruffy — repair re-audit handoff",
         "",
         f"Audit `{handoff['audit_id']}` revision `{handoff['revision_id']}`.",
         "",
@@ -133,7 +133,7 @@ def _cmd(args) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Scruffy's Mop re-audit handoff")
+    parser = argparse.ArgumentParser(description="Scruffy repair re-audit handoff")
     parser.add_argument("bundle", help="Path to the Scruffy audit bundle directory")
     parser.add_argument("--work", help="JSON file: item_id -> changed surfaces + self-check")
     parser.add_argument("--augmentations",

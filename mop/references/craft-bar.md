@@ -7,7 +7,7 @@ operates the real task; so must your fix.
 
 ## A free floor, augmented when available
 
-Scruffy's Mop carries its own craft bar (this file) and depends on nothing to
+Scruffy's repair stage carries its own craft bar (this file) and depends on nothing to
 apply it. This free floor keeps it portable across Claude, Codex, and other Agent
 Skills runtimes — the same portability that is Scruffy's contract. Every fix must
 clear the floor no matter what else is available.

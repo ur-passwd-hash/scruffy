@@ -1,7 +1,7 @@
 {
  "schema_version": "2.1",
  "audit_id": "acme-billing",
- "target": "FAKE TEST PRODUCT — 'Acme Billing' exists only as Scruffy's Mop's built-in fixture; no finding here describes a real app",
+ "target": "FAKE TEST PRODUCT — 'Acme Billing' exists only as Scruffy's built-in repair fixture; no finding here describes a real app",
  "revision_id": "r1",
  "baseline_revision_id": null,
  "run": {

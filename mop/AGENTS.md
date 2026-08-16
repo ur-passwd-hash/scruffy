@@ -1,12 +1,12 @@
-# Scruffy's Mop maintainer contract
+# Scruffy repair-workflow maintainer contract
 
-This repository is the standalone source project for Scruffy's Mop, the fix/redesign
-executor that consumes [Scruffy](../scruffy)'s audit output. This file governs
-work **on Scruffy's Mop itself**. Claude Code imports it through root `CLAUDE.md`.
+This directory contains Scruffy's compatibility repair runtime. It consumes
+Scruffy audit output and is not a separately branded product. This file governs
+work on the repair runtime itself. Claude Code imports it through root `CLAUDE.md`.
 
 ## Start here
 
-1. Classify the request as `USE` (run Scruffy's Mop against a Scruffy audit),
+1. Classify the request as `USE` (run Scruffy repair against a Scruffy audit),
    `MAINTAIN` (change this repository), or `SCAFFOLD` (extend the skeleton).
 2. Read root `SKILL.md` and `schema/interop.json` before changing runtime
    behavior.
@@ -15,13 +15,13 @@ work **on Scruffy's Mop itself**. Claude Code imports it through root `CLAUDE.md
 
 ## The line with Scruffy
 
-Scruffy owns the audit contract; Scruffy's Mop is a **read-only consumer**. Never edit
+Scruffy owns the audit contract; the repair runtime is a **read-only consumer**. Never edit
 or fork Scruffy's schema from this repo. If the handoff needs a schema change,
-that change is proposed to Scruffy, not made here. Scruffy's Mop's only schema is the
+that change is proposed to Scruffy, not made here. The repair runtime's only schema is the
 consumer compatibility key in `schema/interop.json`.
 
-Scruffy's Mop never: produces findings, scores authorship, decides approvals, or marks
-an item `fixed`/`cleared`. Those are Scruffy's. A Scruffy's Mop change that blurs this
+The repair runtime never produces findings, scores authorship, decides approvals, or marks
+an item `fixed`/`cleared`. Those are Scruffy audit responsibilities. A repair change that blurs this
 line is out of contract.
 
 ## Source-of-truth map
@@ -41,7 +41,7 @@ line is out of contract.
 2. Keep the smallest canonical edit. Regenerate any projections; never patch a
    generated file by hand.
 3. Preserve the authority gate, the approval gate, the dependency order, and the
-   "Scruffy clears, not Scruffy's Mop" rule unless the user explicitly changes the
+   "re-audit evidence clears, implementation does not" rule unless the user explicitly changes the
    product contract.
 4. When the interop versions change, update `schema/interop.json` and
    `references/scruffy-handoff.md` together, and confirm against Scruffy's

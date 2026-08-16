@@ -95,5 +95,5 @@ in chat the operator cannot see richly.
 The handoff and the dashboard footer report which augmentations were `used` vs
 `absent` (browser, impeccable, design-reference), sourced from the preflight — the
 observed truth, never a guess. Use `mop_handoff.py --augmentations`. As always,
-the Mop marks the item `implemented-pending-reaudit`; only Scruffy's re-audit
+the repair stage marks the item `implemented-pending-reaudit`; only Scruffy's re-audit
 clears it.

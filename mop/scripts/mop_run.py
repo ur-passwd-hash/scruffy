@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-command Mop session: preflight -> gates -> directions -> dashboard.
 
-This is the required entry point for every Scruffy's Mop session. It guarantees
+This is the required entry point for every Scruffy repair session. It guarantees
 the run always looks the same: capabilities are probed and disclosed, the
 bundle's authority and approval gates are applied, a directions.json exists for
 every design-lane group (scaffolded if missing, with template imagery when a
@@ -72,7 +72,7 @@ def main(argv=None) -> int:
     render(bundle_dir, args.assets, out, authorized=args.authorized)
 
     gate = plan["gate"]
-    print("Scruffy's Mop session prepared")
+    print("Scruffy repair session prepared")
     print(f"  bundle: {plan['audit_id']} rev {plan['revision_id']}")
     print(f"  gate: {'permissible' if gate['permissible'] else 'BLOCKED'}"
           + ("" if gate["permissible"] else " — " + "; ".join(gate["reasons"])))

@@ -3,20 +3,20 @@ name: scruffys-mop
 description: Implement and verify fixes for AI slop that Scruffy has already audited. Use when a Scruffy audit exists (findings.json, context.json, decisions.json, optional tokens.json) and approved findings must be turned into real, high-craft source changes under repository-write authority, then handed back for re-audit. Consumes Scruffy's output contract read-only; implements only approved work orders in dependency order; never diagnoses, scores authorship, or marks its own work fixed. Do not use to produce a fresh audit or findings (that is Scruffy), or for non-interface code work.
 ---
 
-# Scruffy's Mop
+# Scruffy — repair workflow
 
-Scruffy's Mop is the fix/redesign executor for Scruffy. Scruffy finds AI slop and
-proves it; Scruffy's Mop implements the smallest coherent, genuinely well-crafted
-change that clears each **approved** finding, then hands the result back to
-Scruffy to re-audit. Scruffy diagnoses, decides, and clears; Scruffy's Mop only
-implements.
+This compatibility entrypoint runs Scruffy’s approved-repair stage. Scruffy
+implements the smallest coherent, genuinely well-crafted change for each
+**approved** finding, then re-audits the result. The `scruffys-mop` machine name
+and `mop_*` filenames remain stable for existing installations; they are not a
+separate human-facing product.
 
 This skill is agent-, vendor-, framework-, browser-, and operating-system-
 agnostic, and stays inside Scruffy's evidence-bound loop.
 
 ## Required run order
 
-Every Mop session starts with the orchestrator and renders the decision surface
+Every repair session starts with the orchestrator and renders the decision surface
 before any implementation:
 
 ```
@@ -96,4 +96,4 @@ disclose the gap rather than editing the bundle to make it pass.
 
 If a step would have you produce a finding, choose an approval, invent a severity
 or evidence, mark your own work cleared, or widen scope past the approved items —
-stop and hand back instead. Those are Scruffy's, not the Mop's.
+stop and return to Scruffy’s audit stage.

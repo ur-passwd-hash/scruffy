@@ -1,6 +1,6 @@
 # Verification and handoff
 
-Scruffy's Mop verifies its own work enough to hand back honestly, but it never
+Scruffy verifies repair work enough to hand back honestly, but it never
 issues the clearance. Only a Scruffy re-audit of a new revision moves an item to
 `fixed`/`cleared`. This file covers the self-check before handoff and the handoff
 itself.

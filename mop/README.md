@@ -1,117 +1,89 @@
-# Scruffy's Mop
+# Scruffy — repair workflow
 
-![Scruffy sweeps the findings toward the Mop, which cleans them up](assets/scruffy-and-mop-hero.png)
+![Scruffy sweeping a field of cartoon nuts and bolts](../assets/scruffy-hero.png)
 
-> **Scruffy's Mop** is the fix/redesign executor for [Scruffy](../scruffy). Scruffy finds the AI slop and proves it. Scruffy's Mop cleans it up — to a real craft bar — and hands it back for re-audit.
+This directory contains Scruffy’s approved-repair stage. The `mop/` path and
+`mop_*` filenames remain for automation compatibility; **Mop is not a separate
+product or human-facing role**.
 
 ## The loop
 
-```
-Scruffy AUDIT ─► findings + context + decisions (+ tokens)
-                        │  approved items only
-                        ▼
-        Scruffy's Mop PROPOSES directions.json        (design lanes:
-                        │  3 distinct options/group,   visual · product ·
-                        │  one recommended, human      IA · interaction)
-                        │  SELECTS in the dashboard
-                        ▼
-              Scruffy's Mop IMPLEMENTS (redesign/design authority;
-                        │   impeccable when present, craft floor always)
-                        ▼
-Scruffy RE-AUDIT ─► items move open → fixed / cleared on real evidence
+```text
+Scruffy audits → findings + context + decisions (+ tokens)
+                         │ approved items only
+                         ▼
+Scruffy proposes three visual directions per design work group
+                         │ one is recommended; a human selects
+                         ▼
+Scruffy implements under explicit source-write authority
+                         ▼
+Scruffy re-audits → items move open → fixed or cleared on evidence
 ```
 
-Non-design lanes (copy, backend shape, performance) skip the picker and are
-implemented directly from the approved item's recommendation. `recommended`
-is advice — nothing is built that a human didn't pick.
+Non-design findings such as copy, backend shape, and performance skip the
+direction picker and follow the approved recommendation. A recommendation is
+advice; nothing is implemented without approval and write authority.
 
-**The visual contract.** A UI recommendation cannot be made with text alone.
-Every direction cites the principle(s) that motivated the finding
-(`principle_refs` into Scruffy's corpus: Kole Jain `[KJ §n]`, `[RUI]`,
-`[Butterick]`, `[NN/g #n]`, `PRINCIPLES §n`), and a visual-category direction is
-**not selectable without an image anchor** — a template/reference image
-(Mobbin export, taste-library entry, `--templates <dir>`) or an annotated
-baseline screenshot from the audit's evidence. No imagery in the runtime →
-the group renders `imagery: unavailable`, stays advisory, and the check
-refuses any selection. Text-only design advice fails closed instead of
-shipping.
+## Visual contract
 
-**Provenance is part of the contract.** Every image anchor declares an
-`origin` — `target_baseline` (this audit's own screenshots), `design_reference`
-(a named external pattern source), `taste_library` (your curated reuse dir), or
-`mockup` — and must live inside a declared reference source or this bundle.
-Imagery from another product's audit or lab is refused as cross-product
-leakage: one engagement's evidence never grounds another's directions. The
-scaffold offers taste-library images as a per-group `reference_pool` and never
-auto-attaches them; assigning an image to a direction is a deliberate act.
+Every visual direction cites the principle that motivated the finding and must
+have an image anchor: an annotated target screenshot, declared taste-library
+entry, or named design reference. Text-only visual advice fails closed. Each
+image declares its origin, and evidence from one product cannot silently ground
+another product’s direction.
 
-**Scruffy diagnoses and clears; Scruffy's Mop only implements.** Scruffy's Mop never produces
-findings, never scores authorship, and never marks its own work fixed.
+Mobbin or an equivalent design-reference search is optional. A built-in craft
+floor still applies when no external connector is available, and the capability
+gap is disclosed rather than treated as a defect.
 
-**Visual redesign is the headline job.** For `visual`/`product` findings the Mop
-grounds a direction in real shipped products (a design-reference search such as
-Mobbin — paid, optional) and drives the change through the **impeccable** craft
-engine (free, first-class when the runtime has it). A built-in craft floor always
-applies, so it still runs fully with neither augmentation present — the free-tier
-path. What was available is disclosed in the handoff; an absence is never a defect.
+## Authority and interoperability
 
-## Interoperability
-
-Scruffy owns the audit contract. Scruffy's Mop consumes it **read-only** and declares a
-consumer compatibility key in [`schema/interop.json`](schema/interop.json):
+Scruffy owns the audit contract and consumes these artifacts read-only during
+repair:
 
 | Artifact | Schema | Used for |
 |---|---|---|
-| `findings.json` | registry 2.1 | what to fix + `acceptance_checks` |
-| `context.json` | 1.1 | dependency-ordered `work_orders` + product truth |
-| `decisions.json` | 2.1 | the `approve` gate |
-| `tokens.json` | 1.0 (optional) | observed-value token corrections |
+| `findings.json` | registry 2.1 | what to repair and how success is checked |
+| `context.json` | 1.1 | dependency-ordered work orders and product truth |
+| `decisions.json` | 2.1 | the human approval gate |
+| `tokens.json` | 1.0, optional | observed-value token corrections |
 
-The full handoff is documented in
+An approved decision is not repository authority. Source changes require an
+explicit design/redesign request with source-write permission. Scruffy never
+produces a finding during repair and never marks its own change fixed; that
+status belongs to the subsequent re-audit.
+
+The compatibility contract is in [`schema/interop.json`](schema/interop.json),
+and the complete artifact handoff is in
 [`references/scruffy-handoff.md`](references/scruffy-handoff.md).
 
 ## Usage
 
-Every session starts with the orchestrator — one command, always the same shape:
+Every repair session starts with the orchestrator:
 
 ```sh
 python3 scripts/mop_run.py <bundle-dir> [--templates <taste-library-dir>] [--assets assets.json] [--authorized]
 ```
 
-That always produces, in order: `mop-preflight.json` (capabilities probed, never
-assumed — including Playwright browsers), a validated or freshly scaffolded
-`directions.json` (three structurally distinct, principle-cited directions per
-design group; a visual direction is not selectable without an image anchor, and
-imagery outside declared reference sources is refused as cross-product leakage),
-and `mop-dashboard.html` — the decision surface, with the duo brand banner, a
-Provenance tab on every finding (Source → Rule → Detector pack → Signal →
-Evidence), explicit slop-category labels, and per-item screenshots or an
-explicit disclosure that none were captured.
+It produces `mop-preflight.json`, a validated or scaffolded `directions.json`,
+and one self-contained `mop-dashboard.html`. The filenames are stable machine
+interfaces, not product names.
 
-The underlying tools remain available piecemeal (`mop_bundle.py check|plan`,
-`mop_preflight.py`, `mop_directions.py scaffold|check`, `mop_dashboard.py`,
-`mop_handoff.py --augmentations @file`), per
-[`references/fix-protocols.md`](references/fix-protocols.md).
+The underlying tools remain available individually through `mop_bundle.py`,
+`mop_preflight.py`, `mop_directions.py`, `mop_dashboard.py`, and
+`mop_handoff.py`. A worked fixture is available in
+[`fixtures/sample-audit/`](fixtures/sample-audit/).
 
-The visual-redesign deliverable is a **single self-contained HTML dashboard** —
-every screenshot and reference embedded as a `data:` URI, no external loads —
-because the operator reads output in a terminal. Capabilities come from a real
-**probe** (`mop_preflight.py`): a capability is `absent` only after a probe fails.
+## Verification
 
-Inside Claude Code, run `/scruffys-mop:scruffys-mop` and give it the bundle. A
-worked example bundle ships at [`fixtures/sample-audit/`](fixtures/sample-audit/).
+```sh
+python3 scripts/test_mop.py
+python3 scripts/validate_skill.py
+```
 
-## Status
-
-Functional and field-run. The runtime method, interop contract, deterministic
-scripts, fixture bundle, and a 41-case test suite are green
-(`python3 scripts/test_mop.py`, `python3 scripts/validate_skill.py`). First
-real-world loop completed 2026-08-14 against the NagOps audit: approved
-recovery-copy findings implemented under explicit user grant, handed off, and
-re-verified by a Scruffy revision-2 audit (one item fixed on evidence, one
-honestly carried for its remaining CI gate). Fixture findings are titled
-`[FIXTURE]` and self-label as fake so demo data can never read as a real
-product.
+The runtime method, compatibility contract, deterministic scripts, fixture
+bundle, and regression suite are field-run. Fixture findings are marked
+`[FIXTURE]` so demo data cannot read as a real product claim.
 
 ## License
 

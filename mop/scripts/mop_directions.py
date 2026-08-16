@@ -2,7 +2,7 @@
 """Direction picker for design-lane findings: scaffold, validate, and gate.
 
 For approved findings in the design lanes (visual, product,
-information_architecture, interaction), Scruffy's Mop proposes three
+information_architecture, interaction), Scruffy proposes three
 structurally distinct directions per work group — following Scruffy's ladder
 (paradigm, then material, then composition) — marks exactly one as
 ``recommended``, and implements ONLY a direction a human selected. The
@@ -21,7 +21,7 @@ and a **visual-category direction is not selectable without at least one image
 anchor**: a reference/template image (Mobbin export, taste-library entry, local
 mockup) or an annotated baseline screenshot. When the runtime cannot supply
 imagery, the group is emitted ``imagery: "unavailable"`` and stays advisory —
-the Mop refuses the selection instead of pretending prose is a design.
+Scruffy refuses the selection instead of pretending prose is a design.
 
 Dependency-free (Python 3 stdlib only). Consumes Scruffy's bundle read-only;
 owns exactly one artifact: ``directions.json`` (schema 1.1), written beside
@@ -333,7 +333,7 @@ def selected_item_ids(directions: dict) -> set[str]:
 
 
 def implementable_steps(plan: dict, directions: dict | None) -> list[dict]:
-    """Plan steps the Mop may implement now.
+    """Plan steps Scruffy may implement now.
 
     Non-design steps pass through (their contract is the item recommendation).
     Design-lane steps additionally require a selected direction; without one
@@ -381,7 +381,7 @@ def _cmd_check(args) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Scruffy's Mop direction picker")
+    parser = argparse.ArgumentParser(description="Scruffy repair direction picker")
     sub = parser.add_subparsers(dest="cmd", required=True)
     for name, fn in (("scaffold", _cmd_scaffold), ("check", _cmd_check)):
         p = sub.add_parser(name)

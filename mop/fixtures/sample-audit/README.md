@@ -1,7 +1,7 @@
 # Sample Scruffy audit bundle
 
 A small, schema-faithful Scruffy audit output used to test and demonstrate
-Scruffy's Mop. It is **input**, not a Scruffy product claim.
+Scruffy's repair workflow. It is **input**, not a Scruffy product claim.
 
 - `findings.json` — registry 2.1, six items across `backend_shape`,
   `accessibility`, `interaction`, `copy`, and `visual`, with `depends_on` edges

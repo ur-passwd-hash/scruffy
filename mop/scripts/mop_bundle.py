@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ingest, validate, gate, and plan a Scruffy audit bundle.
 
-Scruffy owns the audit contract; Scruffy's Mop consumes it read-only. This module
+Scruffy owns the audit contract; its repair stage consumes it read-only. This module
 loads the artifacts Scruffy emits, checks their schema versions against the
 consumer compatibility key in ``schema/interop.json``, applies the authority and
 approval gates, and builds the dependency-ordered implementation plan.
@@ -145,7 +145,7 @@ def validate_versions(bundle: dict, interop: dict) -> list[str]:
         kind = "major" if _major(version) != _major(current) else "minor"
         raise InteropError(
             f"{name} schema {version} is an unrecognized {kind} version "
-            f"(Scruffy's Mop consumes {accepted}). Disclose the gap and stop; "
+            f"(Scruffy repair consumes {accepted}). Disclose the gap and stop; "
             f"do not coerce an unrecognized schema."
         )
     return notes
@@ -168,7 +168,7 @@ def gate_state(bundle: dict, interop: dict, authorized_override: bool = False) -
     """Report whether the bundle permits implementation.
 
     Authority is inherited from Scruffy's run, but the *user* is what actually
-    grants Scruffy's Mop write access. ``authorized_override`` represents that
+    grants Scruffy repair write access. ``authorized_override`` represents that
     explicit grant when the recorded run does not already carry it.
     """
     gate = interop["authority_gate"]
@@ -388,7 +388,7 @@ def _plan_from_work_orders(orders: list, items: dict, actionable_ids: set, order
 # ---------------------------------------------------------------------------
 def plan_to_markdown(plan: dict) -> str:
     lines = [
-        f"# Scruffy's Mop — implementation plan",
+        f"# Scruffy — repair implementation plan",
         "",
         f"- Audit: `{plan['audit_id']}` revision `{plan['revision_id']}`",
         f"- Ordering basis: {plan['ordering_basis']}",
@@ -452,19 +452,19 @@ def _cmd_plan(args) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Scruffy's Mop bundle tool")
+    parser = argparse.ArgumentParser(description="Scruffy repair bundle tool")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     c = sub.add_parser("check", help="Validate a bundle and report the gate state")
     c.add_argument("bundle", help="Path to a directory of Scruffy audit artifacts")
     c.add_argument("--authorized", action="store_true",
-                   help="Explicit user grant of write authority to Scruffy's Mop")
+                   help="Explicit user grant of Scruffy repair write authority")
     c.set_defaults(func=_cmd_check)
 
     p = sub.add_parser("plan", help="Emit the dependency-ordered plan")
     p.add_argument("bundle", help="Path to a directory of Scruffy audit artifacts")
     p.add_argument("--authorized", action="store_true",
-                   help="Explicit user grant of write authority to Scruffy's Mop")
+                   help="Explicit user grant of Scruffy repair write authority")
     p.add_argument("--json", action="store_true", help="Emit JSON instead of Markdown")
     p.set_defaults(func=_cmd_plan)
 

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Scruffy's Mop are recorded here.
+All notable changes to Scruffy's compatibility repair workflow are recorded here.
 
 ## [0.1.0] — unreleased
 

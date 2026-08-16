@@ -1,6 +1,6 @@
 # Method
 
-The operating loop for Scruffy's Mop. Load this first. It routes to
+The operating loop for Scruffy repair. Load this first. It routes to
 [`fix-protocols.md`](fix-protocols.md), [`craft-bar.md`](craft-bar.md), and
 [`verification.md`](verification.md) as work reaches each stage. The interop
 contract it enforces is [`../schema/interop.json`](../schema/interop.json);
@@ -13,7 +13,7 @@ gate, ordering, handoff shape). Use them; do not re-derive their work by eye.
 
 You need a directory holding a Scruffy audit's output: `findings.json`,
 `context.json`, `decisions.json`, and optionally `tokens.json`. If the user gives
-you a report but not these files, ask for the JSON artifacts — Scruffy's Mop
+you a report but not these files, ask for the JSON artifacts — Scruffy repair
 implements against the registry, not against prose.
 
 ## 1. Ingest and validate (fail closed)
@@ -82,6 +82,6 @@ handoff and the changed surfaces; recommend the re-audit.
 
 ## The one rule that governs all of this
 
-Scruffy diagnoses, decides, and clears. Scruffy's Mop implements. If a step would
+Scruffy audits, decides, implements, and re-audits. If a repair step would
 have you produce a finding, choose an approval, invent a severity, or mark your
 own work cleared, you have crossed the line — stop and hand back instead.

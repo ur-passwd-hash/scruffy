@@ -8,13 +8,13 @@
 
 <p align="center">
   <a href="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml"><img src="https://github.com/ur-passwd-hash/scruffy/actions/workflows/validate.yml/badge.svg" alt="Validation"></a>
-  <a href="evals/sentence-slop/readme-dogfood-2026-08-10.md"><img src="https://img.shields.io/badge/README-AI--slop%20reviewed-13543e" alt="README AI-slop reviewed"></a>
+  <a href="evals/sentence-slop/readme-dogfood-2026-08-16.md"><img src="https://img.shields.io/badge/README-AI--slop%20reviewed-13543e" alt="README AI-slop reviewed"></a>
   <img src="https://img.shields.io/badge/Agent%20Skills-compatible-13543e" alt="Agent Skills compatible">
   <img src="https://img.shields.io/badge/Codex%20%2B%20Claude-compatible-c69b3f" alt="Codex and Claude compatible">
   <img src="https://img.shields.io/badge/license-MIT-7a4f8f" alt="MIT license">
 </p>
 
-<p align="center"><sub>One tool: DIRT for references, Keys for principles, and the Mop for implementation.</sub></p>
+<p align="center"><sub>One tool from evidence through verified repair.</sub></p>
 
 **Scruffy finds AI slop in web apps—and shows its work.** Give Claude or Codex a URL, screenshot, prototype, or source repository. Scruffy operates the real interface, inspects the available code and copy, captures evidence, and returns a prioritized report with practical fixes.
 
@@ -22,19 +22,22 @@
 
 **What it does not mean:** Scruffy does not guess whether AI wrote the app. It judges the result, not the author. The same failures can appear in hand-written, template-derived, outsourced, and AI-generated work.
 
-## The Scruffy maintenance kit
+## One Scruffy, one evidence loop
 
-Scruffy is one tool with three named parts. The names carry the product theme; the boundaries keep the method honest.
+Scruffy has one name and one job: inspect a real product, explain what is wrong,
+repair only approved work, and verify the result. References, principles,
+detectors, audit reports, direction choices, implementation, and re-audit are
+stages of that workflow—not separately branded tools.
 
-| Part | What it does | What it does not do |
+| Stage | What Scruffy does | Boundary |
 |---|---|---|
-| **DIRT** — Design Intelligence Research & Translation | Provides Scruffy's reference workspace. It brings relevant UI precedents and domain expertise into view through Mobbin MCP or an equivalent connector, plus the user's taste evidence. | It does not turn popularity, one creator's opinion, or a screenshot into a rule. |
-| [**Scruffy's Keys**](principles/PRINCIPLES.md) | Holds the attributed principle corpus, source registry, exceptions, and operational checks Scruffy can apply. | A queued source or attractive reference contributes no Key until it passes the admission gates. |
-| [**Scruffy's Mop**](mop/README.md) | Implements human-approved findings under explicit write authority, then returns the work for verification. | It does not diagnose from scratch or mark its own work fixed. Only a Scruffy re-audit can do that. |
+| **Frame** | Records the product, audience, task, constraints, and evidence capability. | Missing evidence is disclosed, never invented. |
+| **Ground** | Uses the governed [principle corpus](principles/PRINCIPLES.md), user taste evidence, and optional references such as Mobbin. | A popular pattern or creator opinion is evidence to test, not an automatic rule. |
+| **Audit** | Operates representative tasks, challenges suspicions, and publishes findings, cleared suspicions, and optional enhancements. | Leads do not become findings without evidence and a demonstrated consequence. |
+| **Repair** | Implements only human-approved work under explicit write authority, with visual direction choices when needed. | An audit decision alone does not grant repository write authority. |
+| **Verify** | Re-runs acceptance checks and reconciles every stable finding ID. | Scruffy never marks a repair fixed merely because code changed. |
 
-**DIRT finds relevant evidence → Keys establish the applicable principles → Scruffy makes the finding → the Mop performs approved work.**
-
-The maintenance theme and naming boundaries are defined in [`assets/BRAND.md`](assets/BRAND.md).
+The product theme and naming boundary are defined in [`assets/BRAND.md`](assets/BRAND.md).
 
 ### This README is part of the product
 
@@ -148,7 +151,7 @@ Apply these only where the product exposes the concern: **Trust and content inte
 - Editorial findings require typed evidence and a demonstrated consequence; sentence-pattern findings additionally require adequate samples, multiple independent signals, and manual semantic review.
 - Category evidence gates are machine-enforced. An active performance finding needs runtime evidence, accessibility a receipt plus a named criterion, visual a rendered receipt, and interaction an operation receipt. Critical severity demands high confidence and two receipts. `user_impact` has a concrete-consequence floor.
 - Sentence lexicons live in a data-driven pack registry (`--list-packs` / `--disable-pack`), parity-checked against a cited signal manifest. Disabling a pack is disclosed in every result.
-- Findings can carry `principle_refs` (the rule that fired, credited to its source) and `detector_refs` (the pack or target gate that raised the lead). A judgement traces Source → Rule → Detector pack → Signal → Finding.
+- Findings can carry `principle_refs`, which identify the sourced rule that fired. `detector_refs` identify the pack or target gate that raised the lead. A judgement traces Source → Rule → Detector pack → Signal → Finding.
 - Stable IDs and identity keys prevent a later report from reusing or dropping earlier findings.
 - Application-archetype probes adapt the task walkthrough to courses, SaaS tools, transactions, forms, analytics, collaboration, editors, marketing sites, and hybrids.
 - Structural blockers are fixed before cosmetic symptoms.
@@ -156,9 +159,12 @@ Apply these only where the product exposes the concern: **Trust and content inte
 - Retractions receive the same prominence as findings.
 - An interactive decision report is supported, but Markdown and JSON fallbacks keep the skill portable.
 
-## DIRT — reference grounding
+## Reference grounding
 
-DIRT is Scruffy's design-intelligence workspace. It selects relevant source disciplines and retrieves applicable Keys. When live search is available, DIRT grounds structural choices in shipped-product references before Scruffy explores or judges a direction. It extracts named patterns and citations, not pixels to copy.
+When live search is available, Scruffy grounds structural choices in relevant
+shipped-product references before exploring or judging a direction. It extracts
+named patterns and citations, not pixels to copy, and applies only principles
+that survive the corpus admission and false-positive checks.
 
 Mobbin MCP is the current reference connector, but any equivalent design-reference search satisfies the capability. The connector is optional and external to the Scruffy package. Its absence is disclosed and never treated as a defect. Live references sit below the user's verdicts, supplied constraints, and taste evidence. Popularity establishes convention, not quality. The complete query, precedence, citation, and false-positive rules live in [`references/reference-grounding.md`](references/reference-grounding.md).
 
@@ -289,9 +295,16 @@ Codex and Claude load the same root `SKILL.md`; there is no duplicated runtime c
 
 Point any Agent Skills-compatible agent at `SKILL.md`. For agents without live-browser or file capabilities, the skill degrades to static analysis and clearly marks runtime checks not run.
 
-## Scruffy's Mop — the implementation engine
+## Repair approved findings
 
-Scruffy diagnoses and clears; [**Scruffy's Mop**](mop/README.md) (in [`mop/`](mop/)) implements. The Mop consumes an audit bundle read-only and acts only on human-approved items under explicit authority. For design work it proposes three rule-cited directions per work group, each grounded in reference imagery — text-only visual advice fails closed. It renders a self-contained decision dashboard and hands the result back. Only a Scruffy re-audit marks anything fixed. Start it with `python3 mop/scripts/mop_run.py <bundle-dir>`.
+Scruffy’s repair workflow lives in [`mop/`](mop/) for compatibility with existing
+automation; it is not a separate product. It consumes an audit bundle read-only
+and acts only on human-approved items under explicit source-write authority. For
+design work it proposes three rule-cited directions per work group, each grounded
+in reference imagery—text-only visual advice fails closed. It renders a
+self-contained decision dashboard and hands the result back to Scruffy for
+re-audit. Start the repair stage with
+`python3 mop/scripts/mop_run.py <bundle-dir>`.
 
 ## Repository layout
 
@@ -416,13 +429,30 @@ python3 scripts/validate_audit.py findings.json \
 
 For schema 2.1, the validator also rejects improvised category names, inapplicable facets, contradictory run modes, unauthorized writes, incomplete capability or score ledgers, unresolved evidence IDs, missing captured files, and Editorial slop findings without the required review receipt. The “top eight findings” and “top five enhancements” remain presentation limits only; additional and resolved items are still rendered.
 
-## Grow Scruffy's Keys
+## Add a principle
 
 ```sh
 python3 scripts/intake.py --channel <youtube-channel-videos-url>
 ```
 
-Transcripts and frames remain local working material and are ignored by Git. Distill durable, attributed Keys into `principles/PRINCIPLES.md`, register their sources in `principles/SOURCES.md`, and reconcile the operational instructions and validators. A queued creator contributes nothing until the material has been reviewed, traced, corroborated, tested against a counterexample, and translated into an operational check.
+Transcripts and frames remain local working material and are ignored by Git. A
+creator, book, heuristic, or attractive reference contributes no principle until
+the material has been reviewed, traced, corroborated, tested against a
+counterexample, and translated into an operational check.
+
+For every addition:
+
+1. Register the source and its review status in `principles/SOURCES.md`.
+2. Add the narrow, attributed rule to `principles/PRINCIPLES.md`, including its
+   exceptions and the consequence it is meant to prevent.
+3. Add or update an operated/static check only when the signal can be reproduced;
+   the check must raise a lead, never manufacture a finding.
+4. Add a positive regression and a plausible false-positive counterexample.
+5. Regenerate derived contracts and run the complete validation suite.
+6. Forward-test the behavior against a target that was not used to write the rule.
+
+This keeps the trace legible: **source → principle → operated check → signal →
+finding → approved repair → re-audit evidence**.
 
 Do not sweep fashionable gallery or redesign channels indiscriminately. Separate research-backed rules, implementation evidence, explicit AI-default critiques, visual hypotheses, and promotional material.
 

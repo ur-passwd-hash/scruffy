@@ -447,13 +447,23 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     strip_html = (
         f'<div class="strip num" aria-label="Review counts">'
         f'<div><span>Open findings</span><b>{open_findings}</b></div>'
-        f'<div><span>Suggested improvements</span><b>{open_enhancements}</b></div>'
+        f'<div><span>Optional enhancements</span><b>{open_enhancements}</b></div>'
         f'<div><span>Strengths</span><b>{strength_count}</b></div>'
         f'<div><span>Cleared</span><b>{cleared_count}</b></div>'
         f'<div><span>Still present from prior review</span><b>{carried_count}</b></div>'
         f'<div><span>Highest concern</span><b>{esc(worst_label)}</b></div>'
         f'<div class="strip-target"><span>Target</span><b class="tgt">{esc(target)}</b></div></div>'
     )
+    if enhancement_priority or additional_enhancements:
+        enhancement_html = (
+            section_items('Highest priority', 'Up to five optional enhancements with the strongest expected value.', enhancement_priority, decision_map, context, context_path.parent, item_labels)
+            + section_items('Other enhancements', 'Useful optional enhancements outside the first-priority group.', additional_enhancements, decision_map, context, context_path.parent, item_labels)
+        )
+    else:
+        enhancement_html = (
+            '<p class="quiet">No optional enhancements were identified. '
+            'Corrective changes remain listed under Findings and Recommended work sequence.</p>'
+        )
     additional_visual_evidence = unattached_screenshot_html(registry, context, context_path.parent, item_labels)
     humanized_checks_not_run = [
         humanize_text(
@@ -578,14 +588,14 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
     <section id="capability-ledger"><h2>What we could and could not test</h2><p class="section-note">{esc(capability_summary)}. Anything not tested includes the reason and what that limits.</p>{table_html(['Test area','Status','What was covered'],capability_table_rows)}</section>
     <section id="score"><h2>Quality scores, highest concern first</h2><p class="section-note">Zero means clear; three means a major problem. “Not scored” means the review did not have enough evidence.</p>{table_html(['Area','Result','Why'],score_table_rows)}</section>
     <section id="findings"><h2>Findings</h2><div class="toolbar" aria-label="Review controls"><button data-filter="all" class="primary">All open items</button><button data-filter="open">Open</button><button data-filter="needs-verification">Needs more evidence</button><button id="download-findings">Download full audit data</button><button id="download-decisions">Download decisions</button><button id="copy-decisions">Copy decisions</button><label>Import decisions<input id="import-decisions" type="file" accept="application/json"></label></div><p id="ui-status" class="status" aria-live="polite"></p>{section_items('Address first','The highest-priority findings are shown first; all findings remain available below.',prioritized_findings,decision_map,context,context_path.parent,item_labels)}{section_items('Other active findings','Confirmed findings and items that still need more evidence.',additional_findings,decision_map,context,context_path.parent,item_labels)}</section>
-    <section id="enhancements"><h2>Suggested improvements</h2>{section_items('Highest priority','Up to five improvements with the strongest expected value.',enhancement_priority,decision_map,context,context_path.parent,item_labels)}{section_items('Other improvements','Useful improvements outside the first-priority group.',additional_enhancements,decision_map,context,context_path.parent,item_labels)}</section>
+    <section id="enhancements"><h2>Optional enhancements</h2>{enhancement_html}</section>
     <section id="strengths"><h2>Strengths to preserve</h2>{section_items('Preserve','These existing qualities should survive any repair work.',strengths,decision_map,context,context_path.parent,item_labels)}</section>
     <section id="resolved"><h2>Closed concerns</h2>{section_items('Resolved items','Earlier concerns remain visible so the review history stays complete.',resolved,decision_map,context,context_path.parent,item_labels)}</section>
     <section id="reconciliation"><h2>Review history</h2>{table_html(['Item','Current title','Status','What changed','Replaced by','Reason'],reconciliation_rows,'reconciliation')}</section>
     <section id="work-orders"><h2>Recommended work sequence</h2><ol class="work-list">{''.join(work_rows) or '<li><div>No work packages recorded.</div></li>'}</ol></section>
     <section id="checks-not-run"><h2>What was not tested</h2>{list_html(humanized_checks_not_run,'Everything in scope was tested.')}</section>
   </main>
-  <footer><div class="wrap">Complete review: {len(items)} items · Findings to address first: {len(prioritized_findings)} · Suggested improvements to consider first: {len(enhancement_priority)}.</div></footer>
+  <footer><div class="wrap">Complete review: {len(items)} items · Findings to address first: {len(prioritized_findings)} · Optional enhancements to consider first: {len(enhancement_priority)}.</div></footer>
   <script>
     const registry={registry_json};
     const embeddedDecisions={decisions_json};

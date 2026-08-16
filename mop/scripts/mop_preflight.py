@@ -133,7 +133,7 @@ def to_handoff_augmentations(preflight: dict) -> dict:
 
 
 def _human(report: dict) -> str:
-    lines = ["Scruffy's Mop preflight", f"  rule: {report['rule']}"]
+    lines = ["Scruffy repair preflight", f"  rule: {report['rule']}"]
     for cap, rec in report["augmentations"].items():
         extra = rec.get("version") or rec.get("reason") or rec.get("detail") or ""
         tool = f" ({rec['tool']})" if rec.get("tool") else ""
@@ -142,7 +142,7 @@ def _human(report: dict) -> str:
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(description="Scruffy's Mop capability preflight")
+    p = argparse.ArgumentParser(description="Scruffy repair capability preflight")
     for cap in RUNTIME_CAPS:
         p.add_argument(f"--{cap.replace('_', '-')}", choices=ATTESTED_STATES,
                        help=f"attested probe result for {cap}")

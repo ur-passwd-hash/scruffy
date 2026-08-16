@@ -322,6 +322,16 @@ def main() -> int:
         for plain_term in ("Finding 1", "Journey 1", "Work package 1", "Copy sample", "Trust and content integrity", "Supporting records"):
             if plain_term not in dashboard_reader_text:
                 raise AssertionError(f"dashboard omits plain-language term {plain_term}")
+        for empty_state_term in (
+            "Optional enhancements",
+            "No optional enhancements were identified",
+            "Corrective changes remain listed under Findings and Recommended work sequence",
+        ):
+            if empty_state_term not in dashboard_reader_text:
+                raise AssertionError(f"dashboard enhancement empty state omits {empty_state_term!r}")
+        for misleading_term in ("Suggested improvements", "Other improvements"):
+            if misleading_term in dashboard_reader_text:
+                raise AssertionError(f"dashboard still presents optional enhancements as {misleading_term!r}")
 
         markdown_reader_text = "\n".join(
             line for line in markdown_path.read_text(encoding="utf-8").splitlines()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Scruffy's Mop's own repository consistency.
+"""Validate Scruffy's compatibility repair runtime.
 
 Dependency-free. Checks that the interop contract is well formed, distribution
 metadata agrees, the skill frontmatter and routed references exist, and the
