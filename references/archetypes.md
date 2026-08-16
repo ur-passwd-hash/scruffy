@@ -80,7 +80,17 @@ Select every module that applies. These are minimum probes, not feature requirem
 - Image/media loading, layout stability, and print/share behavior when relevant
 - Avoid inventing application-state requirements the page does not need
 
+## Ceremonial, shared display, or physical print
+
+- Classify each output as close-interaction, shared presentation, printed sign, or invitation-like artifact before applying size and density rules
+- Record intended audience, physical or pixel size, likely viewing distance, orientation, lighting, trim, and safe area
+- Preserve the subject or event identity as the dominant ceremonial layer without letting ornament obscure names, state, instructions, or participation cues
+- Verify venue-screen and projector content at native presentation sizes; separate audience-facing content from operator-only chrome
+- Verify printed output at intended paper dimensions, including trim, safe area, contrast, QR prominence, and legibility without editor zoom
+- Stress short, long, compound, and localized names plus real event dates and venues; inspect line boxes against adjacent media and ornaments
+- Check the handoff between ceremonial and operational surfaces: the gallery or sign may invite, while the upload, recovery, or setup flow must remain literal and task-efficient
+- Treat unavailable physical-distance, lighting, printer, or device evidence as `not run`, never as a pass
+
 ## Hybrid or unknown product
 
 Start with the universal module. Derive three to five tasks from visible behavior, supplied intent, and source structure. Add modules only when the interface exposes that application shape. Record uncertain classification as an inference and keep the coverage ledger explicit.
-

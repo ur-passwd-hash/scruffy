@@ -151,6 +151,7 @@ def main() -> int:
             "OPC-SECTION-BOUNDARY-SEPARATION",
             "OPC-FIRST-VIEWPORT-TASK-PRIORITY",
             "OPC-SURFACE-ARCHETYPE-FIT",
+            "OPC-CEREMONIAL-DISPLAY-LEGIBILITY",
             "OPC-CONTAINER-DIVIDER-ECONOMY",
             "OPC-TYPOGRAPHY-RANK-AND-DENSITY",
             "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY",
@@ -172,6 +173,45 @@ def main() -> int:
             raise AssertionError("section-boundary check must require rendered geometry measurement")
         if "Intentional joined controls" not in boundary_rule["false_positive_guard"]:
             raise AssertionError("section-boundary check must preserve the joined-control guard")
+        surface_rule = next(
+            rule for pack in packs for rule in pack["rules"]
+            if rule["id"] == "OPC-SURFACE-ARCHETYPE-FIT"
+        )
+        for required_receipt in (
+            "shared presentation screen",
+            "physical print output",
+            "viewing context",
+            "phone breakpoints onto venue displays",
+        ):
+            if required_receipt not in surface_rule["predicate"]["instruction"]:
+                raise AssertionError(
+                    f"surface-archetype check must require {required_receipt!r} evidence"
+                )
+        ceremonial_rule = next(
+            rule for pack in packs for rule in pack["rules"]
+            if rule["id"] == "OPC-CEREMONIAL-DISPLAY-LEGIBILITY"
+        )
+        for required_receipt in (
+            "likely viewing distance",
+            "lighting or contrast condition",
+            "participation cue",
+            "operator-only chrome",
+            "without approaching the display",
+            "not run",
+        ):
+            if required_receipt not in ceremonial_rule["predicate"]["instruction"]:
+                raise AssertionError(
+                    f"ceremonial-display check must require {required_receipt!r} evidence"
+                )
+        for required_guard in (
+            "Operator-only controls",
+            "real viewport, physical size, distance, and lighting",
+            "phone or desktop body-text thresholds",
+        ):
+            if required_guard not in ceremonial_rule["false_positive_guard"]:
+                raise AssertionError(
+                    f"ceremonial-display check must preserve {required_guard!r} guard"
+                )
         typography_system_rule = next(
             rule for pack in packs for rule in pack["rules"]
             if rule["id"] == "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY"
@@ -210,6 +250,9 @@ def main() -> int:
             "whether the break was authored or produced by browser wrapping",
             "connector-only lines",
             "optical scale and placement",
+            "adjacent foreground media",
+            "geometric intersections",
+            "topmost painted element",
             "short, long, compound, and localized",
             "not run",
         ):

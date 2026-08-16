@@ -98,7 +98,19 @@
       "false_positive_guard": "A hybrid surface may combine archetypes when its primary job is explicit and the mixed composition does not create competing hierarchies.",
       "predicate": {
         "type": "operated_check",
-        "instruction": "Classify each reviewed route before judging it: marketing, operational dashboard, creation or form flow, media gallery, or presentation screen. Then test the correct priority: dashboards optimize scan order, state comparison, and literal actions; creation flows optimize sequence and grouping; galleries lead with identity and media plus one contribution path; presentation screens minimize chrome. Do not force landing-page spaciousness onto operations or dashboard density onto a gallery."
+        "instruction": "Classify each reviewed route before judging it: marketing, operational dashboard, creation or form flow, media gallery, shared presentation screen, or physical print output. Then test the correct priority: dashboards optimize scan order, state comparison, and literal actions; creation flows optimize sequence and grouping; galleries lead with identity and media plus one contribution path; shared presentation screens minimize chrome and preserve distance legibility; physical outputs preserve trim, safe area, hierarchy, and legibility at intended size. Record the intended audience, viewing context, and output size or viewport. Do not force landing-page spaciousness onto operations, dashboard density onto a gallery, phone breakpoints onto venue displays, or screen assumptions onto print."
+      }
+    },
+    {
+      "id": "OPC-CEREMONIAL-DISPLAY-LEGIBILITY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Ceremonial displays hold hierarchy at their real viewing condition",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "Operator-only controls, ambient detail, and decorative microtype may remain subordinate when the intended audience does not need to read them from the primary viewing position. Evaluate the promised output at its real viewport, physical size, distance, and lighting rather than imposing phone or desktop body-text thresholds.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "For every venue screen, projector, digital sign, printed sign, invitation-like surface, or other ceremonial output, record the promised audience, intended physical or pixel size, likely viewing distance, and lighting or contrast condition. At the intended output, inventory the identity, current state, instruction, participation cue, QR or action, and operator-only chrome; record rendered size, contrast, occupied area, and whether each audience-facing role remains legible without approaching the display. Flag audience-facing instructions or participation cues that collapse into microtype, chrome that competes with the couple or event identity, content hidden outside trim or safe area, and print or display previews judged only in an editor viewport. Preserve explicitly operator-only detail and report unavailable physical-distance or print evidence as not run."
       }
     },
     {
@@ -146,7 +158,7 @@
       "false_positive_guard": "Deliberate asymmetry, language-specific joining conventions, manual line breaks, and expressive ceremonial or editorial lockups may differ when the relationship remains legible and the rendered placement is intentional. A connector on its own line is a lead, never an automatic defect.",
       "predicate": {
         "type": "operated_check",
-        "instruction": "At representative real widths, inspect the rendered line boxes of every multi-line identity, ceremonial title, and large display lockup. Record each line's text, bounding box, alignment, and whether the break was authored or produced by browser wrapping. Challenge connector-only lines such as &, and, or + for optical scale and placement relative to the words they join; flag accidental stair-steps, orphaned relational glyphs, collisions, or a wrap that weakens identity. Stress short, long, compound, and localized names or titles. Preserve a documented deliberate asymmetry and report unavailable line-box or content stress evidence as not run."
+        "instruction": "At representative real widths, inspect the rendered line boxes of every multi-line identity, ceremonial title, and large display lockup. Record each line's text, bounding box, alignment, and whether the break was authored or produced by browser wrapping. Compare every painted line box with adjacent foreground media, device mockups, ornaments, controls, and clipping ancestors; record geometric intersections and inspect the topmost painted element at the collision point so white-on-light occlusion is not missed. Challenge connector-only lines such as &, and, or + for optical scale and placement relative to the words they join; flag accidental stair-steps, orphaned relational glyphs, collisions, occlusion, or a wrap that weakens identity. Stress short, long, compound, and localized names or titles. Preserve a documented deliberate asymmetry and report unavailable line-box or content stress evidence as not run."
       }
     },
     {
