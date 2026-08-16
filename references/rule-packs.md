@@ -22,10 +22,21 @@ Each rule: `id` (UPPER-KEBAB, globally unique), `category` (canonical key),
 (`principles/PRINCIPLES.md §N`; the section must exist), `false_positive_guard`
 (when the matched pattern is legitimate), and a `predicate`.
 
-Predicate types: `element_pattern` (tag + attribute regex), `text_pattern`
+Predicate types include `element_pattern` (tag + attribute regex), `text_pattern`
 (reader-visible block text regex), `unlabeled_input`, `interactive_non_semantic`,
-`state_group_without_address`. New predicate types are engine changes and need
-regression coverage in `scripts/test_rule_engine.py`.
+`state_group_without_address`, and `operated_check`. An `operated_check` is queued
+for the rendered walkthrough and never fires from source alone. New predicate
+types are engine changes and need regression coverage in
+`scripts/test_rule_engine.py`.
+
+`baseline-visual-controls.json` queues a Kole Jain-grounded rendered review of
+button patterns and their surrounding composition: shape and labels, applicable
+interaction states, inverse affordance fidelity, relationship-based spacing,
+true-viewport task priority, surface-archetype fit, container economy,
+typography rank, action hierarchy, state-signal economy, recovery-copy
+proximity, and identity/control confusion. It deliberately requires
+operation because source alone cannot prove visual proportion, role, spacing,
+or hierarchy.
 
 ## Severity ratchet
 

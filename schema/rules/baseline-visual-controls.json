@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "pack": "baseline-visual-controls",
+  "origin": "baseline",
+  "description": "Operated visual review grounded in the reconciled Kole Jain principles: controls, spacing, hierarchy, typography, state, identity, and surface-specific composition. These checks never fire statically and require rendered confirmation or clearance.",
+  "source_attribution": null,
+  "rules": [
+    {
+      "id": "OPC-BUTTON-SHAPE-HIERARCHY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Button shape and hierarchy",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "Large touch targets, segmented controls, destructive confirmations, icon controls, and deliberately editorial or ceremonial treatments may differ when their role and peer consistency are clear.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Inventory every unique rendered button-like pattern at representative desktop and mobile widths, then scan the inverse: non-interactive badges, statuses, wordmarks, tiles, panels, and bordered labels that borrow the same affordance. For real controls, confirm that shape fits the job, equivalent actions share radius and proportions, horizontal padding is roughly twice vertical padding, the target is usable, and primary, secondary, tertiary, and destructive actions have honest visual weight. Clear deliberate exceptions individually; do not force one radius onto every control."
+      }
+    },
+    {
+      "id": "OPC-AFFORDANCE-FIDELITY",
+      "category": "interaction",
+      "severity": "suggestion",
+      "message": "Visual affordance matches actual behavior",
+      "citation": "principles/PRINCIPLES.md §9",
+      "false_positive_guard": "A compact status chip or linked identity may be enclosed when its semantics, cursor, state treatment, and relationship to nearby controls remain unmistakable.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "For every rendered surface, inventory elements that look clickable because of border, padding, control-sized geometry, casing, corner treatment, hover, elevation, or placement. Operate or inspect semantics to confirm each visual promise. Flag non-interactive statuses, identity marks, labels, and panels that impersonate buttons, and controls that lack an actionable signifier. An interactive-only DOM inventory is insufficient evidence for this check."
+      }
+    },
+    {
+      "id": "OPC-BUTTON-LABEL-TYPOGRAPHY",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "Button label readability",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "Established abbreviations, compact icon controls with accessible names, and ceremonial display treatments may use different casing or tracking when scanning and meaning remain clear.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Read the visible label inside every unique rendered button pattern at normal scanning speed. Confirm that it names the action with a specific verb, uses readable size, case, weight, line height, and restrained tracking, and matches equivalent actions across the flow. Treat widely spaced uppercase on ordinary functional controls as a suspicion to confirm, not an automatic finding."
+      }
+    },
+    {
+      "id": "OPC-BUTTON-INTERACTION-STATES",
+      "category": "interaction",
+      "severity": "suggestion",
+      "message": "Button interaction states",
+      "citation": "principles/PRINCIPLES.md §3",
+      "false_positive_guard": "A state that cannot occur for the real control is not required; touch-only contexts replace hover with a clear pressed response.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Operate one representative of every unique button pattern through each applicable state: default, hover, keyboard focus, active or pressed, disabled, and loading. The control must acknowledge the action without layout shift, preserve its accessible name, and keep destructive or pending state distinct."
+      }
+    },
+    {
+      "id": "OPC-SPACING-RELATIONSHIP-RHYTHM",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Spacing expresses relationship",
+      "citation": "principles/PRINCIPLES.md §11",
+      "false_positive_guard": "Immersive presentation, deliberate editorial pacing, touch-safe separation, and responsive reflow may use large or irregular gaps when the relationship and scan path remain clear.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "At representative desktop and mobile widths, compare spacing between eyebrow, heading, supporting copy, controls, sections, and repeated peers. For every repeated operational row, record label, value, supporting detail, status, row height, and divider so peer facts remain directly comparable. Related elements must sit visibly closer than unrelated groups; repeated relationships should resolve to a small rhythm; excess whitespace must not make elements float or turn short facts into tall cards; dense areas must still preserve usable targets and a readable scan path. Inspect computed distances where visual judgment is uncertain."
+      }
+    },
+    {
+      "id": "OPC-FIRST-VIEWPORT-TASK-PRIORITY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "True viewport preserves task priority",
+      "citation": "principles/PRINCIPLES.md §11",
+      "false_positive_guard": "An immersive story, gallery, or presentation may intentionally defer controls when the first viewport still communicates identity, purpose, and an obvious continuation path.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Review the real available viewport after browser chrome at the target device sizes. Confirm that the surface's highest-priority state, content, or action is visible or unmistakably cued before mastheads, identity, navigation, helper text, and decorative spacing consume the viewport. Record what the user can actually act on without scrolling."
+      }
+    },
+    {
+      "id": "OPC-SURFACE-ARCHETYPE-FIT",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Composition fits the surface job",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "A hybrid surface may combine archetypes when its primary job is explicit and the mixed composition does not create competing hierarchies.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Classify each reviewed route before judging it: marketing, operational dashboard, creation or form flow, media gallery, or presentation screen. Then test the correct priority: dashboards optimize scan order, state comparison, and literal actions; creation flows optimize sequence and grouping; galleries lead with identity and media plus one contribution path; presentation screens minimize chrome. Do not force landing-page spaciousness onto operations or dashboard density onto a gallery."
+      }
+    },
+    {
+      "id": "OPC-CONTAINER-DIVIDER-ECONOMY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Containers and dividers earn their space",
+      "citation": "principles/PRINCIPLES.md §24",
+      "false_positive_guard": "A container is justified when it carries selection, grouping, drag, click, safety, or state semantics that whitespace alone cannot communicate.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Inventory visible cards, panels, borders, rules, background bands, and nested containers. Remove each one mentally or in a reversible comparison and confirm it adds real grouping, selection, safety, or interaction meaning. Flag repeated boxes or lines that merely restate proximity, reduce usable width, or create a form-within-card-within-card appearance."
+      }
+    },
+    {
+      "id": "OPC-TYPOGRAPHY-RANK-AND-DENSITY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Typography matches information rank",
+      "citation": "principles/PRINCIPLES.md §10",
+      "false_positive_guard": "Ceremonial identity and editorial display type may be expressive when isolated from operational reading and paired with an accessible, readable information layer.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Verbally rank every visible text role, then confirm size, weight, opacity, line height, and tracking express the same order. Dense operational surfaces use a tighter scale than marketing or wedding identity; body and control copy remain readable; the smallest text is not also the lowest contrast; display or script faces do not carry paragraph or status work."
+      }
+    },
+    {
+      "id": "OPC-ACTION-DESTRUCTIVE-HIERARCHY",
+      "category": "interaction",
+      "severity": "suggestion",
+      "message": "Action hierarchy reflects consequence",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "A genuinely parallel choice may give peers equal weight when no option is a default, primary, destructive, or safer alternative.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "For each screen and major section, name the primary, secondary, tertiary, and destructive actions before looking at their styling. Confirm visual weight matches that order, there is not a field of equally loud controls, destructive actions remain semantically distinct, and safe cancellation or recovery does not compete with the committed action."
+      }
+    },
+    {
+      "id": "OPC-STATE-SIGNAL-ECONOMY",
+      "category": "interaction",
+      "severity": "suggestion",
+      "message": "State signals are clear and non-duplicative",
+      "citation": "principles/PRINCIPLES.md §24",
+      "false_positive_guard": "Safety-critical or externally regulated states may repeat when each presentation serves a distinct decision point or accessibility channel.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Inventory badges, dots, colors, labels, icons, selected treatments, and repeated status copy. Compare normal, ready, warning, blocked, unavailable, and failed states together. Each state must be comparable, survive its background, use consistent semantics, and add information; repeated healthy states stay quiet while actionable exceptions receive local emphasis. Flag equally loud Ready/Blocked badges, raw enum casing, generic warning labels that do not name the unfinished task, state narrated twice without a new decision, color-only meaning, decorative dots with no stable vocabulary, or the same fact repeated in multiple widgets."
+      }
+    },
+    {
+      "id": "OPC-RECOVERY-COPY-PROXIMITY",
+      "category": "copy",
+      "severity": "suggestion",
+      "message": "Recovery copy is specific, adjacent, and non-duplicative",
+      "citation": "principles/PRINCIPLES.md §13",
+      "false_positive_guard": "Safety, legal, privacy, or regulated boundaries may repeat when the second presentation serves a distinct decision, consent, or accessibility purpose.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "For every blocked, failed, unavailable, empty, and incomplete state, read the condition and its recovery together. The copy must name the affected state or actor and the concrete next action, sit beside the problem it resolves, and preserve retained-state or consequence details only when they change the decision. Flag generic recovery cards separated from the blocked row, duplicated duration/scope/exclusion paragraphs already expressed by headings and actions, and isolated operational prose that introduces a one-off type role without adding information."
+      }
+    },
+    {
+      "id": "OPC-IDENTITY-CONTROL-CONFUSION",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Identity does not impersonate a control",
+      "citation": "principles/PRINCIPLES.md §9",
+      "false_positive_guard": "A familiar brand mark may be compact or enclosed when recognition is established and its link behavior, if any, is conventional and visually unambiguous.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "Review every visible wordmark, monogram, acronym, and product badge. Confirm the identity is understandable in context, does not borrow button or input affordances without promising that behavior, does not introduce a competing corner or border language, and does not consume more priority than the surface's task. Prefer the clear product name over unfamiliar initials when space allows."
+      }
+    }
+  ]
+}

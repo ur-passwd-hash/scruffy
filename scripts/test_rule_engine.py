@@ -142,6 +142,25 @@ def main() -> int:
         operated_ids = {r["id"] for pk in packs for r in pk["rules"] if r["predicate"]["type"] == "operated_check"}
         if not operated_ids:
             raise AssertionError("baseline-operated pack missing")
+        expected_visual_checks = {
+            "OPC-BUTTON-SHAPE-HIERARCHY",
+            "OPC-BUTTON-LABEL-TYPOGRAPHY",
+            "OPC-BUTTON-INTERACTION-STATES",
+            "OPC-AFFORDANCE-FIDELITY",
+            "OPC-SPACING-RELATIONSHIP-RHYTHM",
+            "OPC-FIRST-VIEWPORT-TASK-PRIORITY",
+            "OPC-SURFACE-ARCHETYPE-FIT",
+            "OPC-CONTAINER-DIVIDER-ECONOMY",
+            "OPC-TYPOGRAPHY-RANK-AND-DENSITY",
+            "OPC-ACTION-DESTRUCTIVE-HIERARCHY",
+            "OPC-STATE-SIGNAL-ECONOMY",
+            "OPC-RECOVERY-COPY-PROXIMITY",
+            "OPC-IDENTITY-CONTROL-CONFUSION",
+        }
+        if not expected_visual_checks.issubset(operated_ids):
+            raise AssertionError(
+                f"Kole Jain visual review checks missing: {sorted(expected_visual_checks - operated_ids)}"
+            )
         for page_name in ("checkout-flow.html", "pricing-page.html", "settings-form.html"):
             for lead in evaluate_page(FIXTURES / page_name, packs):
                 if lead["rule_id"] in operated_ids:
