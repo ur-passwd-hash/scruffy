@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `ed0b75cae2778da1426be4931f7969f392e3d5111618b8069ef4983172a2e12c`
+Target SHA-256: `0fbbff46e44b58b70d9b836c07a7c65331651c850463cb1e492c705ea98d9375`
 
 Command:
 
@@ -198,3 +198,99 @@ deliberately. Manual pass over the four added sections: coherent, portable
 only where intended (the scaffold command is product-specific), each paragraph
 adds decision-relevant information, and the voice matches the surrounding
 document. No authorship assessment performed.
+
+## Refresh — 2026-08-16 (human README and maintenance-kit theme)
+
+The README now introduces Scruffy as one tool with three named parts: DIRT for
+reference grounding, Scruffy's Keys for the governed principle corpus, and
+Scruffy's Mop for approved implementation. It links the product-theme contract,
+states that Mobbin is an optional external DIRT connector, gives most readers an
+explicit stopping point after the quick start, and scopes the new badge to the
+README's own editorial review.
+
+Command:
+
+```sh
+python3 scripts/analyze_sentence_slop.py README.md --mode prose --language en
+```
+
+The final analyzer run used schema 1.3 with verified English scope and every
+pack active. It measured 3,700 source words, 1,940 normalized reader-facing
+words, 1,760 excluded markup/code words, and 162 sentences. The sample was
+adequate. It emitted five review-lead types across three independent families:
+four repeated openings, one repeated paragraph signature, two overlong
+sentences, thirteen clause-pileup candidates, and one parenthetical-stacking
+candidate. The compound signal requires manual review and remains ineligible
+for a finding without a demonstrated consequence and rejected counterexample.
+
+### Conceptual coherence — clear
+
+The maintenance metaphor now maps to real product responsibilities. DIRT names
+reference research and translation, Keys names the governed rules Scruffy can
+apply, and the Mop names authorized implementation. The README does not invent
+separate characters or mix those roles. "Reference workspace," "principle
+corpus," "finding," and "implementation engine" remain literal beside the
+theme.
+
+### Sentence portability — clear
+
+The new copy names Scruffy, DIRT, Scruffy's Keys, Scruffy's Mop, Mobbin MCP,
+the reference-search capability, the admission gates, the dogfood receipt, and
+the re-audit boundary. These statements would not transfer unchanged to an
+unrelated product. The concise operating sequence is intentionally reusable
+inside Scruffy documentation because it is the product architecture.
+
+### Discourse purpose — clear
+
+The added maintenance-kit section tells a reader what the named parts do before
+the longer method reference begins. The README-review paragraph explains the
+badge's scope and evidence. The DIRT section documents connector and precedence
+boundaries. The Keys section explains corpus intake. None repeats the same job.
+The one repeated paragraph signature groups three existing explanatory passages;
+their subjects and reader tasks differ, so the counterexample guard applies.
+
+### Voice and subtext — clear
+
+The voice remains direct and workmanlike. The theme is present without becoming
+mascot lore, and the jokes remain subordinate to install, evidence, authority,
+and recovery instructions. The sentence analyzer's residual leads largely come
+from deliberate category lists, boundary lists, credits, and repeat-audit state
+enumerations. Tightening those lists would reduce measurement counts without
+improving comprehension.
+
+### Terminology and information sequence — clear
+
+DIRT is expanded on first mention as Design Intelligence Research & Translation.
+Scruffy's Keys is defined as the principle corpus, and Scruffy's Mop as the
+implementation engine. Mobbin is consistently described as an optional external
+connector used by DIRT, not as part of the Scruffy package or an independent
+principle authority. The quick start remains ahead of the detailed method and
+maintenance material.
+
+### Claim support and provenance — clear
+
+The AI-slop-reviewed claim is limited to this README and links directly to this
+hash-bound receipt. The review combines normalized analyzer output with the
+required manual and broader editorial checks. It does not claim AI authorship,
+AI absence, complete product quality, or universal accessibility. DIRT, Keys,
+and Mop map to existing reference-grounding, corpus, and implementation
+components rather than unsupported future capabilities.
+
+### Action and recovery clarity — clear
+
+Claude and Codex quick starts remain unchanged. Detailed install, validation,
+report-bundle, repeat-audit, corpus-intake, and Mop commands remain present.
+The DIRT section explicitly says an unavailable connector is disclosed and does
+not become a product defect, preserving the existing degradation path.
+
+### Voice and audience fit — clear
+
+The first screen now explains the product, its parts, its outputs, and its two
+quick starts in human language. Schema keys and maintainer procedures remain
+available below for technical readers. "Most users can stop after the quick
+start" gives evaluators and installers permission to ignore maintainer detail.
+
+Final disposition: **cleared**. No active Editorial-slop finding was established
+for the final README. The review is bounded to the target hash above and makes
+no authorship assessment. The earlier taxonomy contradiction remains recorded
+as a fixed editorial defect.

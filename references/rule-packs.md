@@ -32,8 +32,10 @@ types are engine changes and need regression coverage in
 `baseline-visual-controls.json` queues a Kole Jain-grounded rendered review of
 button patterns and their surrounding composition: shape and labels, applicable
 interaction states, inverse affordance fidelity, relationship-based spacing,
+explicit section-boundary separation around free-standing controls,
 true-viewport task priority, surface-archetype fit, container economy,
-typography rank, action hierarchy, state-signal economy, recovery-copy
+typography rank plus cross-route computed typography-system consistency,
+action hierarchy, state-signal economy, recovery-copy
 proximity, and identity/control confusion. It deliberately requires
 operation because source alone cannot prove visual proportion, role, spacing,
 or hierarchy.

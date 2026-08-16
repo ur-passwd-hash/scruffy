@@ -66,6 +66,18 @@
       }
     },
     {
+      "id": "OPC-SECTION-BOUNDARY-SEPARATION",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Section boundaries preserve grouping",
+      "citation": "principles/PRINCIPLES.md §11",
+      "false_positive_guard": "Intentional joined controls, attached toolbars, segmented groups, and continuous ledger rows may use zero-gap adjacency when shared borders, semantics, and interaction make that relationship explicit.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "At representative desktop and mobile widths, inventory every free-standing control or action row placed between bordered panels or major sections. Measure boundary-to-boundary geometry: preceding section bottom to control top, then control bottom to following section top. Confirm the control does not touch, cross, or visually clip into an unrelated panel; the gaps resolve to the product spacing grid; and the next major-section break remains stronger than the related control gap. Treat zero-gap adjacency as a lead unless shared borders, semantics, and behavior prove an intentional joined control."
+      }
+    },
+    {
       "id": "OPC-FIRST-VIEWPORT-TASK-PRIORITY",
       "category": "visual",
       "severity": "suggestion",
@@ -111,6 +123,18 @@
       "predicate": {
         "type": "operated_check",
         "instruction": "Verbally rank every visible text role, then confirm size, weight, opacity, line height, and tracking express the same order. Dense operational surfaces use a tighter scale than marketing or wedding identity; body and control copy remain readable; the smallest text is not also the lowest contrast; display or script faces do not carry paragraph or status work."
+      }
+    },
+    {
+      "id": "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY",
+      "category": "visual",
+      "severity": "suggestion",
+      "message": "Typography roles remain consistent across routes and states",
+      "citation": "principles/PRINCIPLES.md §10",
+      "false_positive_guard": "Optical adjustments, fluid type, language or script needs, variable fonts, platform-native controls, and ceremonial or editorial identity may differ deliberately. Count active rendered families per surface rather than installed packages, compare equivalent semantic roles rather than unrelated text, and flag an outlier only when it weakens task hierarchy, readability, or peer consistency.",
+      "predicate": {
+        "type": "operated_check",
+        "instruction": "At representative desktop and mobile widths, build a cross-route computed typography matrix with one row per visible semantic role: route, viewport, representative text, role, computed family, size, weight, line height, letter spacing, text transform, and foreground emphasis. Record the actual rendered face and fallback state when available. Group equivalent roles across routes; count active families per surface; map each role to a semantic token or documented optical exception; and inspect unexplained raw outliers, browser-default headings, near-duplicate sizes or weights, and task-critical text that combines the smallest size with the lowest contrast. Stress zoom and long or localized content when supported, and record font loading, fallback, and layout-shift evidence when runtime traces exist. Treat static CSS declaration counts as leads only and name every unavailable measurement as not run."
       }
     },
     {

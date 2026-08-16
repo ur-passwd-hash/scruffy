@@ -148,10 +148,12 @@ def main() -> int:
             "OPC-BUTTON-INTERACTION-STATES",
             "OPC-AFFORDANCE-FIDELITY",
             "OPC-SPACING-RELATIONSHIP-RHYTHM",
+            "OPC-SECTION-BOUNDARY-SEPARATION",
             "OPC-FIRST-VIEWPORT-TASK-PRIORITY",
             "OPC-SURFACE-ARCHETYPE-FIT",
             "OPC-CONTAINER-DIVIDER-ECONOMY",
             "OPC-TYPOGRAPHY-RANK-AND-DENSITY",
+            "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY",
             "OPC-ACTION-DESTRUCTIVE-HIERARCHY",
             "OPC-STATE-SIGNAL-ECONOMY",
             "OPC-RECOVERY-COPY-PROXIMITY",
@@ -161,6 +163,42 @@ def main() -> int:
             raise AssertionError(
                 f"Kole Jain visual review checks missing: {sorted(expected_visual_checks - operated_ids)}"
             )
+        boundary_rule = next(
+            rule for pack in packs for rule in pack["rules"]
+            if rule["id"] == "OPC-SECTION-BOUNDARY-SEPARATION"
+        )
+        if "boundary-to-boundary" not in boundary_rule["predicate"]["instruction"]:
+            raise AssertionError("section-boundary check must require rendered geometry measurement")
+        if "Intentional joined controls" not in boundary_rule["false_positive_guard"]:
+            raise AssertionError("section-boundary check must preserve the joined-control guard")
+        typography_system_rule = next(
+            rule for pack in packs for rule in pack["rules"]
+            if rule["id"] == "OPC-TYPOGRAPHY-SYSTEM-CONSISTENCY"
+        )
+        typography_instruction = typography_system_rule["predicate"]["instruction"]
+        for required_receipt in (
+            "cross-route computed typography matrix",
+            "active families per surface",
+            "actual rendered face and fallback state",
+            "browser-default headings",
+            "smallest size with the lowest contrast",
+            "zoom and long or localized content",
+            "not run",
+        ):
+            if required_receipt not in typography_instruction:
+                raise AssertionError(
+                    f"typography-system check must require {required_receipt!r} evidence"
+                )
+        typography_guard = typography_system_rule["false_positive_guard"]
+        for required_guard in (
+            "active rendered families per surface rather than installed packages",
+            "equivalent semantic roles rather than unrelated text",
+            "ceremonial or editorial identity",
+        ):
+            if required_guard not in typography_guard:
+                raise AssertionError(
+                    f"typography-system check must preserve {required_guard!r} guard"
+                )
         for page_name in ("checkout-flow.html", "pricing-page.html", "settings-form.html"):
             for lead in evaluate_page(FIXTURES / page_name, packs):
                 if lead["rule_id"] in operated_ids:
