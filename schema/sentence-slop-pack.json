@@ -110,6 +110,20 @@
    "false_positive_guard": "Narrative long-form intentionally sustains longer paragraphs; this signal targets operational surfaces."
   },
   {
+   "code": "missing_plain_lead",
+   "family": "cognitive_load",
+   "citation": "principles/PRINCIPLES.md §21",
+   "meaning": "A registry item states its finding only in audit vocabulary. A reader who does not already know the taxonomy cannot tell what is wrong without decoding category names, facet keys, and nominalized cause language. Every item carries a plain lead: one or two sentences, under 32 words, naming the wrong thing in the reader's own terms.",
+   "false_positive_guard": "A plain lead may contain a proper noun, a file path, or a measured number; those are the specifics that make it plain. Flag only an absent lead, a lead that exceeds the length budget, or a lead built from taxonomy vocabulary rather than the reader's."
+  },
+  {
+   "code": "jargon_lead",
+   "family": "cognitive_load",
+   "citation": "principles/PRINCIPLES.md §21",
+   "meaning": "The plain lead is written in the register it was supposed to replace: category keys, facet names, severity words, or nominalizations standing in for the thing that happened.",
+   "false_positive_guard": "Domain terms the reader already owns are not jargon. A security engineer reading an audit of their own tool knows what a join, a token, and a commit are; flag the audit's private vocabulary, not the reader's."
+  },
+  {
    "code": "hedged_profundity",
    "family": "specificity",
    "citation": "principles/PRINCIPLES.md §33",

@@ -71,6 +71,7 @@ Validation rejects writes in `audit` or `demonstrate_fix`, writes without author
   "identity_key": "portable-editorial-claim",
   "kind": "finding",
   "title": "Portable claims hide the product outcome",
+  "plain": "The homepage claims could belong to any product, so a reader cannot tell what this one does.",
   "category": "copy",
   "facets": ["trust_integrity"],
   "severity": "medium",
@@ -129,7 +130,7 @@ Validation rejects writes in `audit` or `demonstrate_fix`, writes without author
 }
 ```
 
-Every schema-2.1 item includes `facets`, `evidence_refs`, and `editorial_review`. Use `editorial_review: null` outside Editorial slop findings and enhancements. Every active `copy` finding completes the applicable editorial contract. Sentence-pattern and mixed findings include all four sentence manual checks, as shown above.
+Every schema-2.1 item includes `plain`, `facets`, `evidence_refs`, and `editorial_review`. The `plain` lead is one or two sentences, under thirty-two words, stating the finding in the reader's words rather than the taxonomy's; see [sentence-slop.md](sentence-slop.md). It is added to the record, never substituted for it — renderers lead with it and disclose the remaining fields progressively. Use `editorial_review: null` outside Editorial slop findings and enhancements. Every active `copy` finding completes the applicable editorial contract. Sentence-pattern and mixed findings include all four sentence manual checks, as shown above.
 
 Allowed statuses: `open`, `fixed`, `cleared`, `needs-verification`, `merged`, `superseded`.
 

@@ -74,7 +74,10 @@ REQUIRED_ITEM_FIELDS = {
     "disposition_reason",
     "destination_id",
 }
-CURRENT_ITEM_FIELDS = {"facets", "evidence_refs", "editorial_review"}
+# `plain` joined schema 2.1 on 2026-08-17. A registry whose every reader-facing
+# field is correct can still be unreadable, because correctness and legibility
+# are different properties and only one of them was ever checked.
+CURRENT_ITEM_FIELDS = {"facets", "evidence_refs", "editorial_review", "plain"}
 REQUIRED_RUN_FIELDS = {
     "requested_mode",
     "effective_mode",
@@ -1222,6 +1225,32 @@ def validate_markdown(path: Path, registry: dict[str, Any]) -> None:
         fail(f"Markdown report has unregistered items: {extra_items}")
 
 
+def run_prose_lint(findings: Path, context: Path | None, *, strict: bool) -> int | None:
+    """
+    Run the cognitive-load lint over the report's own reader-facing prose.
+
+    Scruffy holds every interface it audits to a legibility standard and held
+    its own output to none. `lint_report_prose.py` was written for exactly this
+    and was never wired to a caller, which is the same failure shape as a check
+    that exists in a file nobody imports.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        from lint_report_prose import main as prose_main
+    except ImportError:  # pragma: no cover - the linter ships beside this file
+        print("note: lint_report_prose.py not importable; reader-facing prose NOT CHECKED")
+        return None
+    argv = [str(findings)]
+    if context:
+        argv += ["--context", str(context)]
+    if strict:
+        argv.append("--strict")
+    code = prose_main(argv)
+    if code != 0:
+        fail("reader-facing prose failed the cognitive-load lint under --strict-prose")
+    return code
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("registry", type=Path)
@@ -1231,6 +1260,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--baseline-decisions", type=Path)
     parser.add_argument("--dashboard", type=Path)
     parser.add_argument("--markdown", type=Path)
+    parser.add_argument(
+        "--strict-prose",
+        action="store_true",
+        help="Fail when reader-facing prose carries cognitive-load leads.",
+    )
     return parser.parse_args()
 
 
@@ -1252,6 +1286,10 @@ def main() -> int:
         validate_dashboard(args.dashboard, registry, context)
     if args.markdown:
         validate_markdown(args.markdown, registry)
+    # The prose lint existed and nothing called it, so a report could be
+    # schema-perfect and unreadable and still pass. Leads are informational by
+    # design; --strict-prose promotes them to a gate.
+    prose_leads = run_prose_lint(args.registry, args.context, strict=args.strict_prose)
     checks = ["registry"]
     if args.context:
         checks.append("context and evidence")
@@ -1259,6 +1297,8 @@ def main() -> int:
         checks.append("baseline continuity")
     if args.decisions:
         checks.append("decisions")
+    if prose_leads is not None:
+        checks.append("reader-facing prose")
     if args.dashboard:
         checks.append("dashboard completeness")
     if args.markdown:

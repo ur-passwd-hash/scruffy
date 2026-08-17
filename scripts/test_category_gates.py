@@ -35,6 +35,7 @@ def base_bundle() -> tuple[dict, dict, dict]:
         "id": "GC-1",
         "identity_key": "gate-check-item",
         "kind": "finding",
+        "plain": "The main view redraws on every mouse movement, so the page stutters while you point at it.",
         "title": "Main view re-renders on every pointer move",
         "category": "performance",
         "severity": "medium",

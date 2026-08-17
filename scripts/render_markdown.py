@@ -84,6 +84,8 @@ def render_item(
     return f"""<!-- anti-slop-item:{item['id']} -->
 ### {clean(item_labels.get(item['id'], 'Review item'))} · {clean(humanize_text(item['title'], item_labels=item_labels, evidence_assets=evidence_assets))}
 
+> {clean(item.get('plain') or item['title'])}
+
 **Area:** {clean(plain_category_label(item['category']))} · **Related themes:** {clean(facets)}
 
 **Impact or priority:** {clean(severity_label(item))} · **Confidence:** {clean(str(item['confidence']).title())}

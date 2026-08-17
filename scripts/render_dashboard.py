@@ -293,6 +293,7 @@ def item_html(
         <span class="cat-chip">{esc(plain_category_label(item['category']))}</span>
       </div>
       <div class="item-body">
+        <p class="plain-lead">{esc(item.get('plain') or humanize_text(item['title'], item_labels=item_labels, evidence_assets=evidence_assets))}</p>
         <h3>{esc(humanize_text(item['title'], item_labels=item_labels, evidence_assets=evidence_assets))}</h3>
         <p class="meta">{esc(' · '.join(meta_parts))}{destination}</p>
         <p>{esc(humanize_text(item['observation'], item_labels=item_labels, evidence_assets=evidence_assets))}</p>
@@ -575,7 +576,13 @@ def render(registry: dict[str, Any], context: dict[str, Any], decision_doc: dict
       table,th,td{{color:#141414}} th{{background:#fff;border-bottom:1.5px solid #141414}}
       figure{{box-shadow:none;border:1px solid #d9d9d2}} a{{color:#141414}}
     }}
-  </style>
+  
+/* The plain lead is the finding for a reader who does not know the taxonomy.
+   It gets the type, and the title drops to a subhead. Added, never substituted:
+   every other field still renders below. */
+      .registry-item .plain-lead{{font-size:1.24rem;line-height:1.4;margin:0 0 .35rem;font-weight:600;max-width:62ch}}
+      .registry-item h3{{font-size:.94rem;font-weight:600;opacity:.72;margin:0 0 .3rem}}
+</style>
 </head>
 <body>
   <header class="mast"><div class="wrap"><div>{hero_html}</div><div class="verdict">Overall result<strong>{esc(humanize_text(outcome.get('label','Insufficient evidence'), item_labels=item_labels, evidence_assets=evidence_assets))}</strong></div></div></header>

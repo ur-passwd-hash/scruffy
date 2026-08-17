@@ -20,7 +20,52 @@ SIGNALS = {row["code"]: row for row in PACK["signals"] if row["family"] == "cogn
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 WORD = re.compile(r"[A-Za-z0-9'’-]+")
 
-READER_FIELDS_ITEM = ("title", "observation", "user_impact", "cause", "recommendation")
+READER_FIELDS_ITEM = ("plain", "title", "observation", "user_impact", "cause", "recommendation")
+
+# The plain lead is the one field a reader who does not know the taxonomy can
+# use. It is budgeted, not merely present: a lead that runs to four clauses has
+# become the record it was supposed to introduce.
+PLAIN_WORD_BUDGET = 32
+# The audit's private vocabulary. A reader's own domain terms are not jargon;
+# these are words that exist only because the taxonomy exists.
+AUDIT_JARGON = re.compile(
+    r"\b(information[_ ]architecture|backend[_ ]shape|trust[_ ]integrity"
+    r"|resilience[_ ]recovery|localization[_ ]adaptability|agent[_ ]ai[_ ]behavior"
+    r"|privacy[_ ]safety[_ ]ux|editorial slop|product slop|interaction slop"
+    r"|visual slop|structural cause|identity[_ ]key|revision disposition"
+    r"|acceptance check|evidence receipt|facet|registry item)\b",
+    re.IGNORECASE,
+)
+
+
+def check_plain_lead(item: dict, leads: list[dict]) -> None:
+    """
+    The lead exists, fits its budget, and is written for the reader.
+
+    This is the check that would have caught scruffy's own report. Every
+    reader-facing field was populated and correct, and the finding was still
+    unreadable, because all six fields spoke in the same register and none of
+    them said the plain thing first.
+    """
+    base = f"items[{item.get('id','?')}]"
+    if item.get("kind") not in {"finding", "enhancement", "strength"}:
+        return
+    text = item.get("plain")
+    if not isinstance(text, str) or not text.strip():
+        leads.append({"code": "missing_plain_lead", "path": f"{base}.plain",
+                      "measure": "absent",
+                      "snippet": str(item.get("title", ""))[:110]})
+        return
+    words = len(WORD.findall(text))
+    if words > PLAIN_WORD_BUDGET:
+        leads.append({"code": "missing_plain_lead", "path": f"{base}.plain",
+                      "measure": f"{words} words, budget {PLAIN_WORD_BUDGET}",
+                      "snippet": text[:110]})
+    hits = sorted({m.group(0).lower() for m in AUDIT_JARGON.finditer(text)})
+    if hits:
+        leads.append({"code": "jargon_lead", "path": f"{base}.plain",
+                      "measure": ", ".join(hits),
+                      "snippet": text[:110]})
 LIST_MARKER = re.compile(r"(?:^|\s)(?:\d+\)|\d+\.|·|—|-)\s")
 
 
@@ -57,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
     leads: list[dict] = []
     for item in registry.get("items", []):
         base = f"items[{item.get('id','?')}]"
+        check_plain_lead(item, leads)
         for field in READER_FIELDS_ITEM:
             check_text(f"{base}.{field}", item.get(field), leads)
         for index, entry in enumerate(item.get("evidence", []) or []):

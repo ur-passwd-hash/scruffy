@@ -130,6 +130,7 @@ def build_fixture(base: Path) -> tuple[dict, dict]:
         "id": "AS-01",
         "identity_key": "portable-editorial-claim",
         "kind": "finding",
+        "plain": "The homepage claims could belong to any product, so a reader cannot tell what this one does.",
         "title": "Portable claims hide the product outcome",
         "category": "copy",
         "facets": ["trust_integrity"],

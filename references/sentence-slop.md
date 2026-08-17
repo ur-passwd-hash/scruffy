@@ -2,6 +2,28 @@
 
 Sentence slop is an observable copy-quality failure: repeated rhetorical machinery, monotonous cadence, vague abstraction, conceptual collisions, or obscured responsibility makes a product less clear, less distinctive, or harder to act on. It is **not** evidence that AI authored the text.
 
+## The audit's own prose is in scope
+
+Scruffy holds every interface it audits to a legibility standard. Its own report is an interface, and until 2026-08-17 it was held to none.
+
+The failure that forced this: a twenty-one item registry in which every reader-facing field was populated, accurate, and evidence-backed, and which a human could not read. Each finding rendered as seven equal-weight blocks — observation, impact, cause, recommendation, evidence, acceptance checks, disposition — in the same register, twenty-one times. No sentence anywhere said the plain thing. Nothing failed, because correctness and legibility are different properties and only one of them was checked.
+
+**Every registry item carries a `plain` lead.** One or two sentences, under thirty-two words, naming what is wrong in the reader's own words rather than the taxonomy's. It is a required field at schema 2.1 and `scripts/validate_audit.py` refuses a registry without it.
+
+A lead is not a summary of the finding. It is the finding, said first:
+
+| Instead of | Write |
+|---|---|
+| "The stale-record join failed silently and reported a number instead of an error" | "The page said one record was going unwatched. Ten were." |
+| "Reader-facing titles displayed the source format's markup" | "Formatting marks printed as literal characters in 56 titles." |
+| "The surface reports 126 actionable items and offers no way to act on any of them" | "The page lists 126 things needing your attention and gives you no way to act on any of them." |
+
+Two `cognitive_load` signals enforce it. `missing_plain_lead` fires on an absent lead or one over budget. `jargon_lead` fires when the lead is written in the register it was meant to replace — category keys, facet names, `structural cause`, `acceptance check`. The reader's own domain terms are never jargon; a security engineer reading an audit of their own tool knows what a join and a commit are. The audit's private vocabulary is what gets flagged.
+
+**Detail is never traded for readability.** The lead is added, not substituted. Renderers lead with the plain sentence and the recommended change, then disclose the full record progressively — a `<details>` in HTML, forced open in print. Every field stays in the document, in find-on-page, and in the JSON. Summarising discards; disclosing does not.
+
+Run it with `python3 scripts/lint_report_prose.py findings.json --context context.json`, or let `validate_audit.py` run it for you. Add `--strict-prose` to make leads a gate rather than a note.
+
 ## Boundary
 
 - Never classify authorship, calculate an “AI probability,” or use perplexity or burstiness as proof. Machine-text detectors fail under paraphrase and domain/model shift, and low-perplexity methods have produced severe false positives for non-native English writers. [SADASIVAN23][MAGE24][LIANG23]

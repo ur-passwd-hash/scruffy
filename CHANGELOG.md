@@ -4,6 +4,37 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## Unreleased
 
+- **Every registry item now carries a `plain` lead, and the audit's own prose is
+  in scope for the sentence-slop module.** Scruffy held every interface it
+  audited to a legibility standard and held its own report to none. The failure
+  that forced this: a twenty-one item registry in which every reader-facing
+  field was populated, accurate and evidence-backed, and which a human could not
+  read — each finding rendered as seven equal-weight blocks in the same
+  register, twenty-one times, with no sentence anywhere saying the plain thing.
+  Nothing failed, because correctness and legibility are different properties
+  and only one of them was checked.
+  - `plain` is a required schema-2.1 item field: one or two sentences, under
+    thirty-two words, in the reader's words rather than the taxonomy's.
+    `validate_audit.py` refuses a registry without it.
+  - Two `cognitive_load` signals enforce it. `missing_plain_lead` fires on an
+    absent or over-budget lead; `jargon_lead` fires when the lead is written in
+    the register it was meant to replace. A reader's own domain terms are never
+    jargon; the audit's private vocabulary is what gets flagged.
+  - `scripts/lint_report_prose.py` already existed and **nothing called it**, so
+    a report could be schema-perfect and unreadable and still pass.
+    `validate_audit.py` now runs it every time, with `--strict-prose` to promote
+    leads from a note to a gate.
+  - Detail is never traded for readability. The lead is added, not substituted:
+    the dashboard and Markdown renderers lead with it and disclose every
+    remaining field below, and print forces disclosure open. The plain-language
+    rule at output-schema.md was already the stated intent; this makes it
+    enforceable rather than aspirational.
+  - Artifact emission now follows capability rather than judgement. When
+    `source_write` is available the registry, context, decisions and Markdown
+    report are required, and an artifact that was not produced is named with the
+    capability that prevented it. A missing artifact and one nobody thought
+    about look identical otherwise.
+
 - Consolidated the public product under one name, **Scruffy**. Reference grounding,
   principles, audit, repair, and verification are now described as workflow
   stages rather than DIRT, Keys, or Mop companion brands. Repair dashboards use

@@ -44,6 +44,9 @@ def build(audit_id: str, target: str, title: str, item_prefix: str) -> tuple[dic
         "id": first_id,
         "identity_key": "todo-first-finding-identity",
         "kind": "finding",
+        # The plain lead is written first and rewritten last. If it cannot be
+        # said without the taxonomy, the finding is not understood yet.
+        "plain": "TODO: one or two sentences, under 32 words, naming what is wrong in the reader's own words.",
         "title": "TODO: replace with the first verified finding",
         "category": "product",
         "severity": "low",

@@ -95,7 +95,9 @@ The complete registry is lossless and has no item-count cap. The executive prese
 
 Items outside the shortlist remain visible in the full registry and dashboard under additional, resolved, merged, superseded, or enhancement sections. Never drop an item to satisfy a presentation limit.
 
-Each finding needs a stable ID, immutable `identity_key`, canonical category, applicable facets, severity, confidence, lifecycle status, revision disposition, user impact, typed evidence receipts, structural cause, recommended change, acceptance check, and dependencies. Editorial findings also need the applicable editorial-review receipt. Separate observed fact from inference. A clarified title may change; the ID and identity key may not.
+Every item leads with a `plain` sentence: one or two sentences, under thirty-two words, naming what is wrong in the reader's own words rather than the taxonomy's. Write it first, rewrite it last, and if the finding cannot be said without category names and facet keys it is not understood yet. The lead is added to the record and never substituted for it — renderers show it first and disclose the remaining fields progressively. This skill's own report is an interface and is held to the legibility standard it applies to everything else; see [references/sentence-slop.md](references/sentence-slop.md).
+
+Each finding needs a stable ID, immutable `identity_key`, plain lead, canonical category, applicable facets, severity, confidence, lifecycle status, revision disposition, user impact, typed evidence receipts, structural cause, recommended change, acceptance check, and dependencies. Editorial findings also need the applicable editorial-review receipt. Separate observed fact from inference. A clarified title may change; the ID and identity key may not.
 
 ### 7. Implement only within authority
 
@@ -147,6 +149,8 @@ When files and an interactive viewer are available, also produce:
 
 For a blind run, also produce `blind-manifest.json`, `blind-discovery.json`, and `blind-freeze.json`; add `blind-reconciliation.json` only after the reveal phase. State whether blindness was verified, contaminated, or not run.
 
+Artifacts follow capability, not judgement. When `source_write` is available, `findings.json`, `context.json`, `decisions.json` and the Markdown report are **required**; none of them needs a viewer. The HTML dashboard is required whenever files can be written at all, since it is a file. An artifact that was not produced is named with the capability that prevented it, never omitted silently — a missing artifact and one nobody thought about look identical otherwise.
+
 When those capabilities are unavailable, emit the same information as Markdown plus a complete registry JSON block. Never make an HTML dashboard a prerequisite for completing an audit.
 
 Follow the exact schema and fallback behavior in [references/output-schema.md](references/output-schema.md).
@@ -159,6 +163,7 @@ The work is complete only when:
 - The schema-2.1 run receipt records mode, authority, mutations, and blind status without contradiction.
 - Available capabilities and checks not run are disclosed.
 - Findings are evidence-backed and falsification has been attempted.
+- Every item carries a plain lead that survives the cognitive-load lint. Run `python3 scripts/validate_audit.py <registry> --context <context> --decisions <decisions> --strict-prose`; it validates the registry and lints the report's own reader-facing prose in one pass.
 - Every finding uses a canonical category key and only applicable cross-cutting facets.
 - Every evidence reference resolves to a typed receipt; captured local evidence exists.
 - Every locally captured screenshot receipt is visibly embedded in the self-contained dashboard with alt text and a named caption; each item/screenshot pair renders its operated state, a precise “look here” instruction, the connection to the claim, and either a labeled annotation or an explicit reason the whole frame is the evidence.
