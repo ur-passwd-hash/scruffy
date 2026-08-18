@@ -138,7 +138,7 @@ Slow interaction, unstable layout, delayed primary content, blocking third parti
 
 ### Cross-cutting facets
 
-Apply these only where the product exposes the concern: **Trust and content integrity**, **Resilience and recovery**, **Localization and adaptability**, **Agent and AI behavior**, **Privacy and safety UX**. They refine a category; they do not replace it.
+Apply these only where the product exposes the concern: **Trust and content integrity**, **Resilience and recovery**, **Localization and adaptability**, **Agent and AI behavior**, **Privacy and safety UX**, **Input and reference-data fidelity**. They refine a category; they do not replace it.
 <!-- scruffy-taxonomy:end -->
 
 ## Why the method is harder to fool

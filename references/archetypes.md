@@ -40,6 +40,20 @@ Select every module that applies. These are minimum probes, not feature requirem
 - Authentication interruption and return to task
 - Trust-critical copy and irreversible-action review
 
+## Lookup or identity resolution
+
+A person supplies an identifier — a name, address, order number, company — and the product decides which stored record they mean. Guest lookups, member directories, order tracking, patient check-in, registry search.
+
+- Cost of a wrong match versus no match; a wrong match is usually worse, because it is confidently actionable
+- Real data from every real upstream source, obtained before designing; sources disagree, and one may export explicit household grouping while another merges names and drops it
+- Entity grouping: do records mean individuals, households, parties, or companies, and can a record cover someone with no name of their own — a plus-one, a dependent — who must still succeed
+- The match ladder stated in order, with a stopping rule and an explicit position on fuzzy matching, which converts a lookup into a graded enumeration oracle
+- Matched, ambiguous, and not-found as three distinct designed states; ambiguity resolved by returning the first hit is the wrong-match failure above
+- Normalization: Unicode form, atomic versus decomposable letters, punctuation deleted versus substituted, case folding, particles — executed, not read
+- Disclosure per outcome: does ambiguity leak existence, does a refusal differ from a rate-limit
+- Bulk entry, where the data plausibly already exists elsewhere; the absence of an import path is a finding, not an enhancement
+- Inference visibility: every value the importer guessed rather than read is shown and correctable before it is saved
+
 ## Form, onboarding, settings, or account management
 
 - Initial, partial, invalid, valid, saving, saved, and failed states

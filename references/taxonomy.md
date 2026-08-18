@@ -21,7 +21,7 @@ The inspection layer controls order. The category classifies each registry item.
 - **Inspection layer:** `product`
 - **Meaning:** The app has no clear user, job, outcome, differentiator, or reason to return.
 - **Required proof:** A missing or contradictory product decision blocks understanding, trust, or task success.
-- **Applicable facets:** `trust_integrity`, `agent_ai_behavior`, `privacy_safety_ux`
+- **Applicable facets:** `trust_integrity`, `agent_ai_behavior`, `privacy_safety_ux`, `data_fidelity`
 - **Principle basis:** PRINCIPLES §3, PRINCIPLES §14, PRINCIPLES §26, PRINCIPLES §32
 
 The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent return value, and dead-end terminal states.
@@ -32,7 +32,7 @@ The surface never establishes who it serves, what job it performs, or what succe
 - **Inspection layer:** `structure`
 - **Meaning:** People cannot find, understand, address, retrieve, or share the information or state they need.
 - **Required proof:** Navigation, labeling, hierarchy, retrieval, URL, or state evidence shows a realistic task becoming materially harder.
-- **Applicable facets:** `resilience_recovery`, `localization_adaptability`, `trust_integrity`
+- **Applicable facets:** `resilience_recovery`, `localization_adaptability`, `trust_integrity`, `data_fidelity`
 - **Principle basis:** PRINCIPLES §1, PRINCIPLES §3, PRINCIPLES §14, PRINCIPLES §28, PRINCIPLES §31
 
 Navigation may expose the wrong structure, labels may conceal the reader's vocabulary, or meaningful application states may have no stable address. Information architecture is separate from backend shape: a poor route or content model can create both, but the user-facing retrieval failure remains independently visible.
@@ -43,7 +43,7 @@ Navigation may expose the wrong structure, labels may conceal the reader's vocab
 - **Inspection layer:** `experience`
 - **Meaning:** Controls, state, feedback, and recovery do not behave as promised.
 - **Required proof:** Operating the real task exposes a wrong action, dead end, lost state, unusable path, or misleading transition.
-- **Applicable facets:** `resilience_recovery`, `agent_ai_behavior`, `privacy_safety_ux`, `localization_adaptability`
+- **Applicable facets:** `resilience_recovery`, `agent_ai_behavior`, `privacy_safety_ux`, `localization_adaptability`, `data_fidelity`
 - **Principle basis:** PRINCIPLES §2, PRINCIPLES §4, PRINCIPLES §6, PRINCIPLES §17, PRINCIPLES §26, PRINCIPLES §29, PRINCIPLES §32
 
 A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects require operation of the interface, not inference from appearance.
@@ -87,7 +87,7 @@ Editorial review covers content strategy, terminology, microcopy, sentence and p
 - **Inspection layer:** `structure`
 - **Meaning:** Routes, data, state, content, or components are shaped so badly that several features fail together.
 - **Required proof:** Source and runtime evidence connect multiple symptoms or unsafe change cost to one shared implementation cause.
-- **Applicable facets:** `resilience_recovery`, `agent_ai_behavior`, `privacy_safety_ux`, `localization_adaptability`
+- **Applicable facets:** `resilience_recovery`, `agent_ai_behavior`, `privacy_safety_ux`, `localization_adaptability`, `data_fidelity`
 - **Principle basis:** PRINCIPLES §§15–16, PRINCIPLES §23, PRINCIPLES §25, PRINCIPLES §29
 
 Content may be fused to rendering, navigation state may have no address, styles may be copied instead of tokenized, or failures may disappear into empty exception handlers. When several visible problems share one verified structural cause, record that cause once and link its dependent symptoms.
@@ -112,6 +112,7 @@ Slow interaction, unstable layout, delayed primary content, blocking third parti
 | `localization_adaptability` — **Localization and adaptability** | Language support, translation expansion, locale formats, time zones, right-to-left layout, and unsupported-language abstention. |
 | `agent_ai_behavior` — **Agent and AI behavior** | Uncertainty, source visibility, tool-action previews, confirmation, correction, reversibility, and user control. |
 | `privacy_safety_ux` — **Privacy and safety UX** | Visible permission, consent, data-use, consequence, and safety communication; technical security remains out of scope. |
+| `data_fidelity` — **Input and reference-data fidelity** | Whether the surface was designed against the data as it actually arrives from its real source — real shape, real grouping, real gaps, real encodings — rather than an idealised sample. Covers assumed schemas, invented fixtures, missing entity grouping, and import paths that match no real export format. |
 
 ## Legacy category aliases
 

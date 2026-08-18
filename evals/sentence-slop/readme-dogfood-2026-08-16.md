@@ -2,7 +2,7 @@
 
 Target: `README.md`
 
-Target SHA-256: `8746c72bee6e6cee131a305f6db9a2783a41635c5a7f37972d4ac4452c271db2`
+Target SHA-256: `cf068872d989fa88c9a5b9673869e5dec8375e8b9bdf68f998fc7a0376e8bdb0`
 
 Command:
 
@@ -104,3 +104,30 @@ language.
 hash. The clearance combines normalized measurements, four manual sentence
 checks, and four broader editorial checks. It is bounded to this file and hash
 and makes no claim about AI authorship.
+
+## Refresh — 2026-08-18 (data_fidelity facet added)
+
+Prior target hash `8746c72bee6e6cee131a305f6db9a2783a41635c5a7f37972d4ac4452c271db2`; current `cf068872d989fa88c9a5b9673869e5dec8375e8b9bdf68f998fc7a0376e8bdb0`.
+
+The only README change is one generated line inside the `scruffy-taxonomy` block:
+the cross-cutting facet list gained **Input and reference-data fidelity**. It was
+written by `scripts/taxonomy_contract.py --write` from `schema/taxonomy.json`, not
+by hand.
+
+Analyzer rerun on the new target returns `finding_eligible: false`, unchanged. The
+lead codes (`clause_pileup`, `overlong_sentence`, `paragraph_pattern_reuse`,
+`repeated_openings`) are the pre-existing set carried by earlier refreshes; the
+added clause introduces none of them and lengthens no sentence past the gate.
+
+Manual passes rechecked against the changed line only, since nothing else moved:
+
+- **Conceptual coherence** — the facet name states its concern without needing its
+  description, and sits among peers at the same level of abstraction.
+- **Terminology and information sequence** — it reuses the noun-phrase shape of the
+  five existing facets and introduces no README vocabulary the taxonomy does not
+  already define.
+- **Claim support and provenance** — the line asserts only that the facet exists,
+  which `schema/taxonomy.json` now carries.
+
+**Cleared:** no active editorial-slop finding in the current README. This refresh
+reconciles the hash only; it does not reopen or supersede any prior disposition.

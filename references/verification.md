@@ -98,7 +98,24 @@ Large files, inline styles, and duplicated markup are not automatically defects.
 
 Only report performance defects from runtime measurements such as Core Web Vitals, network waterfalls, long tasks, excessive layout shifts, or repeatable interaction delay. If runtime instrumentation is unavailable, list performance as not run. Source size may justify an optimization hypothesis, not a performance verdict.
 
-## 9. Falsification pass
+## 9. Execute the rules the surface depends on
+
+Where a surface's correctness rests on a stated rule — matching, parsing, normalization, deduplication, sorting, scheduling, pricing, permission — run that rule against a hostile fixture. A rule that has only been read is unverified in the same way a source-only visual claim is unverified: **an unexecuted rule does not exist**.
+
+Section 4 covers validation states. It does not reach this. A name containing an apostrophe or a slashed `ø` is a *valid* input the rule may silently mishandle, so no invalid-state probe will ever surface it.
+
+Build the fixture from the data's worst real cases: mixed case and stray whitespace, decomposable *and* atomic diacritics, apostrophes, hyphens, surname particles, mononyms, duplicates that resolve to one parent and duplicates that do not, empty input, and input at the stated length limit.
+
+Two boundaries:
+
+- The fixture is scratch instrumentation, never a change to the audited product. It is not written into the target repository, and running it does not convert an `audit` into a `redesign`. Where even scratch execution is unavailable, record the check **not run**.
+- A fixture invented by the auditor proves only that the rule is self-consistent. Trace cases to real data, a real export format, or a documented real-world case.
+
+## 10. Check the authority you are citing
+
+Before resting a finding on an internal standard, confirm that standard is current. Where two internal documents conflict, the conflict is itself the finding — report it rather than silently selecting one.
+
+## 11. Falsification pass
 
 Before finalizing each candidate finding, ask:
 
@@ -107,6 +124,7 @@ Before finalizing each candidate finding, ask:
 3. Does another viewport or state resolve it?
 4. Does source evidence contradict the rendered observation?
 5. Is this an environment limitation rather than an application defect?
+6. Was the rule executed, or only read?
 
 Move disproven candidates into cleared suspicions. Lower confidence when evidence remains incomplete.
 

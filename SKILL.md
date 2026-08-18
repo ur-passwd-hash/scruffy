@@ -78,6 +78,8 @@ Run each representative task. Exercise every unique interaction pattern at least
 
 Collect the smallest evidence that can prove or disprove each candidate finding: task outcome and elapsed time, state transition, URL change, computed contrast, DOM semantics, accessibility state, console/network result, source location, or screenshot. Actively try to falsify the suspicion. Record cleared suspicions and retract disproven claims with the same prominence as findings.
 
+Where the surface depends on a stated rule, execute it against a hostile fixture before the audit closes, following [references/verification.md](references/verification.md) §9. Section 4 covers validation states and does not reach rule correctness: a valid input the rule silently mishandles is invisible to every invalid-state probe.
+
 Use [principles/PRINCIPLES.md](principles/PRINCIPLES.md) as the detailed pattern library. When page HTML is available, run the deterministic lead engine (`python3 scripts/rule_engine.py <files> --output leads.json`) and treat every emitted lead as a suspicion to confirm or clear by operation, never as a finding; read [references/rule-packs.md](references/rule-packs.md) before authoring, loading, or promoting rule packs, and attach engine output as an `analysis_receipt` evidence asset. Use [principles/SOURCES.md](principles/SOURCES.md) and [principles/INSPIRATIONS.md](principles/INSPIRATIONS.md) for provenance and further study. Treat Editorial slop (`copy`) as more than sentence style: inspect content strategy, terminology, microcopy, information sequence, claims and provenance, recovery language, audience fit, and voice. For sentence-pattern candidates, additionally apply the compound predicate in [references/sentence-slop.md](references/sentence-slop.md): verified reader-facing extraction, adequate sample, at least two independent signal families, quoted evidence, a task or voice consequence, and a tested counterexample. Count shared evidence once.
 
 On operational surfaces, explicitly compare normal, warning, blocked, and unavailable states. Healthy repetition must not drown the exception; a recovery instruction must sit beside the condition it resolves, name the concrete next action, and earn any separate panel it occupies. Treat repeated scope, duration, or exclusion prose as a copy lead when the same facts are already unambiguously carried by headings, labels, state, and action text.
@@ -124,6 +126,9 @@ Ground the ladder before climbing it: when a design-reference search capability 
 ## Evidence rules
 
 - A visual resemblance is not proof of authorship.
+- Logic-only claims are unverified until executed. Prose describing a matching, parsing, or normalization rule is a hypothesis about that rule's behavior, not evidence of it.
+- A fixture invented by the auditor proves only that the rule is self-consistent. Trace cases to real data, a real export format, or a documented real-world case.
+- An internal standard is not authoritative because it is written down. Confirm it is current before citing it; where two internal standards conflict, that conflict is a finding.
 - Repetition is not automatically bad; repeated patterns may be valid system primitives.
 - Missing animation, gradients, illustrations, or unusual layouts is not a defect.
 - “Generic” must be tied to concrete sameness, weak hierarchy, irrelevant decoration, synthetic copy, or task friction.

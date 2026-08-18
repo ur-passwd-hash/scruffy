@@ -39,7 +39,7 @@
       "plain_meaning": "The app has no clear user, job, outcome, differentiator, or reason to return.",
       "required_proof": "A missing or contradictory product decision blocks understanding, trust, or task success.",
       "readme_detail": "The surface never establishes who it serves, what job it performs, or what success looks like. Common signals include features copied from adjacent products, unshareable multi-state experiences, absent return value, and dead-end terminal states.",
-      "applicable_facets": ["trust_integrity", "agent_ai_behavior", "privacy_safety_ux"],
+      "applicable_facets": ["trust_integrity", "agent_ai_behavior", "privacy_safety_ux", "data_fidelity"],
       "principle_sections": ["PRINCIPLES §3", "PRINCIPLES §14", "PRINCIPLES §26", "PRINCIPLES §32"]
     },
     {
@@ -50,7 +50,7 @@
       "plain_meaning": "People cannot find, understand, address, retrieve, or share the information or state they need.",
       "required_proof": "Navigation, labeling, hierarchy, retrieval, URL, or state evidence shows a realistic task becoming materially harder.",
       "readme_detail": "Navigation may expose the wrong structure, labels may conceal the reader's vocabulary, or meaningful application states may have no stable address. Information architecture is separate from backend shape: a poor route or content model can create both, but the user-facing retrieval failure remains independently visible.",
-      "applicable_facets": ["resilience_recovery", "localization_adaptability", "trust_integrity"],
+      "applicable_facets": ["resilience_recovery", "localization_adaptability", "trust_integrity", "data_fidelity"],
       "principle_sections": ["PRINCIPLES §1", "PRINCIPLES §3", "PRINCIPLES §14", "PRINCIPLES §28", "PRINCIPLES §31"]
     },
     {
@@ -61,7 +61,7 @@
       "plain_meaning": "Controls, state, feedback, and recovery do not behave as promised.",
       "required_proof": "Operating the real task exposes a wrong action, dead end, lost state, unusable path, or misleading transition.",
       "readme_detail": "A contents button opens an unwieldy chip strip, a filter sorts instead of filtering, a media action gives no state feedback, or a visual application has no workable keyboard path. These defects require operation of the interface, not inference from appearance.",
-      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability"],
+      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability", "data_fidelity"],
       "principle_sections": ["PRINCIPLES §2", "PRINCIPLES §4", "PRINCIPLES §6", "PRINCIPLES §17", "PRINCIPLES §26", "PRINCIPLES §29", "PRINCIPLES §32"]
     },
     {
@@ -105,7 +105,7 @@
       "plain_meaning": "Routes, data, state, content, or components are shaped so badly that several features fail together.",
       "required_proof": "Source and runtime evidence connect multiple symptoms or unsafe change cost to one shared implementation cause.",
       "readme_detail": "Content may be fused to rendering, navigation state may have no address, styles may be copied instead of tokenized, or failures may disappear into empty exception handlers. When several visible problems share one verified structural cause, record that cause once and link its dependent symptoms.",
-      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability"],
+      "applicable_facets": ["resilience_recovery", "agent_ai_behavior", "privacy_safety_ux", "localization_adaptability", "data_fidelity"],
       "principle_sections": ["PRINCIPLES §§15–16", "PRINCIPLES §23", "PRINCIPLES §25", "PRINCIPLES §29"]
     },
     {
@@ -145,6 +145,11 @@
       "key": "privacy_safety_ux",
       "label": "Privacy and safety UX",
       "description": "Visible permission, consent, data-use, consequence, and safety communication; technical security remains out of scope."
+    },
+    {
+      "key": "data_fidelity",
+      "label": "Input and reference-data fidelity",
+      "description": "Whether the surface was designed against the data as it actually arrives from its real source \u2014 real shape, real grouping, real gaps, real encodings \u2014 rather than an idealised sample. Covers assumed schemas, invented fixtures, missing entity grouping, and import paths that match no real export format."
     }
   ],
   "legacy_category_aliases": {
