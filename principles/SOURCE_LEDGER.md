@@ -36,7 +36,7 @@ an unverifiable citation and raises `EVIDENCE_LOST`.
 
 | video_id | creator | status | evidence | notes |
 |---|---|---|---|---|
-| `RCneB_MQ7qs` | Kole Jain | queued | none retained | "The one thing vibe coding CAN'T fix about your website" — supplied by Zach 2026-08-19. Founding-source creator; admission gates already satisfied by SOURCES.md row 1. Expected landing zone §7 / §19 (vibe-code tells) and §8 (landing-page ladder). |
+| `RCneB_MQ7qs` | Kole Jain | queued | none retained | "The one thing vibe coding CAN'T fix about your website" — supplied by Zach 2026-08-20. Founding-source creator; admission gates already satisfied by SOURCES.md row 1. Expected landing zone §7 / §19 (vibe-code tells) and §8 (landing-page ladder). |
 
 ## Founding corpus — Kole Jain (evidence lost)
 
@@ -142,7 +142,7 @@ founding-corpus failure. Vault backfill is the fix.
 
 | video_id | creator | status | evidence | notes |
 |---|---|---|---|---|
-| `P06RgnUKX_I` | Y Combinator — Steven Haney (Paper) | queued | none retained | Was recorded in SOURCES.md as **Distilled** with coverage at "skill §C direct". Audit 2026-08-19: **no `[P06RgnUKX_I]` citation exists in PRINCIPLES.md or SKILL.md**, and no transcript survives, so nothing traceable came out of it. The claim is withdrawn rather than defended — this is the third YC *Design Review* episode and belongs in §32 alongside `RynySryqM_0` and `DBhSfROq3wU`, but restoring it needs a re-fetch. Returned to `queued`. |
+| `P06RgnUKX_I` | Y Combinator — Steven Haney (Paper) | queued | none retained | Was recorded in SOURCES.md as **Distilled** with coverage at "skill §C direct". Audit 2026-08-20: **no `[P06RgnUKX_I]` citation exists in PRINCIPLES.md or SKILL.md**, and no transcript survives, so nothing traceable came out of it. The claim is withdrawn rather than defended — this is the third YC *Design Review* episode and belongs in §32 alongside `RynySryqM_0` and `DBhSfROq3wU`, but restoring it needs a re-fetch. Returned to `queued`. |
 
 ## Maintenance
 

@@ -7,7 +7,7 @@ Every rule in `PRINCIPLES.md` traces to a row here. Principles are distilled and
 | Source | Type | Cited as | Coverage | Status |
 |---|---|---|---|---|
 | Kole Jain - YouTube channel | ~50 videos, transcripts | `[video_id t]` | PRINCIPLES §1-20 (~120 rules) | **Distilled** |
-| Steven Haney (Paper) - Y Combinator *Design Review*, 2026-08-07 | interview transcript | `[P06RgnUKX_I]` | claimed AI-tell rules, typography-first fixes, expert-rules-as-moat | **Coverage claim withdrawn 2026-08-19** - no citation for this id exists in PRINCIPLES.md or SKILL.md and no transcript survives; re-queued in [SOURCE_LEDGER.md](SOURCE_LEDGER.md) |
+| Steven Haney (Paper) - Y Combinator *Design Review*, 2026-08-07 | interview transcript | `[P06RgnUKX_I]` | claimed AI-tell rules, typography-first fixes, expert-rules-as-moat | **Coverage claim withdrawn 2026-08-20** - no citation for this id exists in PRINCIPLES.md or SKILL.md and no transcript survives; re-queued in [SOURCE_LEDGER.md](SOURCE_LEDGER.md) |
 | Nielsen Norman Group - 10 usability heuristics | published heuristics | `[NN/g #n]` | product-layer floor (skill §C4/§C3.15) | **Distilled** |
 | Wathan & Schoger - *Refactoring UI* | book (principles only) | `[RUI]` | color/hierarchy/shadow/label rules | **Distilled** |
 | Matthew Butterick - *Practical Typography* | book (principles only) | `[Butterick]` | line length, sizes, quotes, spacing | **Distilled** |

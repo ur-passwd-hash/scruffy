@@ -6,7 +6,7 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 Nothing yet.
 
-## 3.0.0 — 2026-08-19
+## 3.0.0 — 2026-08-20
 
 **Breaking.** `plain` is now a required schema-2.1 registry field and
 `validate_audit.py` refuses a registry without it. Existing stored audit
