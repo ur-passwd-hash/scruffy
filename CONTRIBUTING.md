@@ -15,11 +15,27 @@ the same contract through `CLAUDE.md`; there is no second maintenance method.
 
 ## Research contributions
 
+**Using scruffy does not require the corpus.** Transcripts are build-time input,
+not a runtime dependency: the plugin ships the distilled, cited principles and
+the baseline rule packs. Nobody needs to fetch ~50 videos to run an audit.
+
+Pick the right lane before opening anything:
+
+| Lane | Use when | Transcripts | Review |
+|---|---|---|---|
+| **User rule pack** | You want your own rules, house style, or a principle from a source you found | Yours, local, never committed | none — see `references/rule-packs.md` |
+| **Corpus principle** | The rule should hold for every scruffy user | Required, gated | PR + admission gates |
+
+Most contributions belong in the first lane. Set `origin: "user"`, fill
+`source_attribution`, and run `python3 scripts/rule_engine.py --check`.
+
+### Corpus contributions
+
 Use `scripts/intake.py` to collect caption working material. `transcripts/` and `frames/` are intentionally ignored and must not be committed.
 
 For a durable principle:
 
-1. Register the source and its status in `principles/SOURCES.md`.
+1. Register the source in `principles/SOURCES.md` **and add a row to `principles/SOURCE_LEDGER.md`.** The ledger is the committed record that survives the ignored transcript folder; `scripts/validate_sources.py` fails the build when a row is `ingested` but produced no cited rule.
 2. Add the distilled rule to a numbered section in `principles/PRINCIPLES.md` with the repository’s citation format.
 3. Include what would disprove or limit the rule.
 4. Reconcile `SKILL.md` or `references/` only when the operational method must change.
@@ -67,6 +83,7 @@ Changes to findings, decisions, reporting, or repeat-audit behavior must preserv
 python3 scripts/validate_skill.py
 python3 scripts/claude_adapter.py --check
 python3 scripts/validate_corpus.py
+python3 scripts/validate_sources.py
 python3 scripts/test_durability.py
 python3 scripts/test_audit_contract.py
 python3 scripts/test_sentence_slop.py

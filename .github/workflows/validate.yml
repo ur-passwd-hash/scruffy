@@ -22,6 +22,12 @@ jobs:
         run: python3 scripts/claude_adapter.py --check
       - name: Validate research corpus
         run: python3 scripts/validate_corpus.py
+      - name: Validate source ledger
+        # Runs in consumer mode here: a fresh checkout has no transcripts/, so the
+        # evidence checks report SKIP rather than a misleading pass. The ledger
+        # checks - every ingested source must produce a cited rule, every citation
+        # must be tracked - read only committed files and are enforced in CI.
+        run: python3 scripts/validate_sources.py
       - name: Test durable audit revisions
         run: python3 scripts/test_durability.py
       - name: Test canonical audit and editorial contracts

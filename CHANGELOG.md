@@ -4,6 +4,52 @@ All notable changes to the public Scruffy skill, formerly Anti-Slop, are documen
 
 ## Unreleased
 
+Nothing yet.
+
+## 3.0.0 — 2026-08-19
+
+**Breaking.** `plain` is now a required schema-2.1 registry field and
+`validate_audit.py` refuses a registry without it. Existing stored audit
+registries will fail validation until each item gains a lead. Everything else in
+this release is additive; this one field is why the major version moves.
+
+Note on distribution: `plugin.json` and `marketplace.json` had reported 2.5.0
+since 2026-08-10 while `main` accumulated the entire section below. A
+version-keyed installer therefore could not deliver any of it, including the
+deterministic rule engine and reference grounding that the 2.5.0 changelog
+already described. Installs predating this release are stale regardless of the
+version they report.
+
+- **Ingested research that never produced a rule is now a build failure, and the
+  record of what was ingested outlives the ignored transcript folder.**
+  `transcripts/` and `frames/` are gitignored by design — creator transcripts are
+  not redistributed — but nothing committed recorded what had entered. The
+  consequence, found by audit: 41 distinct video IDs are cited across PRINCIPLES
+  §1–20 (roughly 120 rules) and not one of their transcripts survives anywhere.
+  The citations carry real timestamps and are almost certainly accurate; they are
+  simply no longer auditable, so no rule sourced from them can be re-verified or
+  defended against a challenge.
+  - `principles/SOURCE_LEDGER.md` is the committed per-video record: 41
+    evidence-lost founding rows, 35 retained pilot rows, plus queued and
+    known-failing entries. Rows are never deleted; `rejected` exists so a dead
+    end is not silently re-ingested.
+  - `scripts/validate_sources.py` enforces it. **`ingested` is deliberately a
+    failing status** — a source with a transcript and zero `[video_id t]`
+    citations breaks the build. There is no longer a state in which supplied
+    content sits in a folder doing nothing.
+  - It splits ledger checks from evidence checks, because this file ships to
+    plugin users who have no corpus. Ledger checks read only committed files and
+    run everywhere, including CI. Evidence checks need transcripts and report
+    `SKIP` in a consumer checkout. **A check that did not run is never reported
+    as a pass** — `validate_corpus.py` still prints PASS after skipping its own
+    transcript-dependent checks, which is the failure this avoids.
+  - `P06RgnUKX_I` (YC / Steven Haney) ships as a known-failing row: SOURCES.md
+    claims coverage at "skill §C direct", but no citation for that id exists in
+    PRINCIPLES.md or SKILL.md. Recorded rather than quietly dropped.
+  - Wired into `.github/workflows/validate.yml` and the CONTRIBUTING validation
+    block. CONTRIBUTING now states plainly that using scruffy never requires the
+    corpus, and routes most contributions to user rule packs instead of PRs.
+
 - **Every registry item now carries a `plain` lead, and the audit's own prose is
   in scope for the sentence-slop module.** Scruffy held every interface it
   audited to a legibility standard and held its own report to none. The failure
