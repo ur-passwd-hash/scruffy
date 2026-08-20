@@ -138,11 +138,11 @@ founding-corpus failure. Vault backfill is the fix.
 | `DBhSfROq3wU` | Y Combinator (Design Review) | distilled | local transcript | §23, §32 |
 | `ORgKY9AlybA` | languagejones | distilled | local transcript | §21, §33 |
 
-## Known-failing rows
+## Withdrawn coverage claim
 
 | video_id | creator | status | evidence | notes |
 |---|---|---|---|---|
-| `P06RgnUKX_I` | Y Combinator — Steven Haney (Paper) | ingested | none retained | SOURCES.md claims coverage at "skill §C direct", but **no `[P06RgnUKX_I]` citation exists in PRINCIPLES.md or SKILL.md**. Either the coverage claim is wrong or the citation was dropped in the port. Fails `UNDISTILLED` by design until resolved. |
+| `P06RgnUKX_I` | Y Combinator — Steven Haney (Paper) | queued | none retained | Was recorded in SOURCES.md as **Distilled** with coverage at "skill §C direct". Audit 2026-08-19: **no `[P06RgnUKX_I]` citation exists in PRINCIPLES.md or SKILL.md**, and no transcript survives, so nothing traceable came out of it. The claim is withdrawn rather than defended — this is the third YC *Design Review* episode and belongs in §32 alongside `RynySryqM_0` and `DBhSfROq3wU`, but restoring it needs a re-fetch. Returned to `queued`. |
 
 ## Maintenance
 

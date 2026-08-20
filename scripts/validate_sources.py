@@ -75,8 +75,12 @@ NON_VIDEO_TOKENS = {
 }
 
 VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}")
-# `[id 3:24]`, `[id 12:07]`, or a bare `[id]`
-CITATION = re.compile(r"\[([A-Za-z0-9_-]{11})(?:\s+\d+:\d{2})?\]")
+# An id followed by whitespace or a closing bracket. Deliberately permissive so
+# it covers every citation shape in PRINCIPLES.md: bare `[id]`, single stamp
+# `[id 3:24]`, and en-dash or hyphen ranges `[id 2:49-4:19]`. An earlier version
+# anchored on `\]` right after the stamp and silently missed every ranged
+# citation - which is most of them. Matches validate_corpus.py's VIDEO_ID shape.
+CITATION = re.compile(r"\[([A-Za-z0-9_-]{11})(?=[\s\]])")
 SECTION = re.compile(r"^##\s+(\d+)\.\s+(.*?)\s*$")
 ALLOWED_STATUS = {"distilled", "ingested", "queued", "rejected"}
 
